@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':core')
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "commons-io:commons-io:$commomIoVersion"
+}

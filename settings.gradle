@@ -1,0 +1,6 @@
+rootProject.name = 'ongakucraft-tool'
+include('app')
+include('core')
+
+findProject(':app')?.projectDir = file('app')
+findProject(':core')?.projectDir = file('core')

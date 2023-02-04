@@ -1,0 +1,38 @@
+buildscript {
+    ext {
+        spockVersion = '2.3-groovy-3.0'
+        lombokVersion = '1.18.26'
+        slf4jVersion = '2.0.6'
+
+        jacksonVersion = '2.14.2'
+        nbtVersion = '1.5.1'
+
+        commomIoVersion = '2.11.0'
+    }
+}
+
+subprojects {
+    group 'com.ongakucraft'
+    version '1.0.0'
+
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+
+    sourceCompatibility = 1.17
+    targetCompatibility = 1.17
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation "org.spockframework:spock-core:$spockVersion"
+        annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+        compileOnly "org.projectlombok:lombok:$lombokVersion"
+        implementation "org.slf4j:slf4j-simple:$slf4jVersion"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
