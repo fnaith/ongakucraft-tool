@@ -1,17 +1,18 @@
 package com.ongakucraft.app.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ongakucraft.core.block.BlockDefine;
-import com.ongakucraft.core.block.BlockId;
 import com.ongakucraft.core.block.BlockModelDefine;
-import com.ongakucraft.core.block.BlockPropertyDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class McassetApp {
@@ -232,11 +233,35 @@ public class McassetApp {
         return blockModelDefineList;
     }
 
+//    public static void generateGrassTopImage(String version) throws Exception {
+//        final var dirtFilePath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/block/dirt.png", ROOT_DIR_PATH, version);
+//        final var grassBlockTopOverlayFilePath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/block/grass_block_top.png", ROOT_DIR_PATH, version);
+//        final var grassBlockTopFilePath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/generated/grass_block_top_blend.png", ROOT_DIR_PATH, version);
+//        final var dirtImage = argb(ImageIO.read(new File(dirtFilePath)));
+//        final var grassBlockTopImage = new BufferedImage(dirtImage.getWidth(), dirtImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//        final var grassBlockTopOverlayImage = argb(ImageIO.read(new File(grassBlockTopOverlayFilePath)));
+//        final var g2  = grassBlockTopImage.createGraphics();
+//        g2.setComposite(AlphaComposite.Src);
+//        g2.drawImage(dirtImage, 0, 0, null);
+//        g2.setComposite(BlendComposite.Overlay);
+//        g2.drawImage(grassBlockTopOverlayImage, 0, 0, null);
+//        g2.dispose();
+//        ImageIO.write(grassBlockTopImage, "PNG", new File(grassBlockTopFilePath));
+//    }
+
+    private static BufferedImage argb(BufferedImage im) {
+        final var w = im.getWidth();
+        final var h = im.getHeight();
+        final var out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        out.getGraphics().drawImage(im.getScaledInstance(w, h, Image.SCALE_DEFAULT), 0, 0, null);
+        return out;
+    }
+
     public static void main(String[] args) {
         try {
-            final var blockModelDefineList = generateBlockModelDefineList(VERSION);
+//            final var blockModelDefineList = generateBlockModelDefineList(VERSION);
 //            log.info("blockModelDefineList : {}", blockModelDefineList);
-            log.info("blockModelDefineList : {}", blockModelDefineList.size());
+//            log.info("blockModelDefineList : {}", blockModelDefineList.size());
         } catch (Exception e) {
             e.printStackTrace();
         }

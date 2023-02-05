@@ -6,6 +6,7 @@ import java.util.List;
 
 import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
+// https://minecraft.fandom.com/wiki/Model#Block_models
 @AllArgsConstructor
 @EqualsAndHashCode(cacheStrategy = LAZY, of = "id")
 @Getter

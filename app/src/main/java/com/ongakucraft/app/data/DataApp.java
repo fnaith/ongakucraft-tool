@@ -34,7 +34,7 @@ public class DataApp {
                         !"chorus_flower".equals(path) &&
                         !"dried_kelp_block".equals(path) &&
                         !"frosted_ice".equals(path) &&
-                        !"grass_block".equals(path) &&
+                        !"grass_block".equals(path) && // https://www.quora.com/Why-cant-I-change-the-colors-of-the-grass-and-leaves-in-Minecraft
                         !"jigsaw".equals(path) &&
                         !"observer".equals(path) &&
                         !"respawn_anchor".equals(path) &&
