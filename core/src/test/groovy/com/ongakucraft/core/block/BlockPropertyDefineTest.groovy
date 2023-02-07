@@ -1,5 +1,6 @@
 package com.ongakucraft.core.block
 
+import com.ongakucraft.core.block.define.BlockPropertyDefine
 import spock.lang.Specification
 
 class BlockPropertyDefineTest extends Specification {

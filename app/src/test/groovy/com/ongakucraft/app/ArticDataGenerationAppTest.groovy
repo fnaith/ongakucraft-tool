@@ -6,7 +6,7 @@ package com.ongakucraft.app
 import com.ongakucraft.app.data.ArticDataApp
 import spock.lang.Specification
 
-class ArticDataAppTest extends Specification {
+class ArticDataGenerationAppTest extends Specification {
     def "application has a greeting"() {
         setup:
         def app = new ArticDataApp()

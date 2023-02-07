@@ -1,21 +1,22 @@
 package com.ongakucraft.app.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ongakucraft.core.block.BlockModelDefine;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.block.BlockId;
+import com.ongakucraft.core.block.define.BlockModelDefine;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
-public class McassetApp {
+public final class McassetApp {
     private static final String ROOT_DIR_PATH = "./data/mcasset";
     private static final String VERSION = "1.18.2";
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -26,14 +27,14 @@ public class McassetApp {
         final var jsonNode = mapper.readTree(bytes);
         final Set<String> idSet = new HashSet<>();
         final List<BlockModelDefine> blockModelDefineList = new ArrayList<>();
-        for (var it = jsonNode.fields(); it.hasNext(); ) {
+        for (final var it = jsonNode.fields(); it.hasNext(); ) {
             final var entry = it.next();
             final var id = entry.getKey();
             if (idSet.contains(id)) {
-                log.error("duplicated id : {}", id);
-                continue;
+                throw new OcException("duplicated id : %s", id);
             }
             idSet.add(id);
+            final var blockId = new BlockId(id);
             final var node = entry.getValue();
             final var parentNode = node.get("parent");
             if (null == parentNode || !parentNode.isTextual()) {
@@ -48,186 +49,122 @@ public class McassetApp {
                 case "minecraft:block/cube" -> {
                     final var north = texturesNode.get("north").asText(null);
                     if (null == north) {
-                        log.error("north field is missing : {}", id);
-                        break;
+                        throw new OcException("north field is missing : %s", id);
                     }
                     final var south = texturesNode.get("south").asText(null);
                     if (null == south) {
-                        log.error("south field is missing : {}", id);
-                        break;
+                        throw new OcException("south field is missing : %s", id);
                     }
                     final var east = texturesNode.get("east").asText(null);
                     if (null == east) {
-                        log.error("east field is missing : {}", id);
-                        break;
+                        throw new OcException("east field is missing : %s", id);
                     }
                     final var west = texturesNode.get("west").asText(null);
                     if (null == west) {
-                        log.error("west field is missing : {}", id);
-                        break;
+                        throw new OcException("west field is missing : %s", id);
                     }
                     final var up = texturesNode.get("up").asText(null);
                     if (null == up) {
-                        log.error("up field is missing : {}", id);
-                        break;
+                        throw new OcException("up field is missing : %s", id);
                     }
                     final var down = texturesNode.get("down").asText(null);
                     if (null == down) {
-                        log.error("down field is missing : {}", id);
-                        break;
+                        throw new OcException("down field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, down, up, north, south, west, east));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, down, up, north, south, west, east));
                 }
-                case "minecraft:block/cube_all" -> {
+                case "minecraft:block/cube_all", "minecraft:block/leaves" -> {
                     final var all = texturesNode.get("all").asText(null);
                     if (null == all) {
-                        log.error("all field is missing : {}", id);
-                        break;
+                        throw new OcException("all field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, all, all, all, all, all, all));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, all, all, all, all, all, all));
                 }
                 case "minecraft:block/cube_bottom_top" -> {
                     final var top = texturesNode.get("top").asText(null);
                     if (null == top) {
-                        log.error("top field is missing : {}", id);
-                        break;
+                        throw new OcException("top field is missing : %s", id);
                     }
                     final var bottom = texturesNode.get("bottom").asText(null);
                     if (null == bottom) {
-                        log.error("bottom field is missing : {}", id);
-                        break;
+                        throw new OcException("bottom field is missing : %s", id);
                     }
                     final var side = texturesNode.get("side").asText(null);
                     if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
+                        throw new OcException("side field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, bottom, top, side, side, side, side));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, bottom, top, side, side, side, side));
                 }
-                case "minecraft:block/cube_column" -> {
+                case "minecraft:block/cube_column", "block/cube_column" -> {
                     final var end = texturesNode.get("end").asText(null);
                     if (null == end) {
-                        log.error("end field is missing : {}", id);
-                        break;
+                        throw new OcException("end field is missing : %s", id);
                     }
                     final var side = texturesNode.get("side").asText(null);
                     if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
+                        throw new OcException("side field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, end, end, side, side, side, side));
-                }
-                case "block/cube_column" -> {
-                    final var end = texturesNode.get("end").asText(null);
-                    if (null == end) {
-                        log.error("end field is missing : {}", id);
-                        break;
-                    }
-                    final var side = texturesNode.get("side").asText(null);
-                    if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
-                    }
-                    blockModelDefineList.add(new BlockModelDefine(id, end, end, side, side, side, side));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, end, end, side, side, side, side));
                 }
                 case "minecraft:block/cube_top" -> {
                     final var top = texturesNode.get("top").asText(null);
                     if (null == top) {
-                        log.error("top field is missing : {}", id);
-                        break;
+                        throw new OcException("top field is missing : %s", id);
                     }
                     final var side = texturesNode.get("side").asText(null);
                     if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
+                        throw new OcException("side field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, side, top, side, side, side, side));
-                }
-                case "minecraft:block/leaves" -> {
-                    final var all = texturesNode.get("all").asText(null);
-                    if (null == all) {
-                        log.error("all field is missing : {}", id);
-                        break;
-                    }
-                    blockModelDefineList.add(new BlockModelDefine(id, all, all, all, all, all, all));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, side, top, side, side, side, side));
                 }
                 case "minecraft:block/orientable" -> {
                     final var top = texturesNode.get("top").asText(null);
                     if (null == top) {
-                        log.error("top field is missing : {}", id);
-                        break;
+                        throw new OcException("top field is missing : %s", id);
                     }
                     final var front = texturesNode.get("front").asText(null);
                     if (null == front) {
-                        log.error("front field is missing : {}", id);
-                        break;
+                        throw new OcException("front field is missing : %s", id);
                     }
                     final var side = texturesNode.get("side").asText(null);
                     if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
+                        throw new OcException("side field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, top, top, front, side, side, side));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, top, top, front, side, side, side));
                 }
                 case "minecraft:block/orientable_with_bottom" -> {
                     final var top = texturesNode.get("top").asText(null);
                     if (null == top) {
-                        log.error("top field is missing : {}", id);
-                        break;
+                        throw new OcException("top field is missing : %s", id);
                     }
                     final var bottom = texturesNode.get("bottom").asText(null);
                     if (null == bottom) {
-                        log.error("bottom field is missing : {}", id);
-                        break;
+                        throw new OcException("bottom field is missing : %s", id);
                     }
                     final var side = texturesNode.get("side").asText(null);
                     if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
+                        throw new OcException("side field is missing : %s", id);
                     }
                     final var front = texturesNode.get("front").asText(null);
                     if (null == front) {
-                        log.error("front field is missing : {}", id);
-                        break;
+                        throw new OcException("front field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, bottom, top, front, side, side, side));
-                }
-                case "minecraft:block/template_command_block" -> {
-                    final var front = texturesNode.get("front").asText(null);
-                    if (null == front) {
-                        log.error("front field is missing : {}", id);
-                        break;
-                    }
-                    final var back = texturesNode.get("back").asText(null);
-                    if (null == back) {
-                        log.error("back field is missing : {}", id);
-                        break;
-                    }
-                    final var side = texturesNode.get("side").asText(null);
-                    if (null == side) {
-                        log.error("side field is missing : {}", id);
-                        break;
-                    }
-                    blockModelDefineList.add(new BlockModelDefine(id, side, side, front, back, side, side));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, bottom, top, front, side, side, side));
                 }
                 case "minecraft:block/template_glazed_terracotta" -> {
                     final var pattern = texturesNode.get("pattern").asText(null);
                     if (null == pattern) {
-                        log.error("pattern field is missing : {}", id);
-                        break;
+                        throw new OcException("pattern field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, pattern, pattern, pattern, pattern, pattern, pattern));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, pattern, pattern, pattern, pattern, pattern, pattern));
                 }
                 case "minecraft:block/template_single_face" -> {
                     final var texture = texturesNode.get("texture").asText(null);
                     if (null == texture) {
-                        log.error("texture field is missing : {}", id);
-                        break;
+                        throw new OcException("texture field is missing : %s", id);
                     }
-                    blockModelDefineList.add(new BlockModelDefine(id, texture, texture, texture, texture, texture, texture));
+                    blockModelDefineList.add(BlockModelDefine.of(blockId, texture, texture, texture, texture, texture, texture));
                 }
-                case "minecraft:block/cube_column_horizontal" -> {}
-                case "minecraft:block/cross" -> {}
             }
         }
         return blockModelDefineList;
@@ -248,22 +185,24 @@ public class McassetApp {
 //        g2.dispose();
 //        ImageIO.write(grassBlockTopImage, "PNG", new File(grassBlockTopFilePath));
 //    }
-
-    private static BufferedImage argb(BufferedImage im) {
-        final var w = im.getWidth();
-        final var h = im.getHeight();
-        final var out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        out.getGraphics().drawImage(im.getScaledInstance(w, h, Image.SCALE_DEFAULT), 0, 0, null);
-        return out;
-    }
+//
+//    private static BufferedImage argb(BufferedImage im) {
+//        final var w = im.getWidth();
+//        final var h = im.getHeight();
+//        final var out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//        out.getGraphics().drawImage(im.getScaledInstance(w, h, Image.SCALE_DEFAULT), 0, 0, null);
+//        return out;
+//    }
 
     public static void main(String[] args) {
         try {
-//            final var blockModelDefineList = generateBlockModelDefineList(VERSION);
+            final var blockModelDefineList = generateBlockModelDefineList(VERSION);
 //            log.info("blockModelDefineList : {}", blockModelDefineList);
-//            log.info("blockModelDefineList : {}", blockModelDefineList.size());
+            log.info("blockModelDefineList : {}", blockModelDefineList.size());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("McassetApp", e);
         }
     }
+
+    private McassetApp() {}
 }
