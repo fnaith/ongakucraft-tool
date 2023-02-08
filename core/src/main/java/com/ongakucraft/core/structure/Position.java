@@ -2,6 +2,7 @@ package com.ongakucraft.core.structure;
 
 import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
+import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Direction;
 
 import lombok.AllArgsConstructor;
@@ -39,8 +40,14 @@ public final class Position {
         return of(this.x + x, this.y + y, this.z + z);
     }
 
-    public Position rotate(boolean clockwise) {
-        return clockwise ? of(z, y, -x - 1) : of(-z - 1, y, x);
+    public Position rotate(int times) {
+        return switch (((times % 4 + 4) % 4)) {
+            case 0 -> this;
+            case 1 -> of(z, y,-x);
+            case 2 -> of(-x, y, -z);
+            case 3 -> of(-z, y, x);
+            default -> throw new OcException("");
+        };
     }
 
     @Override

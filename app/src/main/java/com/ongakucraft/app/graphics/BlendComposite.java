@@ -1,4 +1,4 @@
-package com.ongakucraft.app.data;
+package com.ongakucraft.app.graphics;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -1388,7 +1388,7 @@ class ColorUtilities {
      * @param h the hue component, between 0.0 and 1.0
      * @param s the saturation component, between 0.0 and 1.0
      * @param l the luminance component, between 0.0 and 1.0
-     * @return a new <code>Color</code> object equivalent to the HSL components
+     * @return a new <code>RgbColor</code> object equivalent to the HSL components
      */
     public static Color HSLtoRGB(float h, float s, float l) {
         int[] rgb = HSLtoRGB(h, s, l, null);

@@ -39,6 +39,10 @@ public final class Range {
         return start <= value && value < stop;
     }
 
+    public Range translate(int value) {
+        return of(start + value, stop + value);
+    }
+
     @Override
     public String toString() {
         return String.format("[%d:%d]", start, stop);

@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 
@@ -34,7 +36,7 @@ public final class McassetApp {
                 throw new OcException("duplicated id : %s", id);
             }
             idSet.add(id);
-            final var blockId = new BlockId(id);
+            final var blockId = BlockId.of(id);
             final var node = entry.getValue();
             final var parentNode = node.get("parent");
             if (null == parentNode || !parentNode.isTextual()) {
@@ -73,7 +75,7 @@ public final class McassetApp {
                     }
                     blockModelDefineList.add(BlockModelDefine.of(blockId, down, up, north, south, west, east));
                 }
-                case "minecraft:block/cube_all", "minecraft:block/leaves" -> {
+                case "minecraft:block/cube_all" -> {
                     final var all = texturesNode.get("all").asText(null);
                     if (null == all) {
                         throw new OcException("all field is missing : %s", id);
@@ -167,7 +169,14 @@ public final class McassetApp {
                 }
             }
         }
-        return blockModelDefineList;
+        final var textureDirPath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/block", ROOT_DIR_PATH, version);
+        return blockModelDefineList.stream() .map(blockModelDefine -> {
+            final var textures = blockModelDefine.getTextures().entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
+                final var textureFileName = entry.getValue().replace("minecraft:", "").replace("block/", "");
+                return String.format("%s/%s.png", textureDirPath, textureFileName);
+            }));
+            return BlockModelDefine.of(blockModelDefine.getId(), textures);
+        }).toList();
     }
 
 //    public static void generateGrassTopImage(String version) throws Exception {

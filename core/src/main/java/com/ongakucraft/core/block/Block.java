@@ -34,8 +34,11 @@ public final class Block {
     @NonNull @With(AccessLevel.PRIVATE) private final Direction facing;
     @NonNull @With(AccessLevel.PRIVATE) private final Map<String, String> propertyValueMap;
 
-    public Block rotate(boolean clockwise) {
-        return withFacing(facing.rotate(clockwise));
+    public Block rotate(int times) {
+        if (0 == times % 4) {
+            return this;
+        }
+        return withFacing(facing.rotate(times));
     }
 
     public String get(String property) {

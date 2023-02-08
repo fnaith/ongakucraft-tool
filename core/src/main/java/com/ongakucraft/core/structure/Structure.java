@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class Structure {
+public final class Structure implements Cloneable {
     Map<Position, Block> grid;
 
     public Structure() {
@@ -20,68 +20,21 @@ public final class Structure {
         this.grid = grid;
     }
 
+    @Override
+    public Structure clone() {
+        return new Structure(new HashMap<>(grid));
+    }
+
     public void put(@NonNull Position pos, @NonNull Block t) {
         grid.put(pos, t);
     }
 
-    public Block get(@NonNull Position pos) {
-        return grid.get(pos);
+    public Block get(@NonNull Position position) {
+        return grid.get(position);
     }
 
-    public Block remove(@NonNull Position pos) {
-        return grid.remove(pos);
-    }
-
-    public Structure filter(@NonNull Predicate<Map.Entry<Position, Block>> predicate) {
-        return new Structure(filterGrid(predicate));
-    }
-
-    public Structure map(@NonNull Function<Map.Entry<Position, Block>, Position> positionMapper,
-                         @NonNull Function<Map.Entry<Position, Block>, Block> blockMapper) {
-        return new Structure(mapGrid(positionMapper, blockMapper));
-    }
-
-    public void corp(@NonNull Range3 range3) {
-        grid = copyGrid(range3);
-    }
-
-    public Structure cut(@NonNull Range3 range3) {
-        final var newGrid = copyGrid(range3);
-        grid.keySet().removeAll(newGrid.keySet());
-        return new Structure(newGrid);
-    }
-
-    public Structure copy(@NonNull Range3 range3) {
-        final var newGrid = copyGrid(range3);
-        return new Structure(newGrid);
-    }
-
-    public void paste(@NonNull Structure src) {
-        grid.putAll(src.grid);
-    }
-
-    public void fill(@NonNull Range3 range3, @NonNull Block block) {
-        for (var x = range3.getX().getStart(); x < range3.getX().getStop(); ++x) {
-            for (var y = range3.getY().getStart(); y < range3.getY().getStop(); ++y) {
-                for (var z = range3.getZ().getStart(); z < range3.getZ().getStop(); ++z) {
-                    final var position = Position.of(x, y, z);
-                    grid.put(position, block);
-                }
-            }
-        }
-    }
-
-    public void regulate() {
-        final var range3 = getRange3();
-        translate(-range3.getX().getMin(), -range3.getY().getMin(), -range3.getZ().getMin());
-    }
-
-    public void translate(int x, int y, int z) {
-        grid = mapGrid(entry -> entry.getKey().translate(x, y, z), Map.Entry::getValue);
-    }
-
-    public void rotate(boolean clockwise) {
-        grid = mapGrid(entry -> entry.getKey().rotate(clockwise), entry -> entry.getValue().rotate(clockwise));
+    public Block remove(@NonNull Position position) {
+        return grid.remove(position);
     }
 
     public Range3 getRange3() {
@@ -103,6 +56,57 @@ public final class Structure {
             zMax = Math.max(zMax, pos.getZ());
         }
         return Range3.of(Range.of(xMin, xMax + 1), Range.of(yMin, yMax + 1), Range.of(zMin, zMax + 1));
+    }
+
+    public void translate(int x, int y, int z) {
+        grid = mapGrid(entry -> entry.getKey().translate(x, y, z), Map.Entry::getValue);
+    }
+
+    public void rotate(int times) {
+        grid = mapGrid(entry -> entry.getKey().rotate(times), entry -> entry.getValue().rotate(times));
+    }
+
+    public void regulate() {
+        final var range3 = getRange3();
+        translate(-range3.getX().getMin(), -range3.getY().getMin(), -range3.getZ().getMin());
+    }
+
+    public Structure cut(@NonNull Range3 range3) {
+        final var newGrid = copyGrid(range3);
+        grid.keySet().removeAll(newGrid.keySet());
+        return new Structure(newGrid);
+    }
+
+    public Structure copy(@NonNull Range3 range3) {
+        final var newGrid = copyGrid(range3);
+        return new Structure(newGrid);
+    }
+
+    public void fill(@NonNull Range3 range3, @NonNull Block block) {
+        for (var x = range3.getX().getStart(); x < range3.getX().getStop(); ++x) {
+            for (var y = range3.getY().getStart(); y < range3.getY().getStop(); ++y) {
+                for (var z = range3.getZ().getStart(); z < range3.getZ().getStop(); ++z) {
+                    final var position = Position.of(x, y, z);
+                    grid.put(position, block);
+                }
+            }
+        }
+    }
+
+    public void paste(@NonNull Structure src) {
+        grid.putAll(src.grid);
+    }
+
+    public void mirror() {
+        // TODO x-axis
+    }
+
+    public void flip() {
+        // TODO x-axis
+    }
+
+    public boolean isOverlapping(@NonNull Structure other) {
+        return grid.keySet().stream().anyMatch(other.grid.keySet()::contains);
     }
 
     private Map<Position, Block> copyGrid(Range3 range3) {

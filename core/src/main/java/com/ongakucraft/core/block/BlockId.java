@@ -4,35 +4,42 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 import java.util.Optional;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(cacheStrategy = LAZY, of = "id")
 @Getter
 public final class BlockId {
     public static final String DEFAULT_NAMESPACE = "minecraft";
     private static final char DELIMITER = ':';
 
-    public static Optional<BlockId> of(String id) {
+    public static BlockId of(String namespace, String path) {
+        return new BlockId(namespace, path);
+    }
+
+    public static BlockId of(String path) {
+        return of(DEFAULT_NAMESPACE, path);
+    }
+
+    public static Optional<BlockId> parse(String id) {
         final var delimiterIndex = id.indexOf(DELIMITER);
         if (-1 == delimiterIndex || delimiterIndex != id.lastIndexOf(DELIMITER)) {
             return Optional.empty();
         }
-        return Optional.of(new BlockId(id.substring(0, delimiterIndex), id.substring(delimiterIndex + 1)));
+        return Optional.of(of(id.substring(0, delimiterIndex), id.substring(delimiterIndex + 1)));
     }
 
-    private final String namespace;
-    private final String path;
-    private final String id;
+    @NonNull private final String namespace;
+    @NonNull private final String path;
+    @NonNull private final String id;
 
-    public BlockId(String path) {
-        this(DEFAULT_NAMESPACE, path);
-    }
-
-    public BlockId(@NonNull String namespace, @NonNull String path) {
+    private BlockId(String namespace, String path) {
         this(namespace, path, namespace + DELIMITER + path);
     }
 

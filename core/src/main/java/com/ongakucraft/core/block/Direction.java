@@ -67,8 +67,14 @@ public enum Direction {
         };
     }
 
-    public Direction rotate(boolean clockwise) {
-        return clockwise ? left() : right();
+    public Direction rotate(int times) {
+        return switch (((times % 4 + 4) % 4)) {
+            case 0 -> this;
+            case 1 -> left();
+            case 2 -> back();
+            case 3 -> right();
+            default -> throw new OcException("");
+        };
     }
 
     @Override

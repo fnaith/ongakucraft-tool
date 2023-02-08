@@ -74,7 +74,7 @@ public final class ArticDataApp {
                 throw new OcException("duplicated id : %s", id);
             }
             idSet.add(id);
-            final var blockIdOptional = BlockId.of(id);
+            final var blockIdOptional = BlockId.parse(id);
             if (blockIdOptional.isEmpty()) {
                 throw new OcException("id is invalid : %s", id);
             }
