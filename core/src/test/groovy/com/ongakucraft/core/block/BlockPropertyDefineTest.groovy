@@ -6,7 +6,7 @@ import spock.lang.Specification
 class BlockPropertyDefineTest extends Specification {
     def "validate constructor input"() {
         when:
-        new BlockPropertyDefine(id, key, values)
+        BlockPropertyDefine.of(id, key, values)
 
         then:
         thrown(expectedException)
@@ -20,7 +20,7 @@ class BlockPropertyDefineTest extends Specification {
 
     def "validate contains input"() {
         when:
-        def actual = new BlockPropertyDefine("id", "key", ["a", "b"]).contains(value)
+        def actual = BlockPropertyDefine.of("id", "key", ["a", "b"]).contains(value)
 
         then:
         thrown(expectedException)
@@ -32,7 +32,7 @@ class BlockPropertyDefineTest extends Specification {
 
     def "check contains logic"() {
         when:
-        def actual = new BlockPropertyDefine("id", "key", values).contains(value)
+        def actual = BlockPropertyDefine.of("id", "key", values).contains(value)
 
         then:
         expecteds == actual

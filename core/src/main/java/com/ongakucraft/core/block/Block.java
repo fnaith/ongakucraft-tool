@@ -2,6 +2,7 @@ package com.ongakucraft.core.block;
 
 import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -60,5 +61,17 @@ public final class Block {
         final var newPropertyValueMap = new HashMap<>(propertyValueMap);
         newPropertyValueMap.put(property, value);
         return withPropertyValueMap(newPropertyValueMap);
+    }
+
+    public String remove(String property) {
+        return propertyValueMap.remove(property);
+    }
+
+    public Map<String, String> getProperties() {
+        final Map<String, String> properties = new HashMap<>(propertyValueMap);
+        if (propertyDefineMap.containsKey("facing")) {
+            properties.put("facing", facing.getText());
+        }
+        return Collections.unmodifiableMap(properties);
     }
 }

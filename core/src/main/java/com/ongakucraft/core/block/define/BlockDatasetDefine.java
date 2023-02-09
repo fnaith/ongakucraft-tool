@@ -20,7 +20,7 @@ import lombok.NonNull;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class BlockDatasetDefine {
-    public static BlockDatasetDefine of(String version,
+    public static BlockDatasetDefine of(BlockDatasetVersion version,
                                         List<BlockPropertyDefine> blockPropertyDefineList,
                                         List<BlockDefine> blockDefineList,
                                         List<BlockRgbColorDefine> blockRgbColorDefineList,
@@ -32,7 +32,7 @@ public final class BlockDatasetDefine {
                                       Collections.unmodifiableMap(rgbColorMap), Collections.unmodifiableMap(labColorMap));
     }
 
-    @NonNull private final String version;
+    @NonNull private final BlockDatasetVersion version;
     @NonNull private final List<BlockPropertyDefine> blockPropertyDefineList;
     @NonNull private final Map<BlockId, Block> blockMap;
     @NonNull private final Map<BlockId, BlockRgbColorDefine> rgbColorDefineMap;

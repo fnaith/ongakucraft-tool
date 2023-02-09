@@ -5,26 +5,26 @@ import spock.lang.Specification
 class BlockIdTest extends Specification {
     def "validate constructor input"() {
         when:
-        new BlockId(namespace, path)
+        BlockId.of(namespace, path)
 
         then:
         thrown(expectedException)
 
         where:
-        namespace   | path        | expectedException
-        null        | "noteblock" | NullPointerException
-        "minecraft" | null        | NullPointerException
+        namespace   | path         | expectedException
+        null        | "note_block" | NullPointerException
+        "minecraft" | null         | NullPointerException
     }
 
     def "check id format"() {
         setup:
         def namespace = "minecraft"
-        def path = "noteblock"
+        def path = "note_block"
 
         when:
-        def blockId = new BlockId(namespace, path)
+        def blockId = BlockId.of(namespace, path)
 
         then:
-        "minecraft:noteblock" == blockId.id
+        "minecraft:note_block" == blockId.id
     }
 }

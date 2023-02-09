@@ -1,13 +1,15 @@
 package com.ongakucraft.core.structure;
 
-import com.ongakucraft.core.block.Block;
-import lombok.NonNull;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import com.ongakucraft.core.block.Block;
+
+import lombok.NonNull;
 
 public final class Structure implements Cloneable {
     Map<Position, Block> grid;
@@ -58,6 +60,10 @@ public final class Structure implements Cloneable {
         return Range3.of(Range.of(xMin, xMax + 1), Range.of(yMin, yMax + 1), Range.of(zMin, zMax + 1));
     }
 
+    public List<Position> getPositionList() {
+        return grid.keySet().stream().toList();
+    }
+
     public void translate(int x, int y, int z) {
         grid = mapGrid(entry -> entry.getKey().translate(x, y, z), Map.Entry::getValue);
     }
@@ -102,7 +108,7 @@ public final class Structure implements Cloneable {
     }
 
     public void flip() {
-        // TODO x-axis
+        // TODO z-axis, rename
     }
 
     public boolean isOverlapping(@NonNull Structure other) {
