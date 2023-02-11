@@ -42,6 +42,18 @@ public final class Block {
         return withFacing(facing.rotate(times));
     }
 
+    public Block back() {
+        return withFacing(facing.back());
+    }
+
+    public Block left() {
+        return withFacing(facing.left());
+    }
+
+    public Block right() {
+        return withFacing(facing.right());
+    }
+
     public String get(String property) {
         return propertyValueMap.get(property);
     }

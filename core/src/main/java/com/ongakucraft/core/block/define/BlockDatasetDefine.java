@@ -28,18 +28,28 @@ public final class BlockDatasetDefine {
         final var blockMap = blockDefineList.stream().collect(Collectors.toMap(BlockDefine::getId, Block::of));
         final var rgbColorMap = blockRgbColorDefineList.stream().collect(Collectors.toMap(BlockRgbColorDefine::getId, Function.identity()));
         final var labColorMap = blockLabColorDefineList.stream().collect(Collectors.toMap(BlockLabColorDefine::getId, Function.identity()));
-        return new BlockDatasetDefine(version, List.copyOf(blockPropertyDefineList), Collections.unmodifiableMap(blockMap),
-                                      Collections.unmodifiableMap(rgbColorMap), Collections.unmodifiableMap(labColorMap));
+        return new BlockDatasetDefine(version, List.copyOf(blockPropertyDefineList),
+                                      List.copyOf(blockRgbColorDefineList),
+                                      List.copyOf(blockLabColorDefineList),
+                                      Collections.unmodifiableMap(blockMap),
+                                      Collections.unmodifiableMap(rgbColorMap),
+                                      Collections.unmodifiableMap(labColorMap));
     }
 
     @NonNull private final BlockDatasetVersion version;
     @NonNull private final List<BlockPropertyDefine> blockPropertyDefineList;
+    @NonNull private final List<BlockRgbColorDefine> blockRgbColorDefineList;
+    @NonNull private final List<BlockLabColorDefine> blockLabColorDefineList;
     @NonNull private final Map<BlockId, Block> blockMap;
     @NonNull private final Map<BlockId, BlockRgbColorDefine> rgbColorDefineMap;
     @NonNull private final Map<BlockId, BlockLabColorDefine> labColorDefineMap;
 
     public Block getBlock(String path) {
-        return blockMap.get(BlockId.of(path));
+        return getBlock(BlockId.of(path));
+    }
+
+    public Block getBlock(BlockId blockId) {
+        return blockMap.get(blockId);
     }
 
     public RgbColor getRgbColor(Direction direction, String path) {

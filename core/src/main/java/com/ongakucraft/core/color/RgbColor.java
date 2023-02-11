@@ -1,15 +1,19 @@
 package com.ongakucraft.core.color;
 
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
+
 import com.ongakucraft.core.OcException;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode(cacheStrategy = LAZY)
 @Getter
 @ToString
 public final class RgbColor {

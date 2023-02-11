@@ -13,6 +13,11 @@ import lombok.ToString;
 @Getter
 @ToString
 public final class LabColor {
+    public static LabColor of(RgbColor rgbColor) {
+        final var lab = ColorConverter.RGBtoLAB(rgbColor.getR(), rgbColor.getG(), rgbColor.getB());
+        return new LabColor(lab[0], lab[1], lab[2]);
+    }
+
     public static LabColor of(double l, double a, double b) {
         validateValue(0, 100, l, "l");
         validateValue(-128, 127, a, "a");

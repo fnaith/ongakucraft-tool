@@ -31,7 +31,7 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 @AllArgsConstructor(staticName = "of")
 @Getter
 public final class NbtWriter {
-    private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2860);
+    private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2975);
 
     @NonNull private final BlockDatasetVersion version;
 

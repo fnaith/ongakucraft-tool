@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class DataLoadingApp {
-    private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2860);
+    private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2975);
 
     public static BlockDatasetDefine loadBlockDatasetDefine(BlockDatasetVersion version) throws Exception {
         final var mcVersion = version.getMcVersion();
