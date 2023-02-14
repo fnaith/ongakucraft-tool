@@ -1,7 +1,6 @@
 package com.ongakucraft.core.block;
 
 import com.ongakucraft.core.OcException;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

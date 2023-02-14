@@ -1,15 +1,9 @@
 package com.ongakucraft.core.color;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
-
 import com.ongakucraft.core.OcException;
+import lombok.*;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

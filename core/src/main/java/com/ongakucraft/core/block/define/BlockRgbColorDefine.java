@@ -1,21 +1,14 @@
 package com.ongakucraft.core.block.define;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
+import com.ongakucraft.core.block.BlockId;
+import com.ongakucraft.core.block.Direction;
+import com.ongakucraft.core.color.RgbColor;
+import lombok.*;
 
 import java.util.Collections;
 import java.util.Map;
 
-import com.ongakucraft.core.block.BlockId;
-import com.ongakucraft.core.block.Direction;
-import com.ongakucraft.core.color.RgbColor;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

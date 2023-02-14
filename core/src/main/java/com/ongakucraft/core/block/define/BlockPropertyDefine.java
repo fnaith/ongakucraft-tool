@@ -1,15 +1,11 @@
 package com.ongakucraft.core.block.define;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
+import lombok.*;
 
+import java.util.Collections;
 import java.util.List;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(cacheStrategy = LAZY, of = "id")
@@ -17,7 +13,7 @@ import lombok.ToString;
 @ToString
 public final class BlockPropertyDefine {
     public static BlockPropertyDefine of(String id, String key, List<String> values) {
-        return new BlockPropertyDefine(id, key, List.copyOf(values));
+        return new BlockPropertyDefine(id, key, Collections.unmodifiableList(values));
     }
 
     @NonNull private final String id;

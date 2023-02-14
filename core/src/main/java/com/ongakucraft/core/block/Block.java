@@ -1,6 +1,9 @@
 package com.ongakucraft.core.block;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.block.define.BlockDefine;
+import com.ongakucraft.core.block.define.BlockPropertyDefine;
+import lombok.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,17 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.ongakucraft.core.OcException;
-import com.ongakucraft.core.block.define.BlockDefine;
-import com.ongakucraft.core.block.define.BlockPropertyDefine;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
-import lombok.With;
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(cacheStrategy = LAZY, exclude = "propertyDefineMap")

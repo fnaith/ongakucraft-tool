@@ -3,12 +3,11 @@ package com.ongakucraft.app.nbt;
 import com.ongakucraft.app.data.DataLoadingApp;
 import com.ongakucraft.core.block.Direction;
 import com.ongakucraft.core.block.define.BlockDatasetVersion;
-import com.ongakucraft.core.block.define.BlockLabColorDefine;
 import com.ongakucraft.core.color.RgbColor;
+import com.ongakucraft.core.prefab.BeaconSpectrumBuilder;
 import com.ongakucraft.core.prefab.PixelArtBuilder;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Structure;
-
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -131,6 +130,11 @@ public final class PrefabUtils {
         return wall(version, csv);
     }
 
+    private static Structure beaconSpectrum(BlockDatasetVersion version) throws Exception {
+        final var blockDatasetDefine = DataLoadingApp.loadBlockDatasetDefine(version);
+        return BeaconSpectrumBuilder.buildBeaconSpectrum(5, blockDatasetDefine);
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -139,8 +143,12 @@ public final class PrefabUtils {
 //            final var snbt = nbtWriter.dump(structure);
 //            log.info("snbt : {}", snbt);
 
-            final var structure = watamePixelArt(VERSION);
-            final var outputFilePath = String.format("%s/%s/structure/watamePixelArt.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            final var structure = watamePixelArt(VERSION);
+//            final var outputFilePath = String.format("%s/%s/structure/watamePixelArt.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+            final var structure = beaconSpectrum(VERSION);
+            final var outputFilePath = String.format("%s/%s/structure/beaconSpectrum.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
             nbtWriter.write(structure, outputFilePath);
         } catch (Exception e) {
             log.error("PrefabUtils", e);

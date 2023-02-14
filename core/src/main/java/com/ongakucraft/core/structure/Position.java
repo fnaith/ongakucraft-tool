@@ -1,14 +1,13 @@
 package com.ongakucraft.core.structure;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
-
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Direction;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 @AllArgsConstructor(staticName = "of")
 @EqualsAndHashCode(cacheStrategy = LAZY)

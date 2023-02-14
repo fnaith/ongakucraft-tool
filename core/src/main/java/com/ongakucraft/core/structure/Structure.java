@@ -1,15 +1,14 @@
 package com.ongakucraft.core.structure;
 
+import com.ongakucraft.core.block.Block;
+import lombok.NonNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import com.ongakucraft.core.block.Block;
-
-import lombok.NonNull;
 
 public final class Structure implements Cloneable {
     Map<Position, Block> grid;

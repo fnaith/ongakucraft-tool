@@ -1,12 +1,16 @@
 package com.ongakucraft.core.structure;
 
 import com.ongakucraft.core.OcException;
-
 import lombok.Getter;
 
 @Getter
 public final class Range {
-    public static final Range EMPTY = of(0, 0);
+    public static final Range EMPTY = of(0);
+    public static final Range UNIT = of(1);
+
+    public static Range of(int length) {
+        return of(0, length);
+    }
 
     public static Range of(int start, int stop) {
         if (stop < start) {

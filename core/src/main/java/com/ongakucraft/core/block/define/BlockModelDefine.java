@@ -1,20 +1,14 @@
 package com.ongakucraft.core.block.define;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
+import com.ongakucraft.core.block.BlockId;
+import com.ongakucraft.core.block.Direction;
+import lombok.*;
 
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-import com.ongakucraft.core.block.BlockId;
-import com.ongakucraft.core.block.Direction;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 // https://minecraft.fandom.com/wiki/Model#Block_models
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

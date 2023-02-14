@@ -3,7 +3,6 @@ package com.ongakucraft.core.structure;
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.Direction;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
