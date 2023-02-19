@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.ongakucraft.core.block.Block;
-import com.ongakucraft.core.block.define.BlockDatasetDefine;
+import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Range;
 import com.ongakucraft.core.structure.Range3;
@@ -16,30 +16,30 @@ public final class BeaconSpectrumBuilder {
             "light_blue", "blue", "purple", "magenta", "pink", "white"
     ).map(path -> path + "_stained_glass").toList();
 
-    public static Structure buildBeaconSpectrum(int layer, BlockDatasetDefine blockDatasetDefine) {
-        final var structure = buildGlassWall(layer, blockDatasetDefine);
+    public static Structure buildBeaconSpectrum(int layer, BlockDataset blockDataset) {
+        final var structure = buildGlassWall(layer, blockDataset);
         structure.translate(0, 1, 0);
         final var width = structure.getRange3().getX().length();
-        final var beacon = blockDatasetDefine.getBlock("beacon");
+        final var beacon = blockDataset.getBlock("beacon");
         structure.fill(Range3.of(Range.of(width), Range.UNIT, Range.UNIT), beacon);
-        final var ironBlock = blockDatasetDefine.getBlock("iron_block");
+        final var ironBlock = blockDataset.getBlock("iron_block");
         structure.translate(1, 1, 1);
         structure.fill(Range3.of(Range.of(width + 2), Range.UNIT, Range.of(3)), ironBlock);
         return structure;
     }
 
-    private static Structure buildGlassWall(int layer, BlockDatasetDefine blockDatasetDefine) {
+    private static Structure buildGlassWall(int layer, BlockDataset blockDataset) {
         final var structure = new Structure();
         final var glassPathCount = GLASS_PATH_LIST.size();
         for (var i = 0; i < glassPathCount - 1; ++i) {
-            final var begin = blockDatasetDefine.getBlock(GLASS_PATH_LIST.get(i));
-            final var end = blockDatasetDefine.getBlock(GLASS_PATH_LIST.get(i + 1));
+            final var begin = blockDataset.getBlock(GLASS_PATH_LIST.get(i));
+            final var end = blockDataset.getBlock(GLASS_PATH_LIST.get(i + 1));
             final var glassWall = buildGlassWall(layer, begin, end);
             final var width = glassWall.getRange3().getX().length();
             structure.translate(width, 0, 0);
             structure.paste(glassWall);
         }
-        final var end = blockDatasetDefine.getBlock(GLASS_PATH_LIST.get(glassPathCount - 1));
+        final var end = blockDataset.getBlock(GLASS_PATH_LIST.get(glassPathCount - 1));
         structure.translate(1, 0, 0);
         structure.fill(Range3.of(Range.UNIT, Range.of(layer + 1), Range.UNIT), end);
         return structure;

@@ -20,7 +20,7 @@ public final class BlockPropertyDefine {
     @NonNull private final String key;
     @NonNull private final List<String> values;
 
-    public boolean contains(String value) {
+    public boolean contains(@NonNull String value) {
         return values.contains(value);
     }
 }

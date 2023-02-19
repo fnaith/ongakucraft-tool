@@ -18,9 +18,11 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 @Getter
 @ToString
 public final class Block {
+    private static final Direction DEFAULT_FACING = Direction.N;
+
     public static Block of(BlockDefine blockDefine) {
         return new Block(blockDefine.getId(), blockDefine.getProperties().stream().collect(
-                Collectors.toMap(BlockPropertyDefine::getKey, Function.identity())), Direction.N, new HashMap<>());
+                Collectors.toMap(BlockPropertyDefine::getKey, Function.identity())), DEFAULT_FACING, new HashMap<>());
     }
 
     @NonNull private final BlockId id;
@@ -47,7 +49,7 @@ public final class Block {
         return withFacing(facing.right());
     }
 
-    public String get(String property) {
+    public String get(@NonNull String property) {
         return propertyValueMap.get(property);
     }
 
@@ -59,7 +61,7 @@ public final class Block {
         return put(property, String.valueOf(value));
     }
 
-    public Block put(String property, String value) {
+    public Block put(@NonNull String property, @NonNull String value) {
         if (propertyDefineMap.containsKey(property) && !propertyDefineMap.get(property).contains(value)) {
             throw new OcException("invalid property value : %s %s", property, value);
         }
@@ -68,7 +70,7 @@ public final class Block {
         return withPropertyValueMap(newPropertyValueMap);
     }
 
-    public String remove(String property) {
+    public String remove(@NonNull String property) {
         return propertyValueMap.remove(property);
     }
 

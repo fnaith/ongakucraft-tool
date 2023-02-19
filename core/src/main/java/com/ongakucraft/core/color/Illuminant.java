@@ -27,7 +27,7 @@ package com.ongakucraft.core.color;
  * XYZ (Tristimulus) Reference values of a perfect reflecting diffuser.
  * @author Diego Catalano
  */
-public class Illuminant {
+class Illuminant {
 
     /**
      * 2o Observer (CIE 1931)

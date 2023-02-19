@@ -2,7 +2,7 @@ package com.ongakucraft.app.nbt;
 
 import com.ongakucraft.app.data.DataLoadingApp;
 import com.ongakucraft.core.block.Direction;
-import com.ongakucraft.core.block.define.BlockDatasetVersion;
+import com.ongakucraft.core.block.BlockDatasetVersion;
 import com.ongakucraft.core.color.RgbColor;
 import com.ongakucraft.core.prefab.BeaconSpectrumBuilder;
 import com.ongakucraft.core.prefab.PixelArtBuilder;
@@ -21,8 +21,8 @@ public final class PrefabUtils {
     private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2975);
 
     private static Structure oneBlock(BlockDatasetVersion version, String path) throws Exception {
-        final var blockDatasetDefine = DataLoadingApp.loadBlockDatasetDefine(version);
-        final var block = blockDatasetDefine.getBlock(path);
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var block = blockDataset.getBlock(path);
         final var structure = new Structure();
         structure.put(Position.ZERO, block);
         return structure;
@@ -47,8 +47,8 @@ public final class PrefabUtils {
 
     private static void findColorToBlockIdMapByLabColor(String inputFilePath) throws Exception {
         final var image = toRgbImage(ImageIO.read(new File(inputFilePath)));
-        final var blockDatasetDefine = DataLoadingApp.loadBlockDatasetDefine(VERSION);
-        final var blockLabColorDefineList = blockDatasetDefine.getBlockLabColorDefineList().stream()
+        final var blockDataset = DataLoadingApp.loadBlockDataset(VERSION);
+        final var blockLabColorDefineList = blockDataset.getBlockLabColorDefineList().stream()
                 .filter(blockLabColorDefine -> {
                    final var path = blockLabColorDefine.getId().getPath();
                    return !path.equals("smoker") &&
@@ -68,7 +68,7 @@ public final class PrefabUtils {
     }
 
     private static Structure wall(BlockDatasetVersion version, String csv) throws Exception {
-        final var blockDatasetDefine = DataLoadingApp.loadBlockDatasetDefine(version);
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
         final var structure = new Structure();
         csv = csv.trim();
         final var rows = csv.split("\n");
@@ -79,7 +79,7 @@ public final class PrefabUtils {
             final var w = cells.length;
             for (var x = 0; x < w; ++x) {
                 final var path = cells[x];
-                final var block = blockDatasetDefine.getBlock(path);
+                final var block = blockDataset.getBlock(path);
                 final var position = Position.of(w - 1 - x, h - 1 - y, 0);
                 if (null == block) {
                     continue;
@@ -131,8 +131,8 @@ public final class PrefabUtils {
     }
 
     private static Structure beaconSpectrum(BlockDatasetVersion version) throws Exception {
-        final var blockDatasetDefine = DataLoadingApp.loadBlockDatasetDefine(version);
-        return BeaconSpectrumBuilder.buildBeaconSpectrum(5, blockDatasetDefine);
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        return BeaconSpectrumBuilder.buildBeaconSpectrum(5, blockDataset);
     }
 
     public static void main(String[] args) {

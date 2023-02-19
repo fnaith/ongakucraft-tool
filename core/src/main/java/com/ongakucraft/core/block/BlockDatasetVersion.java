@@ -1,4 +1,4 @@
-package com.ongakucraft.core.block.define;
+package com.ongakucraft.core.block;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

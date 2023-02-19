@@ -2,7 +2,7 @@ package com.ongakucraft.core.prefab;
 
 import com.ongakucraft.core.block.BlockId;
 import com.ongakucraft.core.block.Direction;
-import com.ongakucraft.core.block.define.BlockDatasetDefine;
+import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.block.define.BlockLabColorDefine;
 import com.ongakucraft.core.color.LabColor;
 import com.ongakucraft.core.color.RgbColor;
@@ -15,16 +15,16 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class PixelArtBuilder {
-    public static Structure frontWall(RgbColor[][] image, BlockDatasetDefine blockDatasetDefine, BlockId transparent) {
+    public static Structure frontWall(RgbColor[][] image, BlockDataset blockDataset, BlockId transparent) {
         final var structure = new Structure();
         final var h = image.length;
         final var w = image[0].length;
-        final var blockIdGrid = toBlockIdGrid(image, blockDatasetDefine.getBlockLabColorDefineList(), Direction.N, transparent);
+        final var blockIdGrid = toBlockIdGrid(image, blockDataset.getBlockLabColorDefineList(), Direction.N, transparent);
         for (var y = 0; y < h; ++y) {
             for (var x = 0; x < w; ++x) {
                 if (null != blockIdGrid[y][x]) {
                     final var position = Position.of(w - 1 - x, h - 1 - y, 0);
-                    final var block = blockDatasetDefine.getBlock(blockIdGrid[y][x]);
+                    final var block = blockDataset.getBlock(blockIdGrid[y][x]);
                     structure.put(position, block);
                 }
             }
@@ -32,16 +32,16 @@ public final class PixelArtBuilder {
         return structure;
     }
 
-    public static Structure sideWall(RgbColor[][] image, BlockDatasetDefine blockDatasetDefine, BlockId transparent) {
+    public static Structure sideWall(RgbColor[][] image, BlockDataset blockDataset, BlockId transparent) {
         final var structure = new Structure();
         final var h = image.length;
         final var w = image[0].length;
-        final var blockIdGrid = toBlockIdGrid(image, blockDatasetDefine.getBlockLabColorDefineList(), Direction.N.right(), transparent);
+        final var blockIdGrid = toBlockIdGrid(image, blockDataset.getBlockLabColorDefineList(), Direction.N.right(), transparent);
         for (var y = 0; y < h; ++y) {
             for (var x = 0; x < w; ++x) {
                 if (null != blockIdGrid[y][x]) {
                     final var position = Position.of(w - 1 - x, h - 1 - y, 0);
-                    final var block = blockDatasetDefine.getBlock(blockIdGrid[y][x]);
+                    final var block = blockDataset.getBlock(blockIdGrid[y][x]);
                     structure.put(position, block.right());
                 }
             }
@@ -49,16 +49,16 @@ public final class PixelArtBuilder {
         return structure;
     }
 
-    public static Structure floor(RgbColor[][] image, BlockDatasetDefine blockDatasetDefine, BlockId transparent) {
+    public static Structure floor(RgbColor[][] image, BlockDataset blockDataset, BlockId transparent) {
         final var structure = new Structure();
         final var h = image.length;
         final var w = image[0].length;
-        final var blockIdGrid = toBlockIdGrid(image, blockDatasetDefine.getBlockLabColorDefineList(), Direction.U, transparent);
+        final var blockIdGrid = toBlockIdGrid(image, blockDataset.getBlockLabColorDefineList(), Direction.U, transparent);
         for (var y = 0; y < h; ++y) {
             for (var x = 0; x < w; ++x) {
                 if (null != blockIdGrid[y][x]) {
                     final var position = Position.of(w - 1 - x, 0, h - 1 - y);
-                    final var block = blockDatasetDefine.getBlock(blockIdGrid[y][x]);
+                    final var block = blockDataset.getBlock(blockIdGrid[y][x]);
                     structure.put(position, block.right());
                 }
             }

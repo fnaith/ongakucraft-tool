@@ -39,7 +39,7 @@ package com.ongakucraft.core.color;
  *
  * @author Jonathon Hare (jsh2@ecs.soton.ac.uk)
  */
-public class CIEDE2000 {
+class CIEDE2000 {
     /**
      * Calculate the colour difference value between two colours in lab space.
      * @param lab1 first colour

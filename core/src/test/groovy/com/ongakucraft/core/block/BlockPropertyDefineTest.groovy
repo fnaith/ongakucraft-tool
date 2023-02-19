@@ -4,7 +4,7 @@ import com.ongakucraft.core.block.define.BlockPropertyDefine
 import spock.lang.Specification
 
 class BlockPropertyDefineTest extends Specification {
-    def "validate constructor input"() {
+    def "should throw exception when null is passed to constructor"() {
         when:
         BlockPropertyDefine.of(id, key, values)
 
@@ -18,9 +18,9 @@ class BlockPropertyDefineTest extends Specification {
         "id" | "key" | null       | NullPointerException
     }
 
-    def "validate contains input"() {
+    def "should throw exception when null is passed to contains"() {
         when:
-        def actual = BlockPropertyDefine.of("id", "key", ["a", "b"]).contains(value)
+        BlockPropertyDefine.of("id", "key", ["a", "b"]).contains(value)
 
         then:
         thrown(expectedException)
@@ -30,15 +30,15 @@ class BlockPropertyDefineTest extends Specification {
         null  | NullPointerException
     }
 
-    def "check contains logic"() {
+    def "should return the value exist or not when it is passed to contains()"() {
         when:
         def actual = BlockPropertyDefine.of("id", "key", values).contains(value)
 
         then:
-        expecteds == actual
+        expected == actual
 
         where:
-        values     | value | expecteds
+        values     | value | expected
         ["a", "b"] | "a"   | true
         ["a", "b"] | "b"   | true
         ["a", "b"] | "c"   | false

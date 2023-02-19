@@ -2,7 +2,7 @@ package com.ongakucraft.app.nbt;
 
 import com.ongakucraft.app.data.DataLoadingApp;
 import com.ongakucraft.core.block.Block;
-import com.ongakucraft.core.block.define.BlockDatasetVersion;
+import com.ongakucraft.core.block.BlockDatasetVersion;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Structure;
 import dev.dewy.nbt.Nbt;
@@ -120,8 +120,8 @@ public final class NbtWriter {
 
     public static void main(String[] args) {
         try {
-            final var blockDatasetDefine = DataLoadingApp.loadBlockDatasetDefine(VERSION);
-            final var block = blockDatasetDefine.getBlock("note_block");
+            final var blockDataset = DataLoadingApp.loadBlockDataset(VERSION);
+            final var block = blockDataset.getBlock("note_block");
             final var structure = new Structure();
             structure.put(Position.ZERO, block);
             final var nbtWriter = NbtWriter.of(VERSION);

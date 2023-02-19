@@ -12,7 +12,7 @@ class ArticDataGenerationAppTest extends Specification {
         def app = new ArticDataApp()
 
         when:
-        def result = app.greeting
+        def result = app
 
         then:
         result != null

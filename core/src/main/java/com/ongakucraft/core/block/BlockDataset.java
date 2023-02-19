@@ -1,8 +1,9 @@
-package com.ongakucraft.core.block.define;
+package com.ongakucraft.core.block;
 
-import com.ongakucraft.core.block.Block;
-import com.ongakucraft.core.block.BlockId;
-import com.ongakucraft.core.block.Direction;
+import com.ongakucraft.core.block.define.BlockDefine;
+import com.ongakucraft.core.block.define.BlockLabColorDefine;
+import com.ongakucraft.core.block.define.BlockPropertyDefine;
+import com.ongakucraft.core.block.define.BlockRgbColorDefine;
 import com.ongakucraft.core.color.LabColor;
 import com.ongakucraft.core.color.RgbColor;
 import lombok.AccessLevel;
@@ -18,26 +19,26 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public final class BlockDatasetDefine {
-    public static BlockDatasetDefine of(BlockDatasetVersion version,
-                                        List<BlockPropertyDefine> blockPropertyDefineList,
-                                        List<BlockDefine> blockDefineList,
-                                        List<BlockRgbColorDefine> blockRgbColorDefineList,
-                                        List<BlockLabColorDefine> blockLabColorDefineList) {
+public final class BlockDataset {
+    public static BlockDataset of(BlockDatasetVersion version,
+                                  List<BlockPropertyDefine> blockPropertyDefineList,
+                                  List<BlockDefine> blockDefineList,
+                                  List<BlockRgbColorDefine> blockRgbColorDefineList,
+                                  List<BlockLabColorDefine> blockLabColorDefineList) {
         final var blockList = blockDefineList.stream().map(Block::of).toList();
         final var blockPropertyDefineMap = blockPropertyDefineList.stream().collect(Collectors.toMap(BlockPropertyDefine::getId, Function.identity()));
         final var blockMap = blockList.stream().collect(Collectors.toMap(Block::getId, Function.identity()));
         final var rgbColorMap = blockRgbColorDefineList.stream().collect(Collectors.toMap(BlockRgbColorDefine::getId, Function.identity()));
         final var labColorMap = blockLabColorDefineList.stream().collect(Collectors.toMap(BlockLabColorDefine::getId, Function.identity()));
-        return new BlockDatasetDefine(version,
-                Collections.unmodifiableList(blockPropertyDefineList),
-                blockList,
-                Collections.unmodifiableList(blockRgbColorDefineList),
-                Collections.unmodifiableList(blockLabColorDefineList),
-                Collections.unmodifiableMap(blockPropertyDefineMap),
-                Collections.unmodifiableMap(blockMap),
-                Collections.unmodifiableMap(rgbColorMap),
-                Collections.unmodifiableMap(labColorMap));
+        return new BlockDataset(version,
+                                Collections.unmodifiableList(blockPropertyDefineList),
+                                blockList,
+                                Collections.unmodifiableList(blockRgbColorDefineList),
+                                Collections.unmodifiableList(blockLabColorDefineList),
+                                Collections.unmodifiableMap(blockPropertyDefineMap),
+                                Collections.unmodifiableMap(blockMap),
+                                Collections.unmodifiableMap(rgbColorMap),
+                                Collections.unmodifiableMap(labColorMap));
     }
 
     @NonNull private final BlockDatasetVersion version;
