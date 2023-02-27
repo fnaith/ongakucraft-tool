@@ -1,19 +1,31 @@
 package com.ongakucraft.app.nbt;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+
 import com.ongakucraft.app.data.DataLoadingApp;
-import com.ongakucraft.core.block.Direction;
+import com.ongakucraft.app.graphics.GraphicUtils;
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.BlockDatasetVersion;
+import com.ongakucraft.core.block.BlockId;
+import com.ongakucraft.core.block.Direction;
 import com.ongakucraft.core.color.RgbColor;
+import com.ongakucraft.core.prefab.AnimationBuilder;
 import com.ongakucraft.core.prefab.BeaconSpectrumBuilder;
+import com.ongakucraft.core.prefab.BlockColorFilter;
+import com.ongakucraft.core.prefab.BlockColorFilterOption;
 import com.ongakucraft.core.prefab.PixelArtBuilder;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Structure;
-import lombok.extern.slf4j.Slf4j;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class PrefabUtils {
@@ -28,25 +40,8 @@ public final class PrefabUtils {
         return structure;
     }
 
-    private static RgbColor[][] toRgbImage(BufferedImage bufferedImage) {
-        final var h = bufferedImage.getHeight();
-        final var w = bufferedImage.getWidth();
-        final var image = new RgbColor[h][];
-        for (var y = 0; y < h; ++y) {
-            image[y] = new RgbColor[w];
-            for (var x = 0; x < w; ++x) {
-                if (0 == (bufferedImage.getRGB(x,y) >> 24)) {
-                    continue;
-                }
-                final var color = new Color(bufferedImage.getRGB(x, y), true);
-                image[y][x] = RgbColor.of(color.getRed(), color.getGreen(), color.getBlue());
-            }
-        }
-        return image;
-    }
-
     private static void findColorToBlockIdMapByLabColor(String inputFilePath) throws Exception {
-        final var image = toRgbImage(ImageIO.read(new File(inputFilePath)));
+        final var image = GraphicUtils.toRgbImage(ImageIO.read(new File(inputFilePath)));
         final var blockDataset = DataLoadingApp.loadBlockDataset(VERSION);
         final var blockLabColorDefineList = blockDataset.getBlockLabColorDefineList().stream()
                 .filter(blockLabColorDefine -> {
@@ -135,6 +130,73 @@ public final class PrefabUtils {
         return BeaconSpectrumBuilder.buildBeaconSpectrum(5, blockDataset);
     }
 
+    private static void filterSimpleColor(BlockDatasetVersion version) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorDefineList(), BlockColorFilterOption.DEFAULT);
+    }
+
+    private static Structure shishiroPixelArt(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var bufferedImage = ImageIO.read(new File(inputFilePath));
+        final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 192);
+        final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
+        final var colorBlockList = BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorDefineList(), BlockColorFilterOption.DEFAULT);
+        final var blockGrid = PixelArtBuilder.frontWallBlockGrid(image, colorBlockList, blockDataset);
+        final var structure = PixelArtBuilder.frontWall(blockGrid);
+        return structure;
+    }
+
+    private static void bocchiTheRockAnimation(BlockDatasetVersion version, String inputDirPath, String outputDirPath) {
+        try (final var walk = Files.walk(Paths.get(inputDirPath))) {
+            final List<String> framePathList = new ArrayList<>();
+            walk.forEach(path -> {
+                if (Files.isDirectory(path)) {
+                    return;
+                }
+                final var filePath = path.toString();
+                final var fileTokens = filePath.split("\\\\");
+                final var fileName = fileTokens[fileTokens.length - 1];
+                if (fileName.endsWith(".gif")) {
+                    framePathList.add(filePath);
+                }
+            });
+            Collections.sort(framePathList);
+//            log.info(String.join("\n", framePathList));
+            final List<RgbColor[][]> imageList = new ArrayList<>();
+            for (final var framePath : framePathList) {
+                final var bufferedImage = ImageIO.read(new File(framePath));
+                final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 64);
+                imageList.add(GraphicUtils.toRgbImage(scaledBufferedImage));
+            }
+            final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+            final var nbtWriter = NbtWriter.of(version);
+            final List<Block[][]> blockGridList = new ArrayList<>();
+            final var colorBlockList = BlockColorFilter.filterColoredBlock(blockDataset.getBlockLabColorDefineList());
+            for (final var image : imageList) {
+                final var blockGrid = PixelArtBuilder.frontWallBlockGrid(image, colorBlockList, blockDataset);
+                blockGridList.add(blockGrid);
+            }
+            for (var i = 0; i < blockGridList.size(); ++i) {
+                final var blockGrid = blockGridList.get(i);
+                final var structure = PixelArtBuilder.frontWall(blockGrid);
+                nbtWriter.write(structure, String.format("%s/image-%02d.nbt", outputDirPath, i));
+            }
+            final var diffBlockGridList = AnimationBuilder.diffBlockGridList(blockGridList);
+            final List<Structure> diffStructureList = new ArrayList<>();
+            for (final var diffBlockGrid : diffBlockGridList) {
+                final var diffStructure = PixelArtBuilder.frontWall(diffBlockGrid);
+                diffStructureList.add(diffStructure);
+                log.info("range : {}, size : {}", diffStructure.getRange3(), diffStructure.size());
+            }
+            for (var i = 0; i < diffStructureList.size(); ++i) {
+                final var diffStructure = diffStructureList.get(i);
+                nbtWriter.write(diffStructure, String.format("%s/diff-%02d.nbt", outputDirPath, i));
+            }
+        } catch (Exception e) {
+            throw new OcException(e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -147,9 +209,20 @@ public final class PrefabUtils {
 //            final var outputFilePath = String.format("%s/%s/structure/watamePixelArt.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-            final var structure = beaconSpectrum(VERSION);
-            final var outputFilePath = String.format("%s/%s/structure/beaconSpectrum.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
-            nbtWriter.write(structure, outputFilePath);
+//            final var structure = beaconSpectrum(VERSION);
+//            final var outputFilePath = String.format("%s/%s/structure/beaconSpectrum.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+//            filterSimpleColor(VERSION);
+
+//            final var inputFilePath = String.format("%s/input/shishiro/shishiro.png", ROOT_DIR_PATH);
+//            final var structure = shishiroPixelArt(VERSION, inputFilePath);
+//            final var outputFilePath = String.format("%s/%s/structure/shishiroPixelArt.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+            final var inputDirPath = String.format("%s/input/bocchi/frames", ROOT_DIR_PATH);
+            final var outputDirPath = String.format("%s/%s/structure/bocchi", ROOT_DIR_PATH, VERSION.getMcVersion());
+            bocchiTheRockAnimation(VERSION, inputDirPath, outputDirPath);
         } catch (Exception e) {
             log.error("PrefabUtils", e);
         }

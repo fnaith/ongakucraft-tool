@@ -38,6 +38,10 @@ public final class Structure implements Cloneable {
         return grid.remove(position);
     }
 
+    public int size() {
+        return grid.size();
+    }
+
     public Range3 getRange3() {
         if (grid.isEmpty()) {
             return Range3.EMPTY;

@@ -68,19 +68,19 @@ public final class DataGenerationApp {
 
     private static RgbColor generateRgbColor(String texture) {
         try {
-            final var im = ImageIO.read(new File(texture));
-            final var w = im.getWidth();
-            final var h = im.getHeight();
+            final var bufferedImage = ImageIO.read(new File(texture));
+            final var w = bufferedImage.getWidth();
+            final var h = bufferedImage.getHeight();
             final var size = w * h;
             var rSum = 0;
             var gSum = 0;
             var bSum = 0;
             for (var y = 0; y < h; ++y) {
                 for (var x = 0; x < w; ++x) {
-                    final var color = new Color(im.getRGB(x, y), true);
-                    rSum += color.getRed();
-                    gSum += color.getGreen();
-                    bSum += color.getBlue();
+                    final var pixel = new Color(bufferedImage.getRGB(x, y), true);
+                    rSum += pixel.getRed();
+                    gSum += pixel.getGreen();
+                    bSum += pixel.getBlue();
                 }
             }
             return RgbColor.of(rSum / size, gSum / size, bSum / size);
@@ -111,17 +111,17 @@ public final class DataGenerationApp {
 
     private static LabColor generateLabColor(String texture) {
         try {
-            final var im = ImageIO.read(new File(texture));
-            final var w = im.getWidth();
-            final var h = im.getHeight();
+            final var bufferedImage = ImageIO.read(new File(texture));
+            final var w = bufferedImage.getWidth();
+            final var h = bufferedImage.getHeight();
             final var size = w * h;
             var lSum = 0.0;
             var aSum = 0.0;
             var bSum = 0.0;
             for (var y = 0; y < h; ++y) {
                 for (var x = 0; x < w; ++x) {
-                    final var color = new Color(im.getRGB(x, y), true);
-                    final var lab = ColorConverter.RGBtoLAB(color.getRed(), color.getGreen(), color.getBlue());
+                    final var pixel = new Color(bufferedImage.getRGB(x, y), true);
+                    final var lab = ColorConverter.RGBtoLAB(pixel.getRed(), pixel.getGreen(), pixel.getBlue());
                     lSum += lab[0];
                     aSum += lab[1];
                     bSum += lab[2];

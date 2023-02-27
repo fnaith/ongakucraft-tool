@@ -30,6 +30,8 @@ public final class NbtWriter {
     @NonNull private final BlockDatasetVersion version;
 
     public void write(Structure structure, String outputFilePath) throws Exception {
+        structure = structure.clone();
+        structure.regulate();
         final var compoundTag = tag(structure, version.getDataVersion());
         new Nbt().toFile(compoundTag, new File(outputFilePath), CompressionType.GZIP);
     }

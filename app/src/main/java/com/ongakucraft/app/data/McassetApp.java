@@ -184,7 +184,7 @@ public final class McassetApp {
 //        final var dirtImage = argb(ImageIO.read(new File(dirtFilePath)));
 //        final var grassBlockTopImage = new BufferedImage(dirtImage.getWidth(), dirtImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 //        final var grassBlockTopOverlayImage = argb(ImageIO.read(new File(grassBlockTopOverlayFilePath)));
-//        final var g2  = grassBlockTopImage.createGraphics();
+//        final var g2 = grassBlockTopImage.createGraphics();
 //        g2.setComposite(AlphaComposite.Src);
 //        g2.drawImage(dirtImage, 0, 0, null);
 //        g2.setComposite(BlendComposite.Overlay);
@@ -193,11 +193,11 @@ public final class McassetApp {
 //        ImageIO.write(grassBlockTopImage, "PNG", new File(grassBlockTopFilePath));
 //    }
 //
-//    private static BufferedImage argb(BufferedImage im) {
-//        final var w = im.getWidth();
-//        final var h = im.getHeight();
+//    private static BufferedImage argb(BufferedImage bufferedImage) {
+//        final var w = bufferedImage.getWidth();
+//        final var h = bufferedImage.getHeight();
 //        final var out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-//        out.getGraphics().drawImage(im.getScaledInstance(w, h, Image.SCALE_DEFAULT), 0, 0, null);
+//        out.getGraphics().drawImage(bufferedImage.getScaledInstance(w, h, Image.SCALE_DEFAULT), 0, 0, null);
 //        return out;
 //    }
 

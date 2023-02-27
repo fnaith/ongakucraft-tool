@@ -27,7 +27,7 @@ public final class Block {
 
     @NonNull private final BlockId id;
     @NonNull private final Map<String, BlockPropertyDefine> propertyDefineMap;
-    @NonNull @With(AccessLevel.PRIVATE) private final Direction facing;
+    @NonNull @With private final Direction facing;
     @NonNull @With(AccessLevel.PRIVATE) private final Map<String, String> propertyValueMap;
 
     public Block rotate(int times) {
