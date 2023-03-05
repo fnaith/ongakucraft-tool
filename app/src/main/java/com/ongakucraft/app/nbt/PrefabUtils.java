@@ -1,31 +1,24 @@
 package com.ongakucraft.app.nbt;
 
+import com.ongakucraft.app.data.DataLoadingApp;
+import com.ongakucraft.app.graphics.GraphicUtils;
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.block.Block;
+import com.ongakucraft.core.block.BlockDatasetVersion;
+import com.ongakucraft.core.color.RgbColor;
+import com.ongakucraft.core.prefab.*;
+import com.ongakucraft.core.structure.Position;
+import com.ongakucraft.core.structure.Range;
+import com.ongakucraft.core.structure.Structure;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.imageio.ImageIO;
-
-import com.ongakucraft.app.data.DataLoadingApp;
-import com.ongakucraft.app.graphics.GraphicUtils;
-import com.ongakucraft.core.OcException;
-import com.ongakucraft.core.block.Block;
-import com.ongakucraft.core.block.BlockDatasetVersion;
-import com.ongakucraft.core.block.BlockId;
-import com.ongakucraft.core.block.Direction;
-import com.ongakucraft.core.color.RgbColor;
-import com.ongakucraft.core.prefab.AnimationBuilder;
-import com.ongakucraft.core.prefab.BeaconSpectrumBuilder;
-import com.ongakucraft.core.prefab.BlockColorFilter;
-import com.ongakucraft.core.prefab.BlockColorFilterOption;
-import com.ongakucraft.core.prefab.PixelArtBuilder;
-import com.ongakucraft.core.structure.Position;
-import com.ongakucraft.core.structure.Structure;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class PrefabUtils {
@@ -38,28 +31,6 @@ public final class PrefabUtils {
         final var structure = new Structure();
         structure.put(Position.ZERO, block);
         return structure;
-    }
-
-    private static void findColorToBlockIdMapByLabColor(String inputFilePath) throws Exception {
-        final var image = GraphicUtils.toRgbImage(ImageIO.read(new File(inputFilePath)));
-        final var blockDataset = DataLoadingApp.loadBlockDataset(VERSION);
-        final var blockLabColorDefineList = blockDataset.getBlockLabColorDefineList().stream()
-                .filter(blockLabColorDefine -> {
-                   final var path = blockLabColorDefine.getId().getPath();
-                   return !path.equals("smoker") &&
-                           !path.equals("target") &&
-                           !path.equals("shroomlight") &&
-                           !path.equals("deepslate_bricks") &&
-                           !path.endsWith("_stained_glass") &&
-                           !path.endsWith("_glazed_terracotta") &&
-                           !path.startsWith("end_stone")
-                           ;
-                }).toList();
-        final var colorBlockIdMap = PixelArtBuilder.findColorToBlockIdMapByLabColor(image, blockLabColorDefineList, Direction.N);
-        for (final var entry : colorBlockIdMap.entrySet()) {
-            log.info("color : {}", entry.getKey());
-            log.info("block id : {}", entry.getValue());
-        }
     }
 
     private static Structure wall(BlockDatasetVersion version, String csv) throws Exception {
@@ -132,7 +103,7 @@ public final class PrefabUtils {
 
     private static void filterSimpleColor(BlockDatasetVersion version) throws Exception {
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
-        BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorDefineList(), BlockColorFilterOption.DEFAULT);
+        BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorList(), BlockColorFilterOption.DEFAULT);
     }
 
     private static Structure shishiroPixelArt(BlockDatasetVersion version, String inputFilePath) throws Exception {
@@ -140,7 +111,7 @@ public final class PrefabUtils {
         final var bufferedImage = ImageIO.read(new File(inputFilePath));
         final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 192);
         final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
-        final var colorBlockList = BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorDefineList(), BlockColorFilterOption.DEFAULT);
+        final var colorBlockList = BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorList(), BlockColorFilterOption.DEFAULT);
         final var blockGrid = PixelArtBuilder.frontWallBlockGrid(image, colorBlockList, blockDataset);
         final var structure = PixelArtBuilder.frontWall(blockGrid);
         return structure;
@@ -171,7 +142,7 @@ public final class PrefabUtils {
             final var blockDataset = DataLoadingApp.loadBlockDataset(version);
             final var nbtWriter = NbtWriter.of(version);
             final List<Block[][]> blockGridList = new ArrayList<>();
-            final var colorBlockList = BlockColorFilter.filterColoredBlock(blockDataset.getBlockLabColorDefineList());
+            final var colorBlockList = BlockColorFilter.filterColoredBlock(blockDataset.getBlockLabColorList());
             for (final var image : imageList) {
                 final var blockGrid = PixelArtBuilder.frontWallBlockGrid(image, colorBlockList, blockDataset);
                 blockGridList.add(blockGrid);
@@ -194,6 +165,60 @@ public final class PrefabUtils {
             }
         } catch (Exception e) {
             throw new OcException(e.getMessage());
+        }
+    }
+
+    private static Structure demoMapArtColor(BlockDatasetVersion version) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var blockMapColorList = blockDataset.getBlockMapBaseColorList();
+        final var structure = new Structure();
+        final var grassBlock = blockDataset.getBlock("grass_block");
+        for (var i = 0; i < blockMapColorList.size(); ++i) {
+            final var mapColor = blockMapColorList.get(i);
+            final var block = blockDataset.getBlock(mapColor.getId());
+            for (var j = -1; j <= 1; ++j) {
+                final var position = Position.of(i, j, j);
+                if (mapColor.getId().getPath().endsWith("_leaves")) {
+                    structure.put(position, block.put("persistent", true));
+                } else {
+                    structure.put(position, block);
+                }
+                if (!blockDataset.getBlockDefine(block.getId()).isCollisionShapeFullBlock()) {
+                    structure.put(position.jump(-1), grassBlock);
+                }
+            }
+        }
+        return MapArtBuilder.surroundWater(structure, blockDataset);
+    }
+
+    private static Structure uberSheepMapArt(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var bufferedImage = ImageIO.read(new File(inputFilePath));
+        final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 128);
+        final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
+        final var blockMapColorList = blockDataset.getBlockMapBaseColorList();
+        final var structure = MapArtBuilder.build(image, blockMapColorList, blockDataset);
+        return structure;
+    }
+
+    private static void towaMapArt(BlockDatasetVersion version, String inputFilePath, String outputDirPath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var bufferedImage = ImageIO.read(new File(inputFilePath));
+        final var blockMapColorList = blockDataset.getBlockMapColorList();
+        final var nbtWriter = NbtWriter.of(version);
+        final var rows = bufferedImage.getHeight() / MapArtBuilder.BLOCK_LENGTH_PER_MAP;
+        final var cols = bufferedImage.getWidth() / MapArtBuilder.BLOCK_LENGTH_PER_MAP;
+        for (var row = 0; row < rows; ++row) {
+            for (var col = 0; col < cols; ++col) {
+                final var rangeY = Range.of(row * MapArtBuilder.BLOCK_LENGTH_PER_MAP, (row + 1) * MapArtBuilder.BLOCK_LENGTH_PER_MAP);
+                final var rangeX = Range.of(col * MapArtBuilder.BLOCK_LENGTH_PER_MAP, (col + 1) * MapArtBuilder.BLOCK_LENGTH_PER_MAP);
+                final var subBufferedImage = GraphicUtils.copy(bufferedImage, rangeX, rangeY);
+                final var image = GraphicUtils.toRgbImage(subBufferedImage);
+                final var structure = MapArtBuilder.build(image, blockMapColorList, blockDataset);
+                nbtWriter.write(structure, String.format("%s/map-%d-%d.nbt", outputDirPath, row, col));
+                structure.replace(structure.getRange3(), blockDataset.getBlock("air"));
+                nbtWriter.write(structure, String.format("%s/map-%d-%d-.nbt", outputDirPath, row, col));
+            }
         }
     }
 
@@ -220,9 +245,22 @@ public final class PrefabUtils {
 //            final var outputFilePath = String.format("%s/%s/structure/shishiroPixelArt.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-            final var inputDirPath = String.format("%s/input/bocchi/frames", ROOT_DIR_PATH);
-            final var outputDirPath = String.format("%s/%s/structure/bocchi", ROOT_DIR_PATH, VERSION.getMcVersion());
-            bocchiTheRockAnimation(VERSION, inputDirPath, outputDirPath);
+//            final var inputDirPath = String.format("%s/input/bocchi/frames", ROOT_DIR_PATH);
+//            final var outputDirPath = String.format("%s/%s/structure/bocchi", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            bocchiTheRockAnimation(VERSION, inputDirPath, outputDirPath);
+
+//            final var structure = demoMapArtColor(VERSION);
+//            final var outputFilePath = String.format("%s/%s/structure/mapArtColor.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+//            final var inputFilePath = String.format("%s/input/uber-sheep/uber-sheep.jpg", ROOT_DIR_PATH);
+//            final var structure = uberSheepMapArt(VERSION, inputFilePath);
+//            final var outputFilePath = String.format("%s/%s/structure/uberSheepMapArt.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+//            final var inputFilePath = String.format("%s/input/towa/towa-1.png", ROOT_DIR_PATH);
+//            final var outputDirPath = String.format("%s/%s/structure/towa", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            towaMapArt(VERSION, inputFilePath, outputDirPath);
         } catch (Exception e) {
             log.error("PrefabUtils", e);
         }

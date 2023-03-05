@@ -1,8 +1,8 @@
-package com.ongakucraft.core.block.define;
+package com.ongakucraft.core.block.color;
 
 import com.ongakucraft.core.block.BlockId;
 import com.ongakucraft.core.block.Direction;
-import com.ongakucraft.core.color.LabColor;
+import com.ongakucraft.core.color.RgbColor;
 import lombok.*;
 
 import java.util.Collections;
@@ -15,11 +15,11 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 @EqualsAndHashCode(cacheStrategy = LAZY, of = "id")
 @Getter
 @ToString
-public final class BlockLabColorDefine {
-    public static BlockLabColorDefine of(BlockId id, Map<Direction, LabColor> colors) {
-        return new BlockLabColorDefine(id, Collections.unmodifiableMap(colors));
+public final class BlockRgbColor {
+    public static BlockRgbColor of(BlockId id, Map<Direction, RgbColor> colors) {
+        return new BlockRgbColor(id, Collections.unmodifiableMap(colors));
     }
 
     @NonNull private final BlockId id;
-    @NonNull private final Map<Direction, LabColor> colors;
+    @NonNull private final Map<Direction, RgbColor> colors;
 }

@@ -1,14 +1,14 @@
 package com.ongakucraft.core.prefab;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Range;
 import com.ongakucraft.core.structure.Range3;
 import com.ongakucraft.core.structure.Structure;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 public final class BeaconSpectrumBuilder {
     private static final List<String> GLASS_PATH_LIST = Stream.of(

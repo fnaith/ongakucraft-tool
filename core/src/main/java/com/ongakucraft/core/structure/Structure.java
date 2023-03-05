@@ -34,6 +34,10 @@ public final class Structure implements Cloneable {
         return grid.get(position);
     }
 
+    public boolean has(@NonNull Position position) {
+        return grid.containsKey(position);
+    }
+
     public Block remove(@NonNull Position position) {
         return grid.remove(position);
     }
@@ -104,6 +108,10 @@ public final class Structure implements Cloneable {
 
     public void paste(@NonNull Structure src) {
         grid.putAll(src.grid);
+    }
+
+    public void replace(@NonNull Range3 range3, @NonNull Block block) {
+        grid = mapGrid(Map.Entry::getKey, entry -> range3.contains(entry.getKey()) ? block : entry.getValue());
     }
 
     public void mirror() {

@@ -1,16 +1,15 @@
 package com.ongakucraft.core.prefab;
 
-import java.util.List;
-
 import com.ongakucraft.core.OcException;
-import com.ongakucraft.core.block.define.BlockLabColorDefine;
-
+import com.ongakucraft.core.block.color.BlockLabColor;
 import lombok.NonNull;
 
+import java.util.List;
+
 public final class BlockColorFilter {
-    public static List<BlockLabColorDefine> filterColoredBlock(@NonNull List<BlockLabColorDefine> blockLabColorDefineList) {
-        return blockLabColorDefineList.stream().filter(blockLabColorDefine -> {
-            final var path = blockLabColorDefine.getId().getPath();
+    public static List<BlockLabColor> filterColoredBlock(@NonNull List<BlockLabColor> blockLabColorList) {
+        return blockLabColorList.stream().filter(blockLabColor -> {
+            final var path = blockLabColor.getId().getPath();
             if (path.endsWith("_glazed_terracotta")) {
                 return false;
             }
@@ -24,10 +23,10 @@ public final class BlockColorFilter {
         }).toList();
     }
 
-    public static List<BlockLabColorDefine> filterSimpleColor(@NonNull List<BlockLabColorDefine> blockLabColorDefineList,
-                                                              @NonNull BlockColorFilterOption option) {
-        return blockLabColorDefineList.stream().filter(blockLabColorDefine -> {
-            final var path = blockLabColorDefine.getId().getPath();
+    public static List<BlockLabColor> filterSimpleColor(@NonNull List<BlockLabColor> blockLabColorList,
+                                                        @NonNull BlockColorFilterOption option) {
+        return blockLabColorList.stream().filter(blockLabColor -> {
+            final var path = blockLabColor.getId().getPath();
             // creative mode
             if (List.of("bedrock", "structure_block", "spawner").contains(path)) {
                 return false;

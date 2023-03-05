@@ -1,12 +1,11 @@
 package com.ongakucraft.core.prefab;
 
+import com.ongakucraft.core.block.Block;
+import lombok.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.ongakucraft.core.block.Block;
-
-import lombok.NonNull;
 
 public final class AnimationBuilder {
     public static List<Block[][]> diffBlockGridList(List<Block[][]> blockGridList) {
