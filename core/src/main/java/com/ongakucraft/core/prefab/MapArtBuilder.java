@@ -37,8 +37,8 @@ public final class MapArtBuilder {
         final var rgbToMapColor = findMapColorByLabColor(image, blockMapColorList);
         final var grassBlock = blockDataset.getBlock("grass_block");
         for (var x = 0; x < w; ++x) {
-            final var slice = new Structure();
             var y = 0;
+            final var slice = new Structure();
             slice.put(Position.of(x, y, -1), grassBlock);
             for (var z = 0; z < h; ++z) {
                 final var rgbColor = image[z][x];

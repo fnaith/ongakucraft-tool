@@ -55,7 +55,7 @@ public final class BlockDataset {
     @NonNull private final List<Block> blockList;
     @NonNull private final List<BlockRgbColor> blockRgbColorList;
     @NonNull private final List<BlockLabColor> blockLabColorList;
-    @NonNull private final List<BlockMapColor> blockMapBaseColorList;
+    @NonNull private final List<BlockMapColor> blockMapFlatColorList;
     @NonNull private final List<BlockMapColor> blockMapColorList;
     @NonNull private final Map<String, BlockPropertyDefine> blockPropertyDefineMap;
     @NonNull private final Map<BlockId, BlockDefine> blockDefineMap;

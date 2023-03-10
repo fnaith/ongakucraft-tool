@@ -170,14 +170,15 @@ public final class PrefabUtils {
 
     private static Structure demoMapArtColor(BlockDatasetVersion version) throws Exception {
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
-        final var blockMapColorList = blockDataset.getBlockMapBaseColorList();
+        final var blockMapColorList = blockDataset.getBlockMapFlatColorList();
         final var structure = new Structure();
         final var grassBlock = blockDataset.getBlock("grass_block");
         for (var i = 0; i < blockMapColorList.size(); ++i) {
             final var mapColor = blockMapColorList.get(i);
             final var block = blockDataset.getBlock(mapColor.getId());
-            for (var j = -1; j <= 1; ++j) {
-                final var position = Position.of(i, j, j);
+            structure.put(Position.of(i, 0, -1), grassBlock);
+            for (var j = 0; j < 3; ++j) {
+                final var position = Position.of(i, -j % 2, j);
                 if (mapColor.getId().getPath().endsWith("_leaves")) {
                     structure.put(position, block.put("persistent", true));
                 } else {
@@ -196,7 +197,7 @@ public final class PrefabUtils {
         final var bufferedImage = ImageIO.read(new File(inputFilePath));
         final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 128);
         final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
-        final var blockMapColorList = blockDataset.getBlockMapBaseColorList();
+        final var blockMapColorList = blockDataset.getBlockMapFlatColorList();
         final var structure = MapArtBuilder.build(image, blockMapColorList, blockDataset);
         return structure;
     }
@@ -249,9 +250,9 @@ public final class PrefabUtils {
 //            final var outputDirPath = String.format("%s/%s/structure/bocchi", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            bocchiTheRockAnimation(VERSION, inputDirPath, outputDirPath);
 
-//            final var structure = demoMapArtColor(VERSION);
-//            final var outputFilePath = String.format("%s/%s/structure/mapArtColor.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
-//            nbtWriter.write(structure, outputFilePath);
+            final var structure = demoMapArtColor(VERSION);
+            final var outputFilePath = String.format("%s/%s/structure/mapArtColor.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+            nbtWriter.write(structure, outputFilePath);
 
 //            final var inputFilePath = String.format("%s/input/uber-sheep/uber-sheep.jpg", ROOT_DIR_PATH);
 //            final var structure = uberSheepMapArt(VERSION, inputFilePath);
