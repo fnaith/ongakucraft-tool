@@ -1,25 +1,33 @@
 package com.ongakucraft.app.nbt;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.ongakucraft.app.data.DataLoadingApp;
+import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.BlockDatasetVersion;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Structure;
+
 import dev.dewy.nbt.Nbt;
 import dev.dewy.nbt.api.Tag;
 import dev.dewy.nbt.io.CompressionType;
 import dev.dewy.nbt.tags.collection.CompoundTag;
 import dev.dewy.nbt.tags.collection.ListTag;
+import dev.dewy.nbt.tags.primitive.ByteTag;
 import dev.dewy.nbt.tags.primitive.IntTag;
 import dev.dewy.nbt.tags.primitive.StringTag;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor(staticName = "of")
@@ -52,7 +60,8 @@ public final class NbtWriter {
         for (var pos : structure.getPositionList().stream().sorted(NbtWriter::comparePosition).toList()) {
             final var block = structure.get(pos);
             final var state = blockToState.computeIfAbsent(block, k -> blockToState.size());
-            blocks.add(block(pos, state));
+            final var entityData = block.getEntityData();
+            blocks.add(block(pos, state, entityData));
         }
         for (var i = 0; i < blockToState.size(); ++i) {
             palettes.add(null);
@@ -78,15 +87,35 @@ public final class NbtWriter {
                          .compare(a, b);
     }
 
-    private static CompoundTag block(Position pos, int state) {
+    private static CompoundTag block(Position pos, int state, Map<String, Object> entityData) {
         final var block = new CompoundTag((String) null);
         block.put(pos(pos));
         block.put(tag("state", state));
+        if (!entityData.isEmpty()) {
+            block.put(nbt(entityData));
+        }
         return block;
     }
 
     private static ListTag<IntTag> pos(Position pos) {
         return tag("pos", pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    private static CompoundTag nbt(Map<String, Object> entityData) {
+        final var nbt = new CompoundTag("nbt");
+        for (var entry : entityData.entrySet()) {
+            final var value = entry.getValue();
+            if (value instanceof Boolean) {
+                nbt.put(tag(entry.getKey(), (Boolean) value));
+            } else if (value instanceof Integer) {
+                nbt.put(tag(entry.getKey(), (Integer) value));
+            } else if (value instanceof String) {
+                nbt.put(tag(entry.getKey(), (String) value));
+            } else {
+                throw new OcException(value.getClass().toString());
+            }
+        }
+        return nbt;
     }
 
     private static CompoundTag palette(Map<String, String> properties, String name) {
@@ -106,6 +135,10 @@ public final class NbtWriter {
 
     private static ListTag<Tag> tag(String name, List<Tag> l) {
         return new ListTag<>(name, l);
+    }
+
+    private static ByteTag tag(String name, boolean b) {
+        return new ByteTag(name, (byte) (b ? 11 : 0));
     }
 
     private static IntTag tag(int i) {

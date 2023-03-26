@@ -37,8 +37,8 @@ public final class MapArtBuilder {
         final var rgbToMapColor = findMapColorByLabColor(image, blockMapColorList);
         final var grassBlock = blockDataset.getBlock("grass_block");
         for (var x = 0; x < w; ++x) {
-            var y = 0;
             final var slice = new Structure();
+            var y = 0;
             slice.put(Position.of(x, y, -1), grassBlock);
             for (var z = 0; z < h; ++z) {
                 final var rgbColor = image[z][x];
@@ -47,7 +47,7 @@ public final class MapArtBuilder {
                 final var position = Position.of(x, y, z);
                 final var block = blockDataset.getBlock(mapColor.getId());
                 if (mapColor.getId().getPath().endsWith("_leaves")) {
-                    slice.put(position, block.put("persistent", true));
+                    slice.put(position, block.putProperty("persistent", true));
                 } else {
                     slice.put(position, block);
                 }

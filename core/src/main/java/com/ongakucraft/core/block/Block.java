@@ -22,13 +22,15 @@ public final class Block {
 
     public static Block of(BlockDefine blockDefine) {
         return new Block(blockDefine.getId(), blockDefine.getProperties().stream().collect(
-                Collectors.toMap(BlockPropertyDefine::getKey, Function.identity())), DEFAULT_FACING, new HashMap<>());
+                Collectors.toMap(BlockPropertyDefine::getKey, Function.identity())),
+                         DEFAULT_FACING, new HashMap<>(), new HashMap<>());
     }
 
     @NonNull private final BlockId id;
     @NonNull private final Map<String, BlockPropertyDefine> propertyDefineMap;
     @NonNull @With private final Direction facing;
     @NonNull @With(AccessLevel.PRIVATE) private final Map<String, String> propertyValueMap;
+    @NonNull @With(AccessLevel.PRIVATE) private final Map<String, Object> entityData;
 
     public Block rotate(int times) {
         if (0 == times % 4) {
@@ -49,19 +51,19 @@ public final class Block {
         return withFacing(facing.right());
     }
 
-    public String get(@NonNull String property) {
+    public String getProperty(@NonNull String property) {
         return propertyValueMap.get(property);
     }
 
-    public Block put(String property, boolean value) {
-        return put(property, String.valueOf(value));
+    public Block putProperty(String property, boolean value) {
+        return putProperty(property, String.valueOf(value));
     }
 
-    public Block put(String property, int value) {
-        return put(property, String.valueOf(value));
+    public Block putProperty(String property, int value) {
+        return putProperty(property, String.valueOf(value));
     }
 
-    public Block put(@NonNull String property, @NonNull String value) {
+    public Block putProperty(@NonNull String property, @NonNull String value) {
         if (propertyDefineMap.containsKey(property) && !propertyDefineMap.get(property).contains(value)) {
             throw new OcException("invalid property value : %s %s", property, value);
         }
@@ -70,7 +72,7 @@ public final class Block {
         return withPropertyValueMap(newPropertyValueMap);
     }
 
-    public String remove(@NonNull String property) {
+    public String removeProperty(@NonNull String property) {
         return propertyValueMap.remove(property);
     }
 
@@ -80,5 +82,27 @@ public final class Block {
             properties.put("facing", facing.getText());
         }
         return Collections.unmodifiableMap(properties);
+    }
+
+    public Object getData(String key) {
+        return entityData.get(key);
+    }
+
+    public Block putData(String key, Boolean value) {
+        return putData(key, String.valueOf(value));
+    }
+
+    public Block putData(String key, Integer value) {
+        return putData(key, String.valueOf(value));
+    }
+
+    public Block putData(String key, String value) {
+        final var newEntityData = new HashMap<>(entityData);
+        newEntityData.put(key, value);
+        return withEntityData(newEntityData);
+    }
+
+    public Map<String, Object> getEntityData() {
+        return Collections.unmodifiableMap(entityData);
     }
 }

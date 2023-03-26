@@ -2,10 +2,12 @@ package com.ongakucraft.app.nbt;
 
 import com.ongakucraft.app.data.DataLoadingApp;
 import com.ongakucraft.app.graphics.GraphicUtils;
+import com.ongakucraft.app.midi.MidiReader;
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.BlockDatasetVersion;
 import com.ongakucraft.core.color.RgbColor;
+import com.ongakucraft.core.midi.MidiFileReport;
 import com.ongakucraft.core.prefab.*;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Range;
@@ -176,11 +178,10 @@ public final class PrefabUtils {
         for (var i = 0; i < blockMapColorList.size(); ++i) {
             final var mapColor = blockMapColorList.get(i);
             final var block = blockDataset.getBlock(mapColor.getId());
-            structure.put(Position.of(i, 0, -1), grassBlock);
-            for (var j = 0; j < 3; ++j) {
-                final var position = Position.of(i, -j % 2, j);
+            for (var j = -1; j <= 1; ++j) {
+                final var position = Position.of(i, j, j);
                 if (mapColor.getId().getPath().endsWith("_leaves")) {
-                    structure.put(position, block.put("persistent", true));
+                    structure.put(position, block.putProperty("persistent", true));
                 } else {
                     structure.put(position, block);
                 }
@@ -223,6 +224,51 @@ public final class PrefabUtils {
         }
     }
 
+    private static Structure happyBirthday(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        log.info("tracks : {}", midiFileReport.getTrackReportList().size());
+        final var trackReport = midiFileReport.getTrackReportList().get(0);
+        final var track = trackReport.getTrack();
+        final var noteList = track.getNoteList();
+        log.info("noteList : {}", noteList.size());
+        final var sixteenthNoteTicks = midiFile.getWholeNoteTicks() / 16;
+        for (final var note : noteList) {
+            log.info("note : key={}, on={}, duration={}", note.getKey(), note.getOn(), note.getDuration());
+        }
+//        for (final var note : noteList) {
+//            log.info("note : key={}, on={}, duration={}", note.getKey() - 66,
+//                    note.getOn() / sixteenthNoteTicks, note.getDuration() / sixteenthNoteTicks);
+//        }
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var structure = new Structure();
+        final var grassBlock = blockDataset.getBlock("grass_block");
+        final var noteBlock = blockDataset.getBlock("note_block");
+        final var repeater = blockDataset.getBlock("repeater");
+        var z = 0;
+        for (var i = 0; i < noteList.size(); ++i) {
+            final var note = noteList.get(i);
+            final var key = note.getKey() - 66;
+            structure.put(Position.of(0, 0, z), grassBlock);
+            structure.put(Position.of(0, 1, z), noteBlock.putProperty("note", key));
+            if (i < noteList.size() - 1) {
+                final var duration = note.getDuration() / sixteenthNoteTicks;
+                for (var j = 0; j < duration / 4; ++j) {
+                    ++z;
+                    structure.put(Position.of(0, 0, z), grassBlock);
+                    structure.put(Position.of(0, 1, z), repeater.putProperty("delay", 4));
+                }
+                if (0 != duration % 4) {
+                    ++z;
+                    structure.put(Position.of(0, 0, z), grassBlock);
+                    structure.put(Position.of(0, 1, z), repeater.putProperty("delay", duration % 4));
+                }
+                ++z;
+            }
+        }
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -250,9 +296,9 @@ public final class PrefabUtils {
 //            final var outputDirPath = String.format("%s/%s/structure/bocchi", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            bocchiTheRockAnimation(VERSION, inputDirPath, outputDirPath);
 
-            final var structure = demoMapArtColor(VERSION);
-            final var outputFilePath = String.format("%s/%s/structure/mapArtColor.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
-            nbtWriter.write(structure, outputFilePath);
+//            final var structure = demoMapArtColor(VERSION);
+//            final var outputFilePath = String.format("%s/%s/structure/mapArtColor.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
 
 //            final var inputFilePath = String.format("%s/input/uber-sheep/uber-sheep.jpg", ROOT_DIR_PATH);
 //            final var structure = uberSheepMapArt(VERSION, inputFilePath);
@@ -262,6 +308,11 @@ public final class PrefabUtils {
 //            final var inputFilePath = String.format("%s/input/towa/towa-1.png", ROOT_DIR_PATH);
 //            final var outputDirPath = String.format("%s/%s/structure/towa", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            towaMapArt(VERSION, inputFilePath, outputDirPath);
+
+            final var inputFilePath = String.format("%s/input/Happy_Birthday/Happy_Birthday_for_Violin.mid", ROOT_DIR_PATH);
+            final var structure = happyBirthday(VERSION, inputFilePath);
+            final var outputFilePath = String.format("%s/%s/structure/happyBirthday.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+            nbtWriter.write(structure, outputFilePath);
         } catch (Exception e) {
             log.error("PrefabUtils", e);
         }

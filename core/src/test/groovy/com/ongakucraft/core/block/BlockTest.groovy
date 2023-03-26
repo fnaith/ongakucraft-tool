@@ -33,7 +33,7 @@ class BlockTest extends Specification {
         def blockId = BlockId.of("note_block")
         def blockDefine = BlockDefine.of(blockId, [], false)
         def block = Block.of(blockDefine)
-        block.get(property)
+        block.getProperty(property)
 
         then:
         thrown(expectedException)
@@ -48,7 +48,7 @@ class BlockTest extends Specification {
         def blockId = BlockId.of("note_block")
         def blockDefine = BlockDefine.of(blockId, [], false)
         def block = Block.of(blockDefine)
-        block.put(property, value)
+        block.putProperty(property, value)
 
         then:
         thrown(expectedException)
@@ -66,7 +66,7 @@ class BlockTest extends Specification {
         def blockId = BlockId.of("note_block")
         def blockDefine = BlockDefine.of(blockId, [], false)
         def block = Block.of(blockDefine)
-        block.remove(property)
+        block.removeProperty(property)
 
         then:
         thrown(expectedException)
