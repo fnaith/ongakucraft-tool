@@ -1,8 +1,13 @@
 package com.ongakucraft.core.structure;
 
+import java.util.List;
+
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Block;
+import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.block.Direction;
+
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -12,54 +17,115 @@ import lombok.Setter;
 @Getter
 @Setter
 public final class Cursor implements Cloneable {
+    @NonNull private BlockDataset blockDataset;
     @NonNull private Structure structure;
     @NonNull private Position position;
     @NonNull private Direction facing;
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private Structure tmpStructure;
 
-    public Cursor(Structure structure) {
-        this(structure, Position.ZERO, Direction.S);
+    public Cursor(BlockDataset blockDataset, Structure structure) {
+        this(blockDataset, structure, Position.ZERO, Direction.S, null);
+    }
+
+    public void setPreventModify(boolean flag) {
+        if (getPreventModify()) {
+            structure = tmpStructure;
+            tmpStructure = null;
+        }
+        if (flag) {
+            tmpStructure = structure;
+            structure = structure.clone();
+        }
+    }
+
+    public boolean getPreventModify() {
+        return null != tmpStructure;
     }
 
     @Override
     public Cursor clone() {
-        return new Cursor(structure, position, facing);
+        return new Cursor(blockDataset, structure, position, facing, tmpStructure);
     }
 
-    public void step() {
-        step(1);
+    public Cursor step() {
+        return step(1);
     }
 
-    public void step(int times) {
+    public Cursor step(int times) {
         position = position.step(facing, times);
+        return this;
     }
 
-    public void jump(int y) {
+    public Cursor jump(int y) {
         position = position.jump(y);
+        return this;
     }
 
-    public void move(int x, int z) {
-        translate(x, 0, z);
+    public Cursor move(int x, int z) {
+        return translate(x, 0, z);
     }
 
-    public void translate(int x, int y, int z) {
+    public void translate(Position position) {
+        translate(position.getX(), position.getY(), position.getZ());
+    }
+
+    public Cursor translate(int x, int y, int z) {
         final var relativePosition = Position.of(x, y, z).rotate(rotateTimes());
         position = position.translate(relativePosition.getX(), relativePosition.getY(), relativePosition.getZ());
+        return this;
     }
 
-    public void back() {
+    public Cursor back() {
         facing = facing.back();
+        return this;
     }
 
-    public void left() {
+    public Cursor left() {
         facing = facing.left();
+        return this;
     }
 
-    public void right() {
+    public Cursor right() {
         facing = facing.right();
+        return this;
     }
 
-    public void rotate(int times) {
+    public Cursor rotate(int times) {
         facing = facing.rotate(times);
+        return this;
+    }
+
+    public Cursor face(Direction facing) {
+        this.facing = facing;
+        return this;
+    }
+
+    public Block getBlock(@NonNull String path) {
+        // TODO prevent sand falling
+        return blockDataset.getBlock(path).withFacing(getPlaceFacing(path));
+    }
+
+    public void place(@NonNull String path) {
+        final var block = getBlock(path);
+        structure.put(position, block);
+    }
+
+    public void placeRepeater(int delay) {
+        final var block = getBlock("repeater").putProperty("delay", delay);
+        structure.put(position, block);
+    }
+
+    public void placeRedstoneWire(List<Direction> sides) {
+        var block = getBlock("redstone_wire");
+        for (var side : sides) {
+            block = block.putProperty(side.getText(), "side");
+        }
+        structure.put(position, block);
+    }
+
+    public void placeNoteBlock(int note) {
+        final var block = getBlock("note_block").putProperty("note", note);
+        structure.put(position, block);
     }
 
     public void put(@NonNull Block t) {
@@ -98,6 +164,15 @@ public final class Cursor implements Cloneable {
             case W -> 3;
             default -> throw new OcException("");
         };
+    }
+
+    private Direction getPlaceFacing(String path) {
+        if ("repeater".equals(path) ||
+            "lectern".equals(path) ||
+            path.endsWith("_trapdoor")) {
+            return facing.back();
+        }
+        return facing;
     }
 
     private Range3 transform(Range3 range3) {

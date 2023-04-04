@@ -3,6 +3,7 @@ package com.ongakucraft.core.structure;
 import com.ongakucraft.core.block.Block;
 import lombok.NonNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,10 @@ public final class Structure implements Cloneable {
         return grid.keySet().stream().toList();
     }
 
+    public void translate(Position position) {
+        translate(position.getX(), position.getY(), position.getZ());
+    }
+
     public void translate(int x, int y, int z) {
         grid = mapGrid(entry -> entry.getKey().translate(x, y, z), Map.Entry::getValue);
     }
@@ -124,6 +129,15 @@ public final class Structure implements Cloneable {
 
     public boolean isOverlapping(@NonNull Structure other) {
         return grid.keySet().stream().anyMatch(other.grid.keySet()::contains);
+    }
+
+    public Map<String, Integer> stat() {
+        final var counts = new HashMap<String, Integer>();
+        for (var block : grid.values()) {
+            final var count = counts.getOrDefault(block.getId().getId(), 0) + 1;
+            counts.put(block.getId().getId(), count);
+        }
+        return counts;
     }
 
     private Map<Position, Block> copyGrid(Range3 range3) {

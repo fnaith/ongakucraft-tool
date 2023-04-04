@@ -39,4 +39,12 @@ public final class MidiFile {
     public boolean isValid() {
         return trackList.stream().allMatch(MidiTrack::isValid);
     }
+
+    public int getMinTickOn() {
+        return trackList.stream().map(MidiTrack::getMinTickOn).min(Integer::compare).orElseThrow();
+    }
+
+    public int getMaxTickOff() {
+        return trackList.stream().map(MidiTrack::getMaxTickOff).max(Integer::compare).orElseThrow();
+    }
 }
