@@ -105,14 +105,16 @@ public final class Cursor implements Cloneable {
         return blockDataset.getBlock(path).withFacing(getPlaceFacing(path));
     }
 
-    public void place(@NonNull String path) {
+    public Cursor place(@NonNull String path) {
         final var block = getBlock(path);
         structure.put(position, block);
+        return this;
     }
 
-    public void placeRepeater(int delay) {
+    public Cursor placeRepeater(int delay) {
         final var block = getBlock("repeater").putProperty("delay", delay);
         structure.put(position, block);
+        return this;
     }
 
     public void placeRedstoneWire(List<Direction> sides) {

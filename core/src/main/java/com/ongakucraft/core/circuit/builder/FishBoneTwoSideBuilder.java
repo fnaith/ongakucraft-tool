@@ -1,15 +1,15 @@
-package com.ongakucraft.core.circuit;
+package com.ongakucraft.core.circuit.builder;
 
 import java.util.List;
 
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.BlockDataset;
+import com.ongakucraft.core.circuit.CircuitBuilder;
+import com.ongakucraft.core.circuit.Note;
 import com.ongakucraft.core.structure.Cursor;
 import com.ongakucraft.core.structure.Structure;
 
 public final class FishBoneTwoSideBuilder extends CircuitBuilder {
-    private static final int BEATS_PER_SECTION = FishBoneOneSideBuilder.BEATS_PER_SECTION;
-
     public static FishBoneTwoSideBuilder of(BlockDataset blockDataset, String floorPath, String stubPath) {
         return new FishBoneTwoSideBuilder(blockDataset,
                                           FishBoneOneSideBuilder.of(blockDataset, true, floorPath, stubPath),

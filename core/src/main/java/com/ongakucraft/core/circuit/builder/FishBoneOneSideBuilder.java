@@ -1,9 +1,11 @@
-package com.ongakucraft.core.circuit;
+package com.ongakucraft.core.circuit.builder;
 
 import java.util.List;
 
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.BlockDataset;
+import com.ongakucraft.core.circuit.CircuitBuilder;
+import com.ongakucraft.core.circuit.Note;
 import com.ongakucraft.core.structure.Cursor;
 
 public final class FishBoneOneSideBuilder extends CircuitBuilder {
@@ -37,8 +39,7 @@ public final class FishBoneOneSideBuilder extends CircuitBuilder {
         final var turn = turnRight ? facing.right() : facing.left();
         final var sides = List.of(turn, turn.back());
         final var trunkCursorLow = cursor.clone();
-        final var trunkCursorHigh = cursor.clone();
-        trunkCursorHigh.jump(1);
+        final var trunkCursorHigh = cursor.clone().jump(1);
         Cursor branchCursorLow = null;
         Cursor branchCursorHigh = null;
         var branchLength = 0;
@@ -58,18 +59,14 @@ public final class FishBoneOneSideBuilder extends CircuitBuilder {
                     }
                 }
 
-                trunkCursorLow.place(floor);
-                trunkCursorHigh.placeRepeater(BEATS_PER_SECTION);
-                trunkCursorLow.step();
-                trunkCursorHigh.step();
+                trunkCursorLow.place(floor).step();
+                trunkCursorHigh.placeRepeater(BEATS_PER_SECTION).step();
 
                 branchCursorLow = trunkCursorLow.clone().face(turn).step();
                 branchCursorHigh = trunkCursorHigh.clone().face(turn).step();
 
-                trunkCursorLow.place(floor);
-                trunkCursorHigh.place(stub);
-                trunkCursorLow.step();
-                trunkCursorHigh.step();
+                trunkCursorLow.place(floor).step();
+                trunkCursorHigh.place(stub).step();
             }
             branchCursorLow.place(floor);
             branchCursorLow.clone().face(facing).step().place(floor);
