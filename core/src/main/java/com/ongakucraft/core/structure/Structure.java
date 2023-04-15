@@ -115,6 +115,11 @@ public final class Structure implements Cloneable {
         grid.putAll(src.grid);
     }
 
+    public void insert(@NonNull Structure src) {
+        final var newGrid = src.filterGrid(entry -> !grid.containsKey(entry.getKey()));
+        grid.putAll(newGrid);
+    }
+
     public void replace(@NonNull Range3 range3, @NonNull Block block) {
         grid = mapGrid(Map.Entry::getKey, entry -> range3.contains(entry.getKey()) ? block : entry.getValue());
     }

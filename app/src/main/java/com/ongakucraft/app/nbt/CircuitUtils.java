@@ -7,9 +7,7 @@ import com.ongakucraft.core.circuit.CircuitBuilder;
 import com.ongakucraft.core.circuit.FindFirstInstrumentNoteConvertor;
 import com.ongakucraft.core.circuit.Note;
 import com.ongakucraft.core.circuit.NoteConvertor;
-import com.ongakucraft.core.circuit.builder.FishBoneOneSideBuilder;
-import com.ongakucraft.core.circuit.builder.SquareWaveBuilder;
-import com.ongakucraft.core.circuit.builder.SquareWaveExtendedBuilder;
+import com.ongakucraft.core.circuit.builder.*;
 import com.ongakucraft.core.midi.MidiFileReport;
 import com.ongakucraft.core.music.Music16;
 import com.ongakucraft.core.music.Sequence;
@@ -179,6 +177,54 @@ public final class CircuitUtils {
         return structure;
     }
 
+    private static Structure hopesAndDreams(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final var convertor = FindFirstInstrumentNoteConvertor.DEFAULT;
+        final CircuitBuilder rightBuilder = CheckPatternBuilder.of(blockDataset, true, "white_wool", "redstone_lamp");
+        final CircuitBuilder leftBuilder = CheckPatternBuilder.of(blockDataset, false, "white_wool", "redstone_lamp");
+        final CircuitBuilder extendedBuilder = CheckPatternExtendedBuilder.of(blockDataset, true, "white_wool", "redstone_lamp");
+
+        final int[][] groups = {
+                {2}, {0, 1}, {2}
+        };
+        final NoteConvertor[] convertors = {
+                convertor, convertor, convertor, convertor
+        };
+        final CircuitBuilder[] builders = {
+                leftBuilder, extendedBuilder, rightBuilder
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            for (final var index : groups[i]) {
+                final var noteConvertor = convertors[index];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(index)));
+            }
+            circuits.add(builders[i].generate(subSequenceList));
+        }
+
+        final var heads = List.of(
+                Position.of(18, 0, 0),
+                Position.of(10, 0, 0),
+                Position.of(1, 0, 0)
+        );
+
+        final var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -193,9 +239,14 @@ public final class CircuitUtils {
 //            final var outputFilePath = String.format("%s/%s/structure/la-lion.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-            final var inputFilePath = String.format("%s/input/Dream Sheep - Tsunomaki Watame/dreamy-sheep-cut.mid", ROOT_DIR_PATH);
-            final var structure = dreamSheep(VERSION, inputFilePath);
-            final var outputFilePath = String.format("%s/%s/structure/dream-sheep.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            final var inputFilePath = String.format("%s/input/Dream Sheep - Tsunomaki Watame/dreamy-sheep-cut.mid", ROOT_DIR_PATH);
+//            final var structure = dreamSheep(VERSION, inputFilePath);
+//            final var outputFilePath = String.format("%s/%s/structure/dream-sheep.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+            final var inputFilePath = String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams-cut.mid", ROOT_DIR_PATH);
+            final var structure = hopesAndDreams(VERSION, inputFilePath);
+            final var outputFilePath = String.format("%s/%s/structure/hopes-and-dreams.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
             nbtWriter.write(structure, outputFilePath);
         } catch (Exception e) {
             log.error("PrefabUtils", e);
