@@ -29,12 +29,8 @@ public final class FishBoneTwoSideBuilder extends CircuitBuilder {
 
     @Override
     public void generate(Cursor cursor, List<List<Note>> sequenceList) {
-        if (sequenceList.isEmpty() || 4 < sequenceList.size()) {
-            throw new OcException("[FishBoneTwoSideBuilder][generate] size : %d", sequenceList.size());
-        }
-        while (sequenceList.size() < 4) {
-            sequenceList.add(List.of());
-        }
+        assertSequenceSize(sequenceList, 4);
+        fillSequenceList(sequenceList, 4);
         final var rightStructure = new Structure();
         final var rightCursor = cursor.clone();
         rightCursor.setStructure(rightStructure);

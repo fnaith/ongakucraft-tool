@@ -2,7 +2,6 @@ package com.ongakucraft.core.circuit.builder;
 
 import java.util.List;
 
-import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.circuit.CircuitBuilder;
 import com.ongakucraft.core.circuit.Note;
@@ -11,30 +10,29 @@ import com.ongakucraft.core.structure.Cursor;
 public final class CheckPatternExtendedBuilder extends CircuitBuilder {
     public static final int BEATS_PER_SECTION = 2;
 
-    public static CheckPatternExtendedBuilder of(BlockDataset blockDataset, boolean turnRight, String floorPath, String stubPath) {
-        return new CheckPatternExtendedBuilder(blockDataset, turnRight, floorPath, stubPath);
+    public static CheckPatternExtendedBuilder of(BlockDataset blockDataset, boolean turnRight, int delay, String floorPath, String stubPath) {
+        return new CheckPatternExtendedBuilder(blockDataset, turnRight, delay, floorPath, stubPath);
     }
 
     private final boolean turnRight;
+    private final int delay;
     private final String floor;
     private final String stub;
 
-    private CheckPatternExtendedBuilder(BlockDataset blockDataset, boolean turnRight,
+    private CheckPatternExtendedBuilder(BlockDataset blockDataset, boolean turnRight, int delay,
                                         String floorPath, String stubPath) {
         super(blockDataset);
         this.turnRight = turnRight;
+        this.delay = delay;
         floor = floorPath;
         stub = stubPath;
     }
 
     @Override
     public void generate(Cursor cursor, List<List<Note>> sequenceList) {
-        if (sequenceList.isEmpty() || 2 < sequenceList.size()) {
-            throw new OcException("[CheckPatternExtendedBuilder][generate] size : %d", sequenceList.size());
-        }
-        while (sequenceList.size() < 2) {
-            sequenceList.add(List.of());
-        }
+        assertSequenceSize(sequenceList, 2);
+        fillSequenceList(sequenceList, 2);
+        assertDelayCount(delay);
         final var facing = cursor.getFacing();
         final var rotateTimes = turnRight ? -1 : 1;
         final var trunkCursorLow = cursor.clone();
@@ -43,6 +41,12 @@ public final class CheckPatternExtendedBuilder extends CircuitBuilder {
         final var sequence1 = sequenceList.get(1);
         final var maxBeat = sequenceList.stream().map(List::size).max(Integer::compareTo).orElse(0);
         final var beats = maxBeat + (BEATS_PER_SECTION - maxBeat % BEATS_PER_SECTION) % BEATS_PER_SECTION;
+        if (0 < delay) {
+            trunkCursorLow.clone().rotate(rotateTimes).step().face(facing).place(floor);
+            trunkCursorHigh.clone().rotate(rotateTimes).step().face(facing).placeRepeater(delay);
+            trunkCursorLow.place(floor).step();
+            trunkCursorHigh.placeRepeater(delay).step();
+        }
         trunkCursorLow.clone().rotate(rotateTimes).step().face(facing).place(floor);
         trunkCursorHigh.clone().rotate(rotateTimes).step().face(facing).placeRepeater(1);
         for (var beat = 0; beat < beats; ++beat) {

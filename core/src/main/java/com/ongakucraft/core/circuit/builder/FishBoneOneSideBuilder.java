@@ -29,12 +29,8 @@ public final class FishBoneOneSideBuilder extends CircuitBuilder {
 
     @Override
     public void generate(Cursor cursor, List<List<Note>> sequenceList) {
-        if (sequenceList.isEmpty() || 2 < sequenceList.size()) {
-            throw new OcException("[FishBoneOneSideBuilder][generate] size : %d", sequenceList.size());
-        }
-        while (sequenceList.size() < 2) {
-            sequenceList.add(List.of());
-        }
+        assertSequenceSize(sequenceList, 2);
+        fillSequenceList(sequenceList, 2);
         final var facing = cursor.getFacing();
         final var turn = turnRight ? facing.right() : facing.left();
         final var sides = List.of(turn, turn.back());

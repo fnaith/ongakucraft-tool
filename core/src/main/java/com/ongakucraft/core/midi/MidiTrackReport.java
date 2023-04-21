@@ -1,6 +1,7 @@
 package com.ongakucraft.core.midi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,12 +14,14 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class MidiTrackReport {
+    private static final int KEY_PER_OCTAVE = 12;
+
     public static MidiTrackReport of(MidiTrack track,
                                      int wholeNoteTicks, List<Integer> divisionList) {
         final List<Integer> validDivisionList = new ArrayList<>();
         final Map<Integer, List<MidiNote>> divisionToUnalignedNoteList = new HashMap<>();
         for (final var division : divisionList) {
-            final var unalignedNoteList = findUnalignedNoteList(track, division);
+            final var unalignedNoteList = findUnalignedNoteList(track, wholeNoteTicks / division);
             if (unalignedNoteList.isEmpty()) {
                 validDivisionList.add(division);
             } else {
@@ -75,11 +78,69 @@ public final class MidiTrackReport {
     private final List<Integer> validDivisionList;
     private final Map<Integer, List<MidiNote>> divisionToUnalignedNoteList;
 
-    public boolean isNormal() {
+    public int getMinValidDivision() {
+        return validDivisionList.get(0);
+    }
+
+    public boolean hasValidDivision() {
         return !validDivisionList.isEmpty();
     }
 
-    public int getMinValidDivision() {
-        return validDivisionList.get(0);
+    public List<MidiNote> getLowerThanKeyNotes(int key) {
+        return track.getNoteList().stream().filter(note -> note.getKey() < key).toList();
+    }
+
+    public List<MidiNote> getHigherThanKeyNotes(int key) {
+        return track.getNoteList().stream().filter(note -> key < note.getKey()).toList();
+    }
+
+    private List<MidiNote> getNormalKeyRangeNotes(int low, int high) {
+        return track.getNoteList().stream().filter(note -> low <= note.getKey() && note.getKey() <= high).toList();
+    }
+
+    public List<Integer> calculateAdjustableOctaves(int low, int high) {
+        final var octaves = new ArrayList<Integer>();
+        final var min = getMinKeyBetween(low, high);
+        final var max = getMaxKeyBetween(low, high);
+        if (max - min <= high - low) {
+            for (var octave = -1; low <= min + octave * KEY_PER_OCTAVE; --octave) {
+                octaves.add(octave);
+            }
+            for (var octave = 1; max + octave * KEY_PER_OCTAVE <= high; ++octave) {
+                octaves.add(octave);
+            }
+        }
+        Collections.sort(octaves);
+        return Collections.unmodifiableList(octaves);
+    }
+
+    public int getMinKeyBetween(int low, int high) {
+        final var keyDistribution = getKeyDistribution(low, high);
+        for (var key = 0; key < keyDistribution.size(); ++key) {
+            final var count = keyDistribution.get(key);
+            if (0 < count) {
+                return key;
+            }
+        }
+        return low;
+    }
+
+    public int getMaxKeyBetween(int low, int high) {
+        final var keyDistribution = getKeyDistribution(low, high);
+        for (var key = keyDistribution.size() - 1; 0 <= key ; --key) {
+            final var count = keyDistribution.get(key);
+            if (0 < count) {
+                return key;
+            }
+        }
+        return high;
+    }
+
+    public List<Integer> getKeyDistribution(int low, int high) {
+        final var keyCounts = new int[high + 1];
+        for (var note : getNormalKeyRangeNotes(low, high)) {
+            ++keyCounts[note.getKey()];
+        }
+        return Arrays.stream(keyCounts).boxed().toList();
     }
 }

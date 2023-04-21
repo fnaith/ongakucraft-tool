@@ -18,11 +18,11 @@ public final class Music16 {
 
     public static Music16 of(MidiFileReport fileReport, int maxDuration) {
         if (DIVISION < fileReport.getMinValidDivision()) {
-            throw new OcException("getMinValidDivision fail : {}", fileReport.getMinValidDivision());
+            throw new OcException("getMinValidDivision fail : %d", fileReport.getMinValidDivision());
         }
         final var midiFile = fileReport.getFile();
         if (0 != midiFile.getWholeNoteTicks() % DIVISION) {
-            throw new OcException("getWholeNoteTicks fail : {}", fileReport.getFile().getWholeNoteTicks());
+            throw new OcException("getWholeNoteTicks fail : %d", fileReport.getFile().getWholeNoteTicks());
         }
         final var divisionTicks = midiFile.getWholeNoteTicks() / DIVISION;
         final var maxTickOff = midiFile.getMaxTickOff();

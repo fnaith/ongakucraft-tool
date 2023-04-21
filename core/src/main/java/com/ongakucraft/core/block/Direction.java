@@ -9,18 +9,18 @@ import lombok.NonNull;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public enum Direction {
-    E(1, 0, 0, "east"),
-    S(0, 0, 1, "south"),
-    W(-1, 0, 0, "west"),
-    N(0, 0, -1, "north"),
-    U(0, 1, 0, "up"),
-    D(0, -1, 0, "down");
+    E(1, 0, 0, "east", 5),
+    W(-1, 0, 0, "west", 4),
+    S(0, 0, 1, "south", 3),
+    N(0, 0, -1, "north", 2),
+    U(0, 1, 0, "up", 1),
+    D(0, -1, 0, "down", 0);
 
     public static Direction of(@NonNull String text) {
         return switch (text) {
             case "east" -> E;
-            case "south" -> S;
             case "west" -> W;
+            case "south" -> S;
             case "north" -> N;
             case "up" -> U;
             case "down" -> D;
@@ -32,12 +32,13 @@ public enum Direction {
     private final int y;
     private final int z;
     private final String text;
+    private final int value;
 
     public Direction back() {
         return switch (this) {
             case E -> W;
-            case S -> N;
             case W -> E;
+            case S -> N;
             case N -> S;
             case U -> U;
             case D -> D;
@@ -47,8 +48,8 @@ public enum Direction {
     public Direction left() {
         return switch (this) {
             case E -> N;
-            case S -> E;
             case W -> S;
+            case S -> E;
             case N -> W;
             case U -> U;
             case D -> D;
@@ -58,8 +59,8 @@ public enum Direction {
     public Direction right() {
         return switch (this) {
             case E -> S;
-            case S -> W;
             case W -> N;
+            case S -> W;
             case N -> E;
             case U -> U;
             case D -> D;

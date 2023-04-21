@@ -2,10 +2,7 @@ package com.ongakucraft.core.structure;
 
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Direction;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
+import lombok.*;
 
 import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
@@ -15,9 +12,9 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 public final class Position {
     public static final Position ZERO = of(0, 0, 0);
 
-    private final int x;
-    private final int y;
-    private final int z;
+    @With private final int x;
+    @With private final int y;
+    @With private final int z;
 
     public Position step(@NonNull Direction dir) {
         return step(dir, 1);
