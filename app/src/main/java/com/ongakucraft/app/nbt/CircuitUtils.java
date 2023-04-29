@@ -344,6 +344,50 @@ division / staffs / min. : 16 / 2 / 02:35
         return structure;
     }
 
+    private static Structure megalovania(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final var convertor = FindFirstInstrumentNoteConvertor.DEFAULT;
+        final CircuitBuilder circuitBuilder = TwisterOneSideBuilder.of(blockDataset, true, "white_wool", "redstone_lamp");
+
+        final int[][] groups = {
+                {0, 1, 2}
+        };
+        final NoteConvertor[] convertors = {
+                convertor, convertor, convertor, convertor
+        };
+        final CircuitBuilder[] builders = {
+                circuitBuilder
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            for (final var index : groups[i]) {
+                final var noteConvertor = convertors[index];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(index)));
+            }
+            circuits.add(builders[i].generate(subSequenceList));
+        }
+
+        final var heads = List.of(
+                Position.of(0, 0, 0)
+        );
+
+        final var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -368,9 +412,14 @@ division / staffs / min. : 16 / 2 / 02:35
 //            final var outputFilePath = String.format("%s/%s/structure/hopes-and-dreams.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-            final var inputFilePath = String.format("%s/input/レクイエム - Kanaria and 星街すいせい/-clean2.mid", ROOT_DIR_PATH);
-            final var structure = requiem(VERSION, inputFilePath);
-            final var outputFilePath = String.format("%s/%s/structure/requiem.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            final var inputFilePath = "D:\\Sync\\Ongakucraft\\case\\0041\\0059\\レクイエム - Kanaria and 星街すいせい/-clean2.mid";//String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams-cut.mid", ROOT_DIR_PATH);
+//            final var structure = requiem(VERSION, inputFilePath);
+//            final var outputFilePath = String.format("%s/%s/structure/requiem.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+            final var inputFilePath = String.format("%s/input/Megalovania - Undertale/Megalovania__Toby_Fox_Megalovania-cut.mid", ROOT_DIR_PATH);
+            final var structure = megalovania(VERSION, inputFilePath);
+            final var outputFilePath = String.format("%s/%s/structure/megalovania.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
             nbtWriter.write(structure, outputFilePath);
         } catch (Exception e) {
             log.error("CircuitUtils", e);

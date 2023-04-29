@@ -117,12 +117,13 @@ public final class Cursor implements Cloneable {
         return this;
     }
 
-    public void placeRedstoneWire(List<Direction> sides) {
+    public Cursor placeRedstoneWire(List<Direction> sides) {
         var block = getBlock("redstone_wire");
         for (var side : sides) {
             block = block.putProperty(side.getText(), "side");
         }
         structure.put(position, block);
+        return this;
     }
 
     public void placeNoteBlock(int note) {
