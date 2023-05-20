@@ -1,12 +1,12 @@
 package com.ongakucraft.core.circuit.builder;
 
-import java.util.List;
-
 import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.circuit.CircuitBuilder;
 import com.ongakucraft.core.circuit.Note;
 import com.ongakucraft.core.structure.Cursor;
 import com.ongakucraft.core.structure.Structure;
+
+import java.util.List;
 
 public final class FishBoneTwoSideBuilder extends CircuitBuilder {
     public static FishBoneTwoSideBuilder of(BlockDataset blockDataset, String floorPath, String stubPath) {

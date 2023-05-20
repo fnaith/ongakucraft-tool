@@ -44,5 +44,22 @@ public final class GraphicUtils {
         return out;
     }
 
+    public static BufferedImage rotate(BufferedImage img, boolean clockwise) {
+        final var width = img.getWidth();
+        final var height = img.getHeight();
+        final var newImage = new BufferedImage(width, height, img.getType());
+        final var g2 = newImage.createGraphics();
+        g2.rotate(Math.toRadians(clockwise ? -90 : 90), width / 2.0, height / 2.0);
+        g2.drawImage(img, null, 0, 0);
+        return newImage;
+    }
+
+    public static BufferedImage copyWithAlpha(BufferedImage bi) {
+        final var cm = bi.getColorModel();
+        final boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        final var raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
     private GraphicUtils() {}
 }

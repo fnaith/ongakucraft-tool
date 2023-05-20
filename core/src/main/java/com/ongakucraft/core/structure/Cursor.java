@@ -1,17 +1,12 @@
 package com.ongakucraft.core.structure;
 
-import java.util.List;
-
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.block.Direction;
+import lombok.*;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -101,7 +96,6 @@ public final class Cursor implements Cloneable {
     }
 
     public Block getBlock(@NonNull String path) {
-        // TODO prevent sand falling
         return blockDataset.getBlock(path).withFacing(getPlaceFacing(path));
     }
 
@@ -126,13 +120,15 @@ public final class Cursor implements Cloneable {
         return this;
     }
 
-    public void placeNoteBlock(int note) {
+    public Cursor placeNoteBlock(int note) {
         final var block = getBlock("note_block").putProperty("note", note);
         structure.put(position, block);
+        return this;
     }
 
-    public void put(@NonNull Block t) {
+    public Cursor put(@NonNull Block t) {
         structure.put(position, t.rotate(rotateTimes()));
+        return this;
     }
 
     public Block get() {

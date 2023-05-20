@@ -1,5 +1,16 @@
 package com.ongakucraft.app.midi;
 
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.midi.MidiFile;
+import com.ongakucraft.core.midi.MidiTempo;
+import com.ongakucraft.core.midi.MidiTrack;
+import com.ongakucraft.core.midi.MidiTrackBuilder;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.sound.midi.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,27 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import javax.sound.midi.Instrument;
-import javax.sound.midi.MetaMessage;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.SysexMessage;
-import javax.sound.midi.Track;
-
-import com.ongakucraft.core.OcException;
-import com.ongakucraft.core.midi.MidiFile;
-import com.ongakucraft.core.midi.MidiTempo;
-import com.ongakucraft.core.midi.MidiTrack;
-import com.ongakucraft.core.midi.MidiTrackBuilder;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

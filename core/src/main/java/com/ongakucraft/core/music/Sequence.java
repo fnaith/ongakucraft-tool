@@ -1,14 +1,13 @@
 package com.ongakucraft.core.music;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 import com.ongakucraft.core.midi.MidiNote;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter

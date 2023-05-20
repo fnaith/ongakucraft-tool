@@ -1,10 +1,10 @@
 package com.ongakucraft.core.circuit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ongakucraft.core.midi.MidiNote;
 import com.ongakucraft.core.music.Sequence;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @FunctionalInterface
 public interface NoteConvertor {

@@ -1,12 +1,8 @@
 package com.ongakucraft.core.midi;
 
-import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
+import lombok.*;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(cacheStrategy = LAZY, exclude = "duration")

@@ -1,15 +1,10 @@
 package com.ongakucraft.core.midi;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.*;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter

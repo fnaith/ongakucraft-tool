@@ -3,7 +3,6 @@ package com.ongakucraft.core.circuit;
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.midi.MidiNote;
 import com.ongakucraft.core.music.Sequence;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.With;

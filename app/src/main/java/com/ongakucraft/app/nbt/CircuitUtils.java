@@ -412,15 +412,15 @@ division / staffs / min. : 16 / 2 / 02:35
 //            final var outputFilePath = String.format("%s/%s/structure/hopes-and-dreams.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-//            final var inputFilePath = "D:\\Sync\\Ongakucraft\\case\\0041\\0059\\レクイエム - Kanaria and 星街すいせい/-clean2.mid";//String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams-cut.mid", ROOT_DIR_PATH);
+//            final var inputFilePath = String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams-cut.mid", ROOT_DIR_PATH);
 //            final var structure = requiem(VERSION, inputFilePath);
 //            final var outputFilePath = String.format("%s/%s/structure/requiem.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-            final var inputFilePath = String.format("%s/input/Megalovania - Undertale/Megalovania__Toby_Fox_Megalovania-cut.mid", ROOT_DIR_PATH);
-            final var structure = megalovania(VERSION, inputFilePath);
-            final var outputFilePath = String.format("%s/%s/structure/megalovania.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
-            nbtWriter.write(structure, outputFilePath);
+//            final var inputFilePath = String.format("%s/input/Megalovania - Undertale/Megalovania__Toby_Fox_Megalovania-cut.mid", ROOT_DIR_PATH);
+//            final var structure = megalovania(VERSION, inputFilePath);
+//            final var outputFilePath = String.format("%s/%s/structure/megalovania.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }

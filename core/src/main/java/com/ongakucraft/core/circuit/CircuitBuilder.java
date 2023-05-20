@@ -1,11 +1,11 @@
 package com.ongakucraft.core.circuit;
 
-import java.util.List;
-
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.structure.Cursor;
 import com.ongakucraft.core.structure.Structure;
+
+import java.util.List;
 
 public abstract class CircuitBuilder {
     public abstract void generate(Cursor cursor, List<List<Note>> sequenceList);

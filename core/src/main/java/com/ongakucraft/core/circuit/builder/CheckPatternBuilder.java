@@ -1,11 +1,11 @@
 package com.ongakucraft.core.circuit.builder;
 
-import java.util.List;
-
 import com.ongakucraft.core.block.BlockDataset;
 import com.ongakucraft.core.circuit.CircuitBuilder;
 import com.ongakucraft.core.circuit.Note;
 import com.ongakucraft.core.structure.Cursor;
+
+import java.util.List;
 
 public final class CheckPatternBuilder extends CircuitBuilder {
     public static final int BEATS_PER_SECTION = 2;

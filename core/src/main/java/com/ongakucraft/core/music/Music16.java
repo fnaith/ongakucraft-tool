@@ -1,15 +1,14 @@
 package com.ongakucraft.core.music;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.midi.MidiFileReport;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter

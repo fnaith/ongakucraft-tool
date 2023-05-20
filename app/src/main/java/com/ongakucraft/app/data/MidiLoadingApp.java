@@ -1,5 +1,13 @@
 package com.ongakucraft.app.data;
 
+import com.ongakucraft.app.midi.MidiReader;
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.circuit.KeyRange;
+import com.ongakucraft.core.midi.MidiFileReport;
+import com.ongakucraft.core.midi.MidiTrackReport;
+import com.ongakucraft.core.music.Music16;
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -8,15 +16,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import com.ongakucraft.app.midi.MidiReader;
-import com.ongakucraft.core.OcException;
-import com.ongakucraft.core.circuit.KeyRange;
-import com.ongakucraft.core.midi.MidiFileReport;
-import com.ongakucraft.core.midi.MidiTrackReport;
-import com.ongakucraft.core.music.Music16;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class MidiLoadingApp {

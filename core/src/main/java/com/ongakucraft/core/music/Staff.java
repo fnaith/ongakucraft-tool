@@ -1,14 +1,13 @@
 package com.ongakucraft.core.music;
 
+import com.ongakucraft.core.midi.MidiNote;
+import com.ongakucraft.core.midi.MidiTrackReport;
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import com.ongakucraft.core.midi.MidiNote;
-import com.ongakucraft.core.midi.MidiTrackReport;
-
-import lombok.Getter;
 
 @Getter
 public final class Staff {
