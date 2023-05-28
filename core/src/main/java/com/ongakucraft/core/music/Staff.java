@@ -11,11 +11,21 @@ import java.util.stream.IntStream;
 
 @Getter
 public final class Staff {
-    public static Staff of(MidiTrackReport trackReport, int beats, int divisionTicks, int startSequenceId, int maxDuration) {
+    public static Staff of(MidiTrackReport trackReport, int beats, int divisionTicks, int startSequenceId, int maxDuration, int extendDuration, int extendModular) {
         final var beatToNoteList = generateBeatToNotes(beats);
         for (var note : trackReport.getTrack().getNoteList()) {
-            for (var tick = note.getOn(); tick <= note.getOff() && (tick - note.getOn()) < maxDuration; ++tick) {
+            for (var tick = note.getOn(); tick < note.getOff(); tick += divisionTicks) {
                 final var beat = tick / divisionTicks;
+                final var beatIndex = beat - (note.getOn() / divisionTicks);
+                if (maxDuration < beatIndex + 1) {
+                    if (note.getDuration() / divisionTicks < extendDuration) {
+                        if (0 != beatIndex % extendModular) {
+                            continue;
+                        }
+                    } else {
+                        break;
+                    }
+                }
                 final var notes = beatToNoteList.get(beat);
                 notes.add(note);
             }

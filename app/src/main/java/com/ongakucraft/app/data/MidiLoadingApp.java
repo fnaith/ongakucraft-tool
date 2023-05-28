@@ -1,7 +1,10 @@
 package com.ongakucraft.app.data;
 
 import com.ongakucraft.app.midi.MidiReader;
+import com.ongakucraft.app.nbt.CircuitUtils;
+import com.ongakucraft.app.nbt.NbtWriter;
 import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.block.BlockDatasetVersion;
 import com.ongakucraft.core.circuit.KeyRange;
 import com.ongakucraft.core.midi.MidiFileReport;
 import com.ongakucraft.core.midi.MidiTrackReport;
@@ -19,6 +22,8 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public final class MidiLoadingApp {
+    private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2975);
+
     private static void printMidiFile(String filePath) {
         log.info("filePath : {}", filePath);
         final var midiFile = MidiReader.read(filePath);
@@ -85,7 +90,7 @@ public final class MidiLoadingApp {
         }
     }
 
-    private static List<MidiFileReport> findCandidates(String dirPath) {
+    private static List<MidiFileReport> findCandidates(String dirPath, boolean logFail, boolean logDetail) {
         final var midiFilePathList = findMidiFilePathList(dirPath);
         final List<MidiFileReport> okReportList = new ArrayList<>();
         final List<MidiFileReport> failReportList = new ArrayList<>();
@@ -119,23 +124,29 @@ public final class MidiLoadingApp {
             log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         }
         log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
-        for (var report : failReportList) {
-            log.info("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
-            log.info(formatFileReportInfo(report) +
-                     String.format("unaligned tracks/notes : %d / %d", report.getMinUnalignedTrackCount(), report.getMinUnalignedNoteCount()));
+        if (logFail) {
+            for (var report : failReportList) {
+                log.info("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+                log.info(formatFileReportInfo(report) +
+                         String.format("unaligned tracks/notes : %d / %d", report.getMinUnalignedTrackCount(), report.getMinUnalignedNoteCount()));
+            }
         }
-        log.info("-------------------------------------------------");
-        log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
-        log.info("-------------------------------------------------");
-        for (var report : okReportList) {
-            final var music = Music16.of(report, 1);
-            log.info("\n{}sequences : {}", formatOkDetail(report), music.getSequenceList().size());
-            log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        }
-        log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
-        for (var report : failReportList) {
-            log.info("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
-            log.info("\n{}", formatFailDetail(report));
+        if (logDetail) {
+            log.info("-------------------------------------------------");
+            log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
+            log.info("-------------------------------------------------");
+            for (var report : okReportList) {
+                final var music = Music16.of(report, 1);
+                log.info("\nsequences : {}\n{}", music.getSequenceList().size(), formatOkDetail(report));
+                log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            }
+            log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
+            if (logFail) {
+                for (var report : failReportList) {
+                    log.info("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+                    log.info("\n{}", formatFailDetail(report));
+                }
+            }
         }
         return okReportList;
     }
@@ -248,8 +259,23 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "C:\\Users\\User\\Downloads\\midi";
 //            checkMidiFiles(rootDirPath);
 
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\case\\0041\\0059\\レクイエム - Kanaria and 星街すいせい";
-            findCandidates(rootDirPath);
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\case\\0041\\0059\\レクイエム - Kanaria and 星街すいせい";
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Orchestra"; // ok/fail count : 24 / 13
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Undertale"; // ok/fail count : 13 / 8
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Meglovania-Orchestra"; // ok/fail count : 7 / 63
+            final var reportIndex = 4; //-11;//7;
+            final var reportList = findCandidates(rootDirPath, false, true);
+            final var report = reportList.get(reportIndex);
+            final var music = Music16.of(report, 1, 8, 6);
+            log.info("-------------------------------------------------");
+            log.info(formatFileReportInfo(report));
+            for (final var noteSequence : music.getSequenceList()) {
+                log.info(String.format("id/min-max/count : %2d/%3d-%3d/%3d", noteSequence.getId(),
+                         noteSequence.getMinKey(), noteSequence.getMaxKey(), noteSequence.getCount()));
+            }
+            final var structure = CircuitUtils.buildDemoCircuits(VERSION, music, -50, 3, 3, 3);
+            NbtWriter.of(VERSION).write(structure, rootDirPath + "/demo.nbt");
+            log.info("demo size : {} {} {}", structure.getRange3().getX().length(), structure.getRange3().getY().length(), structure.getRange3().getZ().length());
         } catch (Exception e) {
             log.error("MidiLoadingApp", e);
         }

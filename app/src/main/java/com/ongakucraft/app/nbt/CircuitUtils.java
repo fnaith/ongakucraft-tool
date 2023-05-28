@@ -20,6 +20,47 @@ public final class CircuitUtils {
     private static final String ROOT_DIR_PATH = "./data/generated";
     private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2975);
 
+    public static Structure buildDemoCircuits(BlockDatasetVersion version, Music16 music,
+                                              int length, int rows, int xOffset, int yOffset) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var circuitBuilder = CheckPatternBuilder.of(blockDataset, true, 0, "white_wool", "redstone_lamp");
+        final List<Structure> circuits = new ArrayList<>();
+        for (final var staff : music.getStaffList()) {
+            final var trackReport = staff.getTrackReport();
+            final var lowerCount = trackReport.getLowerThanKeyNotes(KeyRange.LOWEST_KEY).size();
+            final var higherCount = trackReport.getHigherThanKeyNotes(KeyRange.HIGHEST_KEY).size();
+            final NoteConvertor convertor;
+            if (0 < lowerCount || 0 < higherCount) {
+                final var octaveModifier = trackReport.calculateAdjustableOctaves(KeyRange.LOWEST_KEY, KeyRange.HIGHEST_KEY).get(0);
+                convertor = FindFirstInstrumentNoteConvertor.DEFAULT.withOctaveModifier(octaveModifier);
+            } else {
+                convertor = FindFirstInstrumentNoteConvertor.DEFAULT;
+            }
+            for (final var sequence : staff.getSequenceList()) {
+                circuits.add(circuitBuilder.generate(List.of(convertor.convert(sequence))));
+            }
+        }
+        return buildDemoCircuits(circuits, length, rows, xOffset, yOffset);
+    }
+
+    private static Structure buildDemoCircuits(List<Structure> circuits, int length, int rows,
+                                              int xOffset, int yOffset) {
+        final var structure = new Structure();
+        final var columns = (circuits.size() + rows - 1) / rows;
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var y = (i / columns) * yOffset;
+            final var x = (i % columns) * xOffset;
+            circuit.translate(x, y, 0);
+            structure.paste(circuit);
+        }
+        if (0 < length) {
+            final var range3 = structure.getRange3();
+            structure.cut(range3.translate(0, 0, length));
+        }
+        return structure;
+    }
+
     private static Structure happyBirthday(BlockDatasetVersion version, String inputFilePath) throws Exception {
         final var midiFile = MidiReader.read(inputFilePath);
         final var midiFileReport = MidiFileReport.of(midiFile);
@@ -388,6 +429,98 @@ division / staffs / min. : 16 / 2 / 02:35
         return structure;
     }
 
+    private static Structure hopesAndDreamsOrchestra(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1);
+        final var sequenceList = music.getSequenceList();
+
+/*
+division / staffs / min. : 16 / 6 / 02:49
+	track : 0 [trumpet, mutedtrumpet]
+	ticks/start/end : 209 / 0 / 226
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   86 |    5 |  112 |      |    6 |      |      |      |
+	track : 1 [clarinet]
+	ticks/start/end : 401 / 0 / 230
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   12 |      |  144 |   24 |  209 |    8 |    4 |      |      |      |
+	track : 2 [alto sax]
+	ticks/start/end : 268 / 0 / 226
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   11 |    1 |  199 |   13 |   44 |      |      |      |      |      |
+	track : 3 [trombone]
+	ticks/start/end : 347 / 0 / 230
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |    9 |    2 |  205 |    3 |  128 |      |      |      |      |      |      |      |
+	track : 4 [marimba]
+	ticks/start/end : 170 / 30 / 61
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   72 |      |   90 |      |    8 |      |      |      |      |      |
+	track : 5 []
+	ticks/start/end : 482 / 92 / 226
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |  251 |   17 |  184 |    8 |   22 |      |      |      |      |      |
+
+/function ongakucraft:set_circuit
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+*/
+        final List<Structure> circuits = new ArrayList<>();
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.PLING, Instrument.BELL);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.FLUTE, Instrument.DIDGERIDOO, Instrument.SQUARE_WAVE);
+        final var convertor2 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.GUITAR);
+        final var convertor3 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.IRON_XYLOPHONE);
+        final var convertor4 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor5 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BASS);
+        final CircuitBuilder rightBuilder = FishBoneOneSideBuilder.of(blockDataset, true, "white_wool", "redstone_lamp");
+        final CircuitBuilder leftBuilder = FishBoneOneSideBuilder.of(blockDataset, false, "white_wool", "redstone_lamp");
+
+        final int[][] groups = {
+                {6, 7}, {3, 1}, {0, 2}, {4, 5}
+        };
+        final NoteConvertor[] convertors = {
+                convertor0, convertor1, convertor2, convertor3,
+                convertor4, convertor4, convertor5, convertor5
+        };
+        final CircuitBuilder[] builders = {
+                leftBuilder, leftBuilder, rightBuilder, rightBuilder
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            for (final var index : groups[i]) {
+                final var noteConvertor = convertors[index];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(index)));
+            }
+            circuits.add(builders[i].generate(subSequenceList));
+        }
+
+        final var heads = List.of(
+                Position.of(22, 0, 0),
+                Position.of(12, 0, 0),
+                Position.of(10, 0, 0),
+                Position.of(0, 0, 0)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/hopes-and-dreams-orchestra.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -412,7 +545,7 @@ division / staffs / min. : 16 / 2 / 02:35
 //            final var outputFilePath = String.format("%s/%s/structure/hopes-and-dreams.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
 
-//            final var inputFilePath = String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams-cut.mid", ROOT_DIR_PATH);
+//            final var inputFilePath = String.format("%s/input/レクイエム - Kanaria and 星街すいせい/Hopes_and_Dreams-cut.mid", ROOT_DIR_PATH);
 //            final var structure = requiem(VERSION, inputFilePath);
 //            final var outputFilePath = String.format("%s/%s/structure/requiem.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
@@ -421,6 +554,9 @@ division / staffs / min. : 16 / 2 / 02:35
 //            final var structure = megalovania(VERSION, inputFilePath);
 //            final var outputFilePath = String.format("%s/%s/structure/megalovania.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
 //            nbtWriter.write(structure, outputFilePath);
+
+            final var inputFilePath = String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams_FINALLY_FINISHED.mid", ROOT_DIR_PATH);
+            hopesAndDreamsOrchestra(VERSION, inputFilePath);
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }

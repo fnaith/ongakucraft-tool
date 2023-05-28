@@ -16,6 +16,10 @@ public final class Music16 {
     private static final int DIVISION = 16;
 
     public static Music16 of(MidiFileReport fileReport, int maxDuration) {
+        return of(fileReport, maxDuration, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    public static Music16 of(MidiFileReport fileReport, int maxDuration, int extendDuration, int extendModular) {
         if (DIVISION < fileReport.getMinValidDivision()) {
             throw new OcException("getMinValidDivision fail : %d", fileReport.getMinValidDivision());
         }
@@ -29,7 +33,7 @@ public final class Music16 {
         final List<Staff> staffList = new ArrayList<>();
         var startSequenceId = 0;
         for (final var trackReport : fileReport.getTrackReportList()) {
-            final var staff = Staff.of(trackReport, beats, divisionTicks, startSequenceId, maxDuration);
+            final var staff = Staff.of(trackReport, beats, divisionTicks, startSequenceId, maxDuration, extendDuration, extendModular);
             startSequenceId += staff.getSequenceList().size();
             staffList.add(staff);
         }
