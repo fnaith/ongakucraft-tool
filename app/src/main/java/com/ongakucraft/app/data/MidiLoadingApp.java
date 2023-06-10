@@ -261,12 +261,14 @@ public final class MidiLoadingApp {
 
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\case\\0041\\0059\\レクイエム - Kanaria and 星街すいせい";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Orchestra"; // ok/fail count : 24 / 13
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Undertale"; // ok/fail count : 13 / 8
-//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Meglovania-Orchestra"; // ok/fail count : 7 / 63
-            final var reportIndex = 4; //-11;//7;
-            final var reportList = findCandidates(rootDirPath, false, true);
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Undertale"; // ok/fail count : 13 / 8
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-Orchestra"; // ok/fail count : 7 / 63
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-4-6"; // ok/fail count : 7 / 40
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // ok/fail count : 7 / 40
+            final var reportIndex = 1; //megalovania (6).mid
+            final var reportList = findCandidates(rootDirPath, true, true);
             final var report = reportList.get(reportIndex);
-            final var music = Music16.of(report, 1, 8, 6);
+            final var music = Music16.of(report, 1);//, 8, 6);
             log.info("-------------------------------------------------");
             log.info(formatFileReportInfo(report));
             for (final var noteSequence : music.getSequenceList()) {
