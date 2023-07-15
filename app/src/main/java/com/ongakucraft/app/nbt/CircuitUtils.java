@@ -631,6 +631,110 @@ division / staffs / min. : 16 / 2 / 03:20
         return structure;
     }
 
+    private static Structure nightDancer(BlockDatasetVersion version, String inputFilePath) throws Exception {
+/*
+division / staffs / min. : 16 / 2 / 03:30
+	track : 0 [piano 1]
+	ticks/start/end : 738 / 0 / 196
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |  141 |      |  503 |   18 |   76 |      |      |      |
+	track : 1 []
+	ticks/start/end : 809 / 0 / 192
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |  129 |      |  350 |    3 |  324 |      |    3 |      |      |      |      |      |
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 57- 86/597
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 62- 86/ 71
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 69- 89/ 62
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 72- 75/  8
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 31- 77/541
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 43- 68/115
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 46- 63/ 94
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 50- 63/ 59
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - demo size : 8 8 1641
+
+/function ongakucraft:set_circuit
+/tp @a 12 -52 -6 0 -6
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..3272}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..3272}] as @a at @s run tp @s ~ ~ ~0.5 0 -6
+/execute if entity @e[scores={ticks=3272..3282}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final CircuitBuilder rightBuilderS = SquareWaveBuilder.of(blockDataset, true, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderS = SquareWaveBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder rightBuilderC = CheckPatternBuilder.of(blockDataset, true, 0, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderC = CheckPatternBuilder.of(blockDataset, false, 0, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {2}, {0}, {1}, {3},
+                {7}, {5}, {4}, {6},
+        };
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
+        final var convertor2 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BELL);
+        final var convertor3 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BELL);
+        final var convertor4 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor5 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor6 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.GUITAR);
+        final var convertor7 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.BANJO);
+        final NoteConvertor[][] convertors = {
+                {convertor2}, {convertor0}, {convertor1}, {convertor3},
+                {convertor7}, {convertor5}, {convertor4}, {convertor6},
+        };
+        final CircuitBuilder[] builders = {
+                rightBuilderS, rightBuilderC, leftBuilderC, leftBuilderS,
+                rightBuilderS, rightBuilderC, leftBuilderC, leftBuilderS,
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            final var group = groups[i];
+            for (var j = 0; j < group.length; ++j) {
+                final var noteConvertor = convertors[i][j];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(group[j])));
+            }
+            final var struct = builders[i].generate(subSequenceList);
+            struct.regulate();
+
+            circuits.add(struct);
+        }
+
+        final var heads = List.of(
+                Position.of(-9, 5, 6),
+                Position.of(-1, 3, 0),
+                Position.of(2 + 2, 3, 0),
+                Position.of(9 + 2, 5, 6),
+
+                Position.of(-10, -2, 6),
+                Position.of(-1, 0, 0),
+                Position.of(2 + 2, 0, 0),
+                Position.of(10 + 2, -2, 6)
+        );
+
+        final var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+        structure.regulate();
+
+//        final var range3 = structure.getRange3();
+//        return structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -668,9 +772,14 @@ division / staffs / min. : 16 / 2 / 03:20
 //            final var inputFilePath = String.format("%s/input/Hopes and Dreams - Undertale/Hopes_and_Dreams_FINALLY_FINISHED.mid", ROOT_DIR_PATH);
 //            hopesAndDreamsOrchestra(VERSION, inputFilePath);
 
-            final var inputFilePath = String.format("%s/input/ヤキモチ - 高橋優/yakimochi.mid", ROOT_DIR_PATH);
-            final var structure = yakimochi(VERSION, inputFilePath);
-            final var outputFilePath = String.format("%s/%s/structure/yakimochi.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            final var inputFilePath = String.format("%s/input/ヤキモチ - 高橋優/yakimochi.mid", ROOT_DIR_PATH);
+//            final var structure = yakimochi(VERSION, inputFilePath);
+//            final var outputFilePath = String.format("%s/%s/structure/yakimochi.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+//            nbtWriter.write(structure, outputFilePath);
+
+            final var inputFilePath = String.format("%s/input/NIGHT DANCER - imase/NIGHT_DANCER__imase.mid", ROOT_DIR_PATH);
+            final var structure = nightDancer(VERSION, inputFilePath);
+            final var outputFilePath = String.format("%s/%s/structure/night-dancer.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
             nbtWriter.write(structure, outputFilePath);
         } catch (Exception e) {
             log.error("CircuitUtils", e);
