@@ -6,11 +6,8 @@ import com.ongakucraft.core.block.Direction;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Structure;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +62,7 @@ public final class DiagramUtils {
                 }
             }
             g2d1.dispose();
-            writeImage(img1, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-1-file-name"));
+            GraphicUtils.writeImage(img1, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-1-file-name"));
 
             final var img2 = GraphicUtils.copyWithAlpha(img1);
             final var g2d2 = img2.createGraphics();
@@ -93,7 +90,7 @@ public final class DiagramUtils {
                 }
             }
             g2d2.dispose();
-            writeImage(img2, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-2-1-file-name"));
+            GraphicUtils.writeImage(img2, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-2-1-file-name"));
 
             final var img22 = GraphicUtils.copyWithAlpha(img2);
             final var g2d22 = img22.createGraphics();
@@ -130,7 +127,7 @@ public final class DiagramUtils {
                 }
             }
             g2d23.dispose();
-            writeImage(img23, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-2-2-file-name"));
+            GraphicUtils.writeImage(img23, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-2-2-file-name"));
 
             final var img3 = GraphicUtils.copyWithAlpha(img2);
             final var g2d3 = img3.createGraphics();
@@ -151,7 +148,7 @@ public final class DiagramUtils {
                 }
             }
             g2d3.dispose();
-            writeImage(img3, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-3-1-file-name"));
+            GraphicUtils.writeImage(img3, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-3-1-file-name"));
 
             final var img32 = GraphicUtils.copyWithAlpha(img3);
             final var g2d32 = img32.createGraphics();
@@ -170,7 +167,7 @@ public final class DiagramUtils {
                 }
             }
             g2d32.dispose();
-            writeImage(img32, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-3-2-file-name"));
+            GraphicUtils.writeImage(img32, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-3-2-file-name"));
 
             final var img4 = GraphicUtils.copyWithAlpha(img3);
             final var g2d4 = img4.createGraphics();
@@ -191,7 +188,7 @@ public final class DiagramUtils {
                 }
             }
             g2d4.dispose();
-            writeImage(img4, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-4-file-name"));
+            GraphicUtils.writeImage(img4, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-4-file-name"));
         } catch (Exception e) {
             throw new OcException("[DiagramUtils][drawDesignDiagram]", e);
         }
@@ -205,28 +202,28 @@ public final class DiagramUtils {
                     "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"
             ).map(wool_color -> wool_color + "_wool").toList();
             for (var wool_path : wool_path_list) {
-                textures.put(wool_path, readImage("./design/texture/" + wool_path + ".png"));
+                textures.put(wool_path, GraphicUtils.readImage("./design/texture/" + wool_path + ".png"));
             }
-            textures.put("oak_log", readImage("./design/texture/oak_log.png"));
-            textures.put("sand", readImage("./design/texture/sand.png"));
-            textures.put("glass", readImage("./design/texture/glass.png"));
-            textures.put("gold_block", readImage("./design/texture/gold_block.png"));
-            textures.put("stone", readImage("./design/texture/stone.png"));
-            textures.put("clay", readImage("./design/texture/clay.png"));
-            textures.put("packed_ice", readImage("./design/texture/packed_ice.png"));
-            textures.put("bone_block", readImage("./design/texture/bone_block.png"));
-            textures.put("iron_block", readImage("./design/texture/iron_block.png"));
-            textures.put("soul_sand", readImage("./design/texture/soul_sand.png"));
-            textures.put("pumpkin", readImage("./design/texture/pumpkin.jpg"));
-            textures.put("emerald_block", readImage("./design/texture/emerald_block.png"));
-            textures.put("hay_block", readImage("./design/texture/hay_block_side.png"));
-            textures.put("glowstone", readImage("./design/texture/glowstone.png"));
-            textures.put("grass_block", readImage("./design/texture/grass_block_top.png"));
+            textures.put("oak_log", GraphicUtils.readImage("./design/texture/oak_log.png"));
+            textures.put("sand", GraphicUtils.readImage("./design/texture/sand.png"));
+            textures.put("glass", GraphicUtils.readImage("./design/texture/glass.png"));
+            textures.put("gold_block", GraphicUtils.readImage("./design/texture/gold_block.png"));
+            textures.put("stone", GraphicUtils.readImage("./design/texture/stone.png"));
+            textures.put("clay", GraphicUtils.readImage("./design/texture/clay.png"));
+            textures.put("packed_ice", GraphicUtils.readImage("./design/texture/packed_ice.png"));
+            textures.put("bone_block", GraphicUtils.readImage("./design/texture/bone_block.png"));
+            textures.put("iron_block", GraphicUtils.readImage("./design/texture/iron_block.png"));
+            textures.put("soul_sand", GraphicUtils.readImage("./design/texture/soul_sand.png"));
+            textures.put("pumpkin", GraphicUtils.readImage("./design/texture/pumpkin.jpg"));
+            textures.put("emerald_block", GraphicUtils.readImage("./design/texture/emerald_block.png"));
+            textures.put("hay_block", GraphicUtils.readImage("./design/texture/hay_block_side.png"));
+            textures.put("glowstone", GraphicUtils.readImage("./design/texture/glowstone.png"));
+            textures.put("grass_block", GraphicUtils.readImage("./design/texture/grass_block_top.png"));
 
-            textures.put("redstone_wire", readImage("./design/texture/redstone.png"));
-            textures.put("repeater", readImage("./design/texture/repeater.png"));
-            textures.put("note_block", readImage("./design/texture/note_block.png"));
-            textures.put("redstone_lamp", readImage("./design/texture/redstone_lamp.png"));
+            textures.put("redstone_wire", GraphicUtils.readImage("./design/texture/redstone.png"));
+            textures.put("repeater", GraphicUtils.readImage("./design/texture/repeater.png"));
+            textures.put("note_block", GraphicUtils.readImage("./design/texture/note_block.png"));
+            textures.put("redstone_lamp", GraphicUtils.readImage("./design/texture/redstone_lamp.png"));
             textures.replaceAll((k, v) -> GraphicUtils.scaleByHeight(textures.get(k), pixelSize));
         } catch (Exception e) {
             throw new OcException("[DiagramUtils][loadBlockTextures]", e);
@@ -238,7 +235,7 @@ public final class DiagramUtils {
         final Map<Integer, BufferedImage> textures = new HashMap<>();
         try {
             for (var i = 0; i < 5; ++i) {
-                textures.put(i, readImage(String.format("./design/monocolor/%d.png", i)));
+                textures.put(i, GraphicUtils.readImage(String.format("./design/monocolor/%d.png", i)));
             }
             textures.replaceAll((k, v) -> GraphicUtils.scaleByHeight(textures.get(k), pixelSize));
         } catch (Exception e) {
@@ -251,23 +248,13 @@ public final class DiagramUtils {
         final Map<Integer, BufferedImage> textures = new HashMap<>();
         try {
             for (var i = 0; i < 25; ++i) {
-                textures.put(i, readImage(String.format("./design/gradient/%d.png", i)));
+                textures.put(i, GraphicUtils.readImage(String.format("./design/gradient/%d.png", i)));
             }
             textures.replaceAll((k, v) -> GraphicUtils.scaleByHeight(textures.get(k), pixelSize));
         } catch (Exception e) {
             throw new OcException("[DiagramUtils][loadGradientDigits]", e);
         }
         return textures;
-    }
-
-    private static BufferedImage readImage(String inputFilePath) throws Exception {
-        return ImageIO.read(new File(inputFilePath));
-    }
-
-    private static void writeImage(BufferedImage bufferedImage, String outputFilePath) throws Exception {
-        final var file = new File(outputFilePath);
-        FileUtils.createParentDirectories(file);
-        ImageIO.write(bufferedImage, "PNG", file);
     }
 
     private DiagramUtils() {}

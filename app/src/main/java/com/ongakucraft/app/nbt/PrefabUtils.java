@@ -13,8 +13,6 @@ import com.ongakucraft.core.structure.Range;
 import com.ongakucraft.core.structure.Structure;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.imageio.ImageIO;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -109,7 +107,7 @@ public final class PrefabUtils {
 
     private static Structure shishiroPixelArt(BlockDatasetVersion version, String inputFilePath) throws Exception {
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
-        final var bufferedImage = ImageIO.read(new File(inputFilePath));
+        final var bufferedImage = GraphicUtils.readImage(inputFilePath);
         final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 192);
         final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
         final var colorBlockList = BlockColorFilter.filterSimpleColor(blockDataset.getBlockLabColorList(), BlockColorFilterOption.DEFAULT);
@@ -136,7 +134,7 @@ public final class PrefabUtils {
 //            log.info(String.join("\n", framePathList));
             final List<RgbColor[][]> imageList = new ArrayList<>();
             for (final var framePath : framePathList) {
-                final var bufferedImage = ImageIO.read(new File(framePath));
+                final var bufferedImage = GraphicUtils.readImage(framePath);
                 final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 64);
                 imageList.add(GraphicUtils.toRgbImage(scaledBufferedImage));
             }
@@ -194,7 +192,7 @@ public final class PrefabUtils {
 
     private static Structure uberSheepMapArt(BlockDatasetVersion version, String inputFilePath) throws Exception {
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
-        final var bufferedImage = ImageIO.read(new File(inputFilePath));
+        final var bufferedImage = GraphicUtils.readImage(inputFilePath);
         final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 128);
         final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
         final var blockMapColorList = blockDataset.getBlockMapFlatColorList();
@@ -204,7 +202,7 @@ public final class PrefabUtils {
 
     private static void towaMapArt(BlockDatasetVersion version, String inputFilePath, String outputDirPath) throws Exception {
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
-        final var bufferedImage = ImageIO.read(new File(inputFilePath));
+        final var bufferedImage = GraphicUtils.readImage(inputFilePath);
         final var blockMapColorList = blockDataset.getBlockMapColorList();
         final var nbtWriter = NbtWriter.of(version);
         final var rows = bufferedImage.getHeight() / MapArtBuilder.BLOCK_LENGTH_PER_MAP;

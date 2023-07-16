@@ -181,9 +181,9 @@ public final class McassetApp {
 //        final var dirtFilePath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/block/dirt.png", ROOT_DIR_PATH, version);
 //        final var grassBlockTopOverlayFilePath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/block/grass_block_top.png", ROOT_DIR_PATH, version);
 //        final var grassBlockTopFilePath = String.format("%s/InventivetalentDev-minecraft-assets-%s/assets/minecraft/textures/generated/grass_block_top_blend.png", ROOT_DIR_PATH, version);
-//        final var dirtImage = argb(ImageIO.read(new File(dirtFilePath)));
+//        final var dirtImage = argb(GraphicUtils.readImage(new File(dirtFilePath)));
 //        final var grassBlockTopImage = new BufferedImage(dirtImage.getWidth(), dirtImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//        final var grassBlockTopOverlayImage = argb(ImageIO.read(new File(grassBlockTopOverlayFilePath)));
+//        final var grassBlockTopOverlayImage = argb(GraphicUtils.readImage(new File(grassBlockTopOverlayFilePath)));
 //        final var g2 = grassBlockTopImage.createGraphics();
 //        g2.setComposite(AlphaComposite.Src);
 //        g2.drawImage(dirtImage, 0, 0, null);

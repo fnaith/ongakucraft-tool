@@ -9,8 +9,6 @@ import com.ongakucraft.core.midi.MidiFileReport;
 import com.ongakucraft.core.music.Music16;
 import com.ongakucraft.core.music.Sequence;
 import com.ongakucraft.core.structure.Position;
-import com.ongakucraft.core.structure.Range;
-import com.ongakucraft.core.structure.Range3;
 import com.ongakucraft.core.structure.Structure;
 import lombok.extern.slf4j.Slf4j;
 

@@ -2,6 +2,7 @@ package com.ongakucraft.app.data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ongakucraft.app.graphics.GraphicUtils;
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.BlockId;
 import com.ongakucraft.core.block.Direction;
@@ -15,7 +16,6 @@ import com.ongakucraft.core.color.LabColor;
 import com.ongakucraft.core.color.RgbColor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
@@ -70,7 +70,7 @@ public final class DataGenerationApp {
 
     private static RgbColor generateRgbColor(String texture) {
         try {
-            final var bufferedImage = ImageIO.read(new File(texture));
+            final var bufferedImage = GraphicUtils.readImage(texture);
             final var w = bufferedImage.getWidth();
             final var h = bufferedImage.getHeight();
             final var size = w * h;
@@ -113,7 +113,7 @@ public final class DataGenerationApp {
 
     private static LabColor generateLabColor(String texture) {
         try {
-            final var bufferedImage = ImageIO.read(new File(texture));
+            final var bufferedImage = GraphicUtils.readImage(texture);
             final var w = bufferedImage.getWidth();
             final var h = bufferedImage.getHeight();
             final var size = w * h;
