@@ -100,7 +100,7 @@ public final class DiagramUtils {
                     if (null == block) {
                         continue;
                     }
-                    if ("repeater".equals(block.getId().getPath())) {
+                    if (!"repeater".equals(block.getId().getPath())) {
                         continue;
                     }
                     final var click = Integer.parseInt(block.getProperty("delay"));
@@ -190,7 +190,7 @@ public final class DiagramUtils {
             g2d4.dispose();
             GraphicUtils.writeImage(img4, dirPath + '/' + xlt.get("circuit-prefix") + label + '/' + tw.get("step-4-file-name"));
         } catch (Exception e) {
-            throw new OcException("[DiagramUtils][drawDesignDiagram]", e);
+            throw new OcException("[DiagramUtils][drawDesignDiagram] %s", e);
         }
     }
 
@@ -207,8 +207,8 @@ public final class DiagramUtils {
             textures.put("oak_log", GraphicUtils.readImage("./design/texture/oak_log.png"));
             textures.put("sand", GraphicUtils.readImage("./design/texture/sand.png"));
             textures.put("glass", GraphicUtils.readImage("./design/texture/glass.png"));
-            textures.put("gold_block", GraphicUtils.readImage("./design/texture/gold_block.png"));
             textures.put("stone", GraphicUtils.readImage("./design/texture/stone.png"));
+            textures.put("gold_block", GraphicUtils.readImage("./design/texture/gold_block.png"));
             textures.put("clay", GraphicUtils.readImage("./design/texture/clay.png"));
             textures.put("packed_ice", GraphicUtils.readImage("./design/texture/packed_ice.png"));
             textures.put("bone_block", GraphicUtils.readImage("./design/texture/bone_block.png"));
@@ -224,9 +224,10 @@ public final class DiagramUtils {
             textures.put("repeater", GraphicUtils.readImage("./design/texture/repeater.png"));
             textures.put("note_block", GraphicUtils.readImage("./design/texture/note_block.png"));
             textures.put("redstone_lamp", GraphicUtils.readImage("./design/texture/redstone_lamp.png"));
+            textures.put("magenta_glazed_terracotta", GraphicUtils.readImage("./design/texture/magenta_glazed_terracotta.png"));
             textures.replaceAll((k, v) -> GraphicUtils.scaleByHeight(textures.get(k), pixelSize));
         } catch (Exception e) {
-            throw new OcException("[DiagramUtils][loadBlockTextures]", e);
+            throw new OcException("[DiagramUtils][loadBlockTextures] %s", e);
         }
         return textures;
     }
@@ -239,7 +240,7 @@ public final class DiagramUtils {
             }
             textures.replaceAll((k, v) -> GraphicUtils.scaleByHeight(textures.get(k), pixelSize));
         } catch (Exception e) {
-            throw new OcException("[DiagramUtils][loadMonoColorDigits]", e);
+            throw new OcException("[DiagramUtils][loadMonoColorDigits] %s", e);
         }
         return textures;
     }
@@ -252,7 +253,7 @@ public final class DiagramUtils {
             }
             textures.replaceAll((k, v) -> GraphicUtils.scaleByHeight(textures.get(k), pixelSize));
         } catch (Exception e) {
-            throw new OcException("[DiagramUtils][loadGradientDigits]", e);
+            throw new OcException("[DiagramUtils][loadGradientDigits] %s", e);
         }
         return textures;
     }

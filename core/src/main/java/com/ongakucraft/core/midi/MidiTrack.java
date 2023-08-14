@@ -40,6 +40,6 @@ public final class MidiTrack {
     }
 
     public boolean isValid() {
-        return !containsUnmatchedNoteOn() && !containsUnmatchedNoteOff();
+        return !containsUnmatchedNoteOn();// && !containsUnmatchedNoteOff();
     }
 }

@@ -262,12 +262,12 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\case\\0041\\0059\\レクイエム - Kanaria and 星街すいせい";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Orchestra"; // ok/fail count : 24 / 13
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hopes and Dreams - Undertale"; // ok/fail count : 13 / 8
-//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-Orchestra"; // ok/fail count : 7 / 63
-//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-4-6"; // ok/fail count : 7 / 40
-//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // ok/fail count : 7 / 40 //megalovania (6).mid
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\ヤキモチ - 高橋優";
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\NIGHT DANCER - imase";
-            final var reportIndex = 0;
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\NIGHT DANCER - imase";
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-Orchestra"; // 2041941
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-4-6"; // 1987616
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // megalovania (6).mid, remove 10,11,12
+            final var reportIndex = 1;
             final var reportList = findCandidates(rootDirPath, true, true);
             final var report = reportList.get(reportIndex);
             final var music = Music16.of(report, 1);//, 8, 6);
