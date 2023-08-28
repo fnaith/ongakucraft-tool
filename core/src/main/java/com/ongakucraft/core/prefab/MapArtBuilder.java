@@ -16,25 +16,12 @@ import java.util.Optional;
 
 public final class MapArtBuilder {
     public static final int BLOCK_LENGTH_PER_MAP = 128;
-    public static Structure build(RgbColor[][] image, List<BlockMapColor> blockMapColorList, BlockDataset blockDataset) {
-        final var structure = new Structure();
+
+    public static Structure buildMap(RgbColor[][] image, List<BlockMapColor> blockMapColorList, BlockDataset blockDataset) {
+        final var rgbToMapColor = buildMapColorByLabColor(image, blockMapColorList);
         final var h = image.length;
-        if (BLOCK_LENGTH_PER_MAP != h) {
-            throw new OcException("height of image should be %d : %d", BLOCK_LENGTH_PER_MAP, h);
-        }
         final var w = image[0].length;
-        if (BLOCK_LENGTH_PER_MAP != w) {
-            throw new OcException("width of image should be %s : %d", BLOCK_LENGTH_PER_MAP, w);
-        }
-        for (var y = 0; y < h; ++y) {
-            for (var x = 0; x < w; ++x) {
-                final var rgbColor = image[y][x];
-                if (null == rgbColor) {
-                    throw new OcException("image should not have null pixel : %d %d", x, y);
-                }
-            }
-        }
-        final var rgbToMapColor = findMapColorByLabColor(image, blockMapColorList);
+        final var structure = new Structure();
         final var grassBlock = blockDataset.getBlock("grass_block");
         for (var x = 0; x < w; ++x) {
             final var slice = new Structure();
@@ -45,8 +32,8 @@ public final class MapArtBuilder {
                 final var mapColor = rgbToMapColor.get(rgbColor);
                 y += mapColor.getGradient();
                 final var position = Position.of(x, y, z);
-                final var block = blockDataset.getBlock(mapColor.getId());
-                if (mapColor.getId().getPath().endsWith("_leaves")) {
+                final var block = blockDataset.getBlock(mapColor.getBlockId());
+                if (mapColor.getBlockId().getPath().endsWith("_leaves")) {
                     slice.put(position, block.putProperty("persistent", true));
                 } else {
                     slice.put(position, block);
@@ -78,6 +65,41 @@ public final class MapArtBuilder {
             }
         }
         return structure;
+    }
+
+    public static BlockMapColor[][] buildColorMap(RgbColor[][] image, List<BlockMapColor> blockMapColorList) {
+        final var rgbToMapColor = buildMapColorByLabColor(image, blockMapColorList);
+        final var h = image.length;
+        final var w = image[0].length;
+        final var colorMap = new BlockMapColor[h][w];
+        for (var x = 0; x < w; ++x) {
+            for (var z = 0; z < h; ++z) {
+                final var rgbColor = image[z][x];
+                final var mapColor = rgbToMapColor.get(rgbColor);
+                colorMap[z][x] = mapColor;
+            }
+        }
+        return colorMap;
+    }
+
+    private static Map<RgbColor, BlockMapColor> buildMapColorByLabColor(RgbColor[][] image, List<BlockMapColor> blockMapColorList) {
+        final var h = image.length;
+        if (BLOCK_LENGTH_PER_MAP != h) {
+            throw new OcException("height of image should be %d : %d", BLOCK_LENGTH_PER_MAP, h);
+        }
+        final var w = image[0].length;
+        if (BLOCK_LENGTH_PER_MAP != w) {
+            throw new OcException("width of image should be %s : %d", BLOCK_LENGTH_PER_MAP, w);
+        }
+        for (var y = 0; y < h; ++y) {
+            for (var x = 0; x < w; ++x) {
+                final var rgbColor = image[y][x];
+                if (null == rgbColor) {
+                    throw new OcException("image should not have null pixel : %d %d", x, y);
+                }
+            }
+        }
+        return findMapColorByLabColor(image, blockMapColorList);
     }
 
     private static Map<RgbColor, BlockMapColor> findMapColorByLabColor(RgbColor[][] image, List<BlockMapColor> blockMapColorList) {

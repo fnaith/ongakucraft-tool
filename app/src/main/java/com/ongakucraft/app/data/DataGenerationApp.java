@@ -211,7 +211,7 @@ public final class DataGenerationApp {
                 mapBlockId = blockIdList.get(0);
             }
             log.info("blockIdList : {} {} {}", blockMapColorDefine.getId(), blockIdList.size(), mapBlockId.getPath());
-            baseBlockMapColorList.add(BlockMapColor.of(mapBlockId, blockMapColorDefine.getColor(), 1));
+            baseBlockMapColorList.add(BlockMapColor.of(blockMapColorDefine.getId(), mapBlockId, blockMapColorDefine.getColor(), 1));
         }
         return baseBlockMapColorList;
     }
@@ -227,7 +227,7 @@ public final class DataGenerationApp {
                 final var variantColor = RgbColor.of((int)(rgbColor.getR() * multiplier / 255.0 + 0.5),
                                                      (int)(rgbColor.getG() * multiplier / 255.0 + 0.5),
                                                      (int)(rgbColor.getB() * multiplier / 255.0 + 0.5));
-                blockMapColorList.add(BlockMapColor.of(baseBlockMapColor.getId(), variantColor, gradient));
+                blockMapColorList.add(BlockMapColor.of(baseBlockMapColor.getMapColorId(), baseBlockMapColor.getBlockId(), variantColor, gradient));
             }
         }
         return blockMapColorList;

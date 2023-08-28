@@ -66,10 +66,12 @@ public final class GraphicUtils {
     }
 
     public static void fill(@NonNull BufferedImage bufferedImage, int color) {
-        final var h = bufferedImage.getHeight();
-        final var w = bufferedImage.getWidth();
-        for (var y = 0; y < h; ++y) {
-            for (var x = 0; x < w; ++x) {
+        fill(bufferedImage, color, Range.of(0, bufferedImage.getWidth()), Range.of(0, bufferedImage.getHeight()));
+    }
+
+    public static void fill(@NonNull BufferedImage bufferedImage, int color, @NonNull Range rangeX, @NonNull Range rangeY) {
+        for (var y = rangeY.getStart(); y < rangeY.getStop(); ++y) {
+            for (var x = rangeX.getStart(); x < rangeX.getStop(); ++x) {
                 bufferedImage.setRGB(x, y, color);
             }
         }

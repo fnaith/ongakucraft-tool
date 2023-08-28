@@ -119,13 +119,13 @@ public final class MidiLoadingApp {
         failReportList.sort(Comparator.comparing(MidiFileReport::getMinUnalignedTrackCount).thenComparing(MidiFileReport::getMinUnalignedNoteCount));
         log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
         log.info("-------------------------------------------------");
-        for (var report : okReportList) {
-            log.info(formatFileReportInfo(report));
+        for (var i = 0; i < okReportList.size(); ++i) {
+            log.info("\n({}) {}", i, formatFileReportInfo(okReportList.get(i)));
             log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         }
         log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
         if (logFail) {
-            for (var report : failReportList) {
+            for (final var report : failReportList) {
                 log.info("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
                 log.info(formatFileReportInfo(report) +
                          String.format("unaligned tracks/notes : %d / %d", report.getMinUnalignedTrackCount(), report.getMinUnalignedNoteCount()));
@@ -135,14 +135,15 @@ public final class MidiLoadingApp {
             log.info("-------------------------------------------------");
             log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
             log.info("-------------------------------------------------");
-            for (var report : okReportList) {
+            for (var i = 0; i < okReportList.size(); ++i) {
+                final var report = okReportList.get(i);
                 final var music = Music16.of(report, 1);
-                log.info("\nsequences : {}\n{}", music.getSequenceList().size(), formatOkDetail(report));
+                log.info("\nsequences : {}\n({}) {}", music.getSequenceList().size(), i, formatOkDetail(report));
                 log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             }
             log.info("ok/fail count : {} / {}", okReportList.size(), failReportList.size());
             if (logFail) {
-                for (var report : failReportList) {
+                for (final var report : failReportList) {
                     log.info("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
                     log.info("\n{}", formatFailDetail(report));
                 }
@@ -203,7 +204,7 @@ public final class MidiLoadingApp {
         final var keyDistribution = trackReport.getKeyDistribution(KeyRange.LOWEST_KEY, KeyRange.HIGHEST_KEY);
         for (var key = 0; key < keyDistribution.size(); ++key) {
             final var count = keyDistribution.get(key);
-            for (var noteRange : noteRangeList) {
+            for (final var noteRange : noteRangeList) {
                 if (noteRange[0] <= key && key <= noteRange[1]) {
                     noteRange[2] += count;
                     break;
@@ -266,8 +267,9 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\NIGHT DANCER - imase";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-Orchestra"; // 2041941
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-4-6"; // 1987616
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // megalovania (6).mid, remove 10,11,12
-            final var reportIndex = 1;
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // megalovania (6).mid, remove 10,11,12
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hey Ya - OutKast"; // megalovania (6).mid, remove 10,11,12
+            final var reportIndex = 5; // 5,6,8,13,16,17
             final var reportList = findCandidates(rootDirPath, true, true);
             final var report = reportList.get(reportIndex);
             final var music = Music16.of(report, 1);//, 8, 6);
@@ -278,7 +280,8 @@ public final class MidiLoadingApp {
                          noteSequence.getMinKey(), noteSequence.getMaxKey(), noteSequence.getCount()));
             }
             final var structure = CircuitUtils.buildDemoCircuits(VERSION, music, -50, 3, 3, 3);
-            NbtWriter.of(VERSION).write(structure, rootDirPath + "/demo.nbt");
+//            NbtWriter.of(VERSION).write(structure, rootDirPath + "/demo.nbt");
+            NbtWriter.of(VERSION).write(structure, "C:\\Users\\User\\AppData\\Roaming\\.minecraft\\saves\\Test World 189\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
             log.info("demo size : {} {} {}", structure.getRange3().getX().length(), structure.getRange3().getY().length(), structure.getRange3().getZ().length());
         } catch (Exception e) {
             log.error("MidiLoadingApp", e);

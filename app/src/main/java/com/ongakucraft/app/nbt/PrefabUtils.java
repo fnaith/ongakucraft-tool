@@ -174,10 +174,10 @@ public final class PrefabUtils {
         final var grassBlock = blockDataset.getBlock("grass_block");
         for (var i = 0; i < blockMapColorList.size(); ++i) {
             final var mapColor = blockMapColorList.get(i);
-            final var block = blockDataset.getBlock(mapColor.getId());
+            final var block = blockDataset.getBlock(mapColor.getBlockId());
             for (var j = -1; j <= 1; ++j) {
                 final var position = Position.of(i, j, j);
-                if (mapColor.getId().getPath().endsWith("_leaves")) {
+                if (mapColor.getBlockId().getPath().endsWith("_leaves")) {
                     structure.put(position, block.putProperty("persistent", true));
                 } else {
                     structure.put(position, block);
@@ -196,7 +196,7 @@ public final class PrefabUtils {
         final var scaledBufferedImage = GraphicUtils.scaleByHeight(bufferedImage, 128);
         final var image = GraphicUtils.toRgbImage(scaledBufferedImage);
         final var blockMapColorList = blockDataset.getBlockMapFlatColorList();
-        final var structure = MapArtBuilder.build(image, blockMapColorList, blockDataset);
+        final var structure = MapArtBuilder.buildMap(image, blockMapColorList, blockDataset);
         return structure;
     }
 
@@ -213,7 +213,7 @@ public final class PrefabUtils {
                 final var rangeX = Range.of(col * MapArtBuilder.BLOCK_LENGTH_PER_MAP, (col + 1) * MapArtBuilder.BLOCK_LENGTH_PER_MAP);
                 final var subBufferedImage = GraphicUtils.copy(bufferedImage, rangeX, rangeY);
                 final var image = GraphicUtils.toRgbImage(subBufferedImage);
-                final var structure = MapArtBuilder.build(image, blockMapColorList, blockDataset);
+                final var structure = MapArtBuilder.buildMap(image, blockMapColorList, blockDataset);
                 nbtWriter.write(structure, String.format("%s/map-%d-%d.nbt", outputDirPath, row, col));
                 structure.replace(structure.getRange3(), blockDataset.getBlock("air"));
                 nbtWriter.write(structure, String.format("%s/map-%d-%d-.nbt", outputDirPath, row, col));

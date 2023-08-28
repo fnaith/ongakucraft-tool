@@ -12,19 +12,23 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 @Getter
 @ToString
 public final class BlockMapColor {
-    public static BlockMapColor of(BlockId id, RgbColor rgbolor, int gradient) {
-        return new BlockMapColor(id, rgbolor, gradient);
+    public static BlockMapColor of(int mapColorId, BlockId blockId, RgbColor rgbColor, int gradient) {
+        return new BlockMapColor(mapColorId, blockId, rgbColor, gradient);
     }
 
-    @NonNull private final BlockId id;
+    private final int mapColorId;
+    @NonNull private final BlockId blockId;
     @NonNull private final RgbColor rgbColor;
     private final int gradient;
+    private final int colorId;
     @NonNull private final LabColor labColor;
 
-    private BlockMapColor(BlockId id, RgbColor rgbColor, int gradient) {
-        this.id = id;
+    private BlockMapColor(int mapColorId, BlockId blockId, RgbColor rgbColor, int gradient) {
+        this.mapColorId = mapColorId;
+        this.blockId = blockId;
         this.rgbColor = rgbColor;
         this.gradient = gradient;
+        this.colorId = mapColorId * 4 + gradient + 1;
         labColor = LabColor.of(rgbColor);
     }
 }

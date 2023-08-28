@@ -4,11 +4,13 @@ import com.ongakucraft.app.data.DataLoadingApp;
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.block.Block;
 import com.ongakucraft.core.block.BlockDatasetVersion;
+import com.ongakucraft.core.block.color.BlockMapColor;
 import com.ongakucraft.core.structure.Position;
 import com.ongakucraft.core.structure.Structure;
 import dev.dewy.nbt.Nbt;
 import dev.dewy.nbt.api.Tag;
 import dev.dewy.nbt.io.CompressionType;
+import dev.dewy.nbt.tags.array.ByteArrayTag;
 import dev.dewy.nbt.tags.collection.CompoundTag;
 import dev.dewy.nbt.tags.collection.ListTag;
 import dev.dewy.nbt.tags.primitive.ByteTag;
@@ -35,6 +37,11 @@ public final class NbtWriter {
         structure = structure.clone();
         structure.regulate();
         final var compoundTag = tag(structure, version.getDataVersion());
+        new Nbt().toFile(compoundTag, new File(outputFilePath), CompressionType.GZIP);
+    }
+
+    public void write(BlockMapColor[][] colors, String outputFilePath) throws Exception {
+        final var compoundTag = tag(colors, version.getDataVersion());
         new Nbt().toFile(compoundTag, new File(outputFilePath), CompressionType.GZIP);
     }
 
@@ -71,6 +78,38 @@ public final class NbtWriter {
         tag.put(tag("blocks", blocks));
         tag.put(tag("palette", palettes));
         tag.put(tag("DataVersion", dataVersion));
+        return tag;
+    }
+
+    private static CompoundTag tag(BlockMapColor[][] colors, int dataVersion) {
+        final var tag = new CompoundTag("null");
+        tag.put(tag("DataVersion", dataVersion));
+        tag.put(tag(colors));
+        return tag;
+    }
+
+    private static CompoundTag tag(BlockMapColor[][] colorMap) {
+        final var h = colorMap.length;
+        final var w = colorMap[0].length;
+        final var colors = new byte[w * h];
+        for (var z = 0; z < h; ++z) {
+            final var row = colorMap[z];
+            for (var x = 0; x < w; ++x) {
+                final var mapColor = row[x];
+                colors[x + z * w] = (byte) mapColor.getColorId();
+            }
+        }
+        final var tag = new CompoundTag("data");
+        tag.put(tag("banners", List.of()));
+        tag.put(tag("colors", colors));
+        tag.put(tag("dimension", "minecraft:overworld"));
+        tag.put(tag("frames", List.of()));
+        tag.put(tag("locked", true));
+        tag.put(tag("scale", (byte) 0));
+        tag.put(tag("trackingPosition", false));
+        tag.put(tag("unlimitedTracking", false));
+        tag.put(tag("xCenter", 0));
+        tag.put(tag("zCenter", 0));
         return tag;
     }
 
@@ -131,8 +170,16 @@ public final class NbtWriter {
         return new ListTag<>(name, l);
     }
 
+    private static ByteArrayTag tag(String name, byte[] value) {
+        return new ByteArrayTag(name, value);
+    }
+
     private static ByteTag tag(String name, boolean b) {
-        return new ByteTag(name, (byte) (b ? 11 : 0));
+        return new ByteTag(name, (byte) (b ? 1 : 0));
+    }
+
+    private static ByteTag tag(String name, byte b) {
+        return new ByteTag(name, b);
     }
 
     private static IntTag tag(int i) {
@@ -153,7 +200,7 @@ public final class NbtWriter {
             final var block = blockDataset.getBlock("note_block");
             final var structure = new Structure();
             structure.put(Position.ZERO, block);
-            final var nbtWriter = NbtWriter.of(VERSION);
+            final var nbtWriter = of(VERSION);
             final var snbt = nbtWriter.dump(structure);
             log.info("snbt : {}", snbt);
         } catch (Exception e) {
