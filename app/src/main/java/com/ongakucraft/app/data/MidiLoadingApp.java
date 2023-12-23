@@ -268,9 +268,11 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-Orchestra"; // 2041941
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-4-6"; // 1987616
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // megalovania (6).mid, remove 10,11,12
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hey Ya - OutKast"; // megalovania (6).mid, remove 10,11,12
-            final var reportIndex = 5; // 5,6,8,13,16,17
-            final var reportList = findCandidates(rootDirPath, true, true);
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hey Ya - OutKast"; // megalovania (6).mid, remove 10,11,12
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\High Hopes\\ok"; // D:\Sync\Ongakucraft\midi\High Hopes\ok\High_Hopes (3).mid
+
+            final var reportIndex = 2;
+            final var reportList = findCandidates(rootDirPath, false, true);
             final var report = reportList.get(reportIndex);
             final var music = Music16.of(report, 1);//, 8, 6);
             log.info("-------------------------------------------------");
@@ -279,10 +281,10 @@ public final class MidiLoadingApp {
                 log.info(String.format("id/min-max/count : %2d/%3d-%3d/%3d", noteSequence.getId(),
                          noteSequence.getMinKey(), noteSequence.getMaxKey(), noteSequence.getCount()));
             }
-            final var structure = CircuitUtils.buildDemoCircuits(VERSION, music, -50, 3, 3, 3);
+//            final var structure = CircuitUtils.buildDemoCircuits(VERSION, music, -50, 3, 3, 3);
 //            NbtWriter.of(VERSION).write(structure, rootDirPath + "/demo.nbt");
-            NbtWriter.of(VERSION).write(structure, "C:\\Users\\User\\AppData\\Roaming\\.minecraft\\saves\\Test World 189\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
-            log.info("demo size : {} {} {}", structure.getRange3().getX().length(), structure.getRange3().getY().length(), structure.getRange3().getZ().length());
+//            NbtWriter.of(VERSION).write(structure, "C:\\Users\\User\\AppData\\Roaming\\.minecraft\\saves\\Test World 189\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            log.info("demo size : {} {} {}", structure.getRange3().getX().length(), structure.getRange3().getY().length(), structure.getRange3().getZ().length());
         } catch (Exception e) {
             log.error("MidiLoadingApp", e);
         }
