@@ -6,6 +6,7 @@ buildscript {
 
         jacksonVersion = '2.14.2'
         nbtVersion = '1.5.1'
+        mxlVersion = '4.0.2'
 
         commomIoVersion = '2.11.0'
     }

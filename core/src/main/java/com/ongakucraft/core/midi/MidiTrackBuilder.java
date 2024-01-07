@@ -6,22 +6,22 @@ import java.util.*;
 
 @Getter
 public final class MidiTrackBuilder {
-    private final Map<Integer, Queue<Integer>> keyToOnTickList = new HashMap<>();
+    private final Map<Integer, Queue<int[]>> keyToOnInfoList = new HashMap<>();
     private final List<MidiNote> notes = new ArrayList<>();
     private final List<MidiNote> unmatchedNoteOffList = new ArrayList<>();
     private final List<String> instruments = new ArrayList<>();
 
-    public void on(int key, int tick) {
-        getOnTicks(key).add(tick);
+    public void on(int key, int onTick, int onVelocity) {
+        getOnInfoList(key).add(new int[]{onTick, onVelocity});
     }
 
-    public void off(int key, int tick) {
-        final var onTicks = getOnTicks(key);
-        if (onTicks.isEmpty() || tick < onTicks.peek()) {
-            unmatchedNoteOffList.add(MidiNote.of(key, tick, tick));
+    public void off(int key, int offTick) {
+        final var onInfoList = getOnInfoList(key);
+        if (onInfoList.isEmpty() || offTick < onInfoList.peek()[0]) {
+            unmatchedNoteOffList.add(MidiNote.of(key, offTick, offTick));
         } else {
-            final var onTick = onTicks.poll();
-            notes.add(MidiNote.of(key, onTick, tick));
+            final var onInfo = onInfoList.poll();
+            notes.add(MidiNote.of(key, onInfo[0], offTick, onInfo[1]));
         }
     }
 
@@ -32,13 +32,13 @@ public final class MidiTrackBuilder {
     }
 
     public MidiTrack build(int id) {
-        final var unmatchedNoteOnList = keyToOnTickList.entrySet().stream()
-                                                    .map(entry -> entry.getValue().stream().map(tick -> MidiNote.of(entry.getKey(), tick, tick)).toList())
+        final var unmatchedNoteOnList = keyToOnInfoList.entrySet().stream()
+                                                    .map(entry -> entry.getValue().stream().map(onInfo -> MidiNote.of(entry.getKey(), onInfo[0], onInfo[0])).toList())
                                                     .flatMap(List::stream).toList();
         return MidiTrack.of(id, notes, unmatchedNoteOnList, unmatchedNoteOffList, instruments);
     }
 
-    private Queue<Integer> getOnTicks(int key) {
-        return keyToOnTickList.computeIfAbsent(key, k -> new LinkedList<>());
+    private Queue<int[]> getOnInfoList(int key) {
+        return keyToOnInfoList.computeIfAbsent(key, k -> new LinkedList<>());
     }
 }

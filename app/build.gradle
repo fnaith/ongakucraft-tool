@@ -3,4 +3,5 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "commons-io:commons-io:$commomIoVersion"
     implementation "dev.dewy:nbt:$nbtVersion"
+    implementation "org.audiveris:proxymusic:$mxlVersion"
 }

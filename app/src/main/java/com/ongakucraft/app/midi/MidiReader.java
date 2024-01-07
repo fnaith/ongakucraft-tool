@@ -80,8 +80,9 @@ public final class MidiReader {
             final var tick = (int) event.getTick();
             switch (sm.getCommand()) {
                 case ShortMessage.NOTE_ON:
-                    if (0 < sm.getData2()) {
-                        trackBuilder.on(key, tick);
+                    final var velocity = sm.getData2();
+                    if (0 < velocity) {
+                        trackBuilder.on(key, tick, velocity);
                     } else {
                         trackBuilder.off(key, tick);
                     }

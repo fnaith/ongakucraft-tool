@@ -9,13 +9,20 @@ import static lombok.EqualsAndHashCode.CacheStrategy.LAZY;
 @Getter
 @ToString
 public final class MidiNote implements Comparable<MidiNote> {
+    private static final int DEFAULT_VELOCITY = 100;
+
     private final int key;
     private final int on;
     private final int off;
+    private final int velocity;
     private final int duration;
 
     public static MidiNote of(int key, int on, int off) {
-        return new MidiNote(key, on, off, off - on);
+        return of(key, on, off, DEFAULT_VELOCITY);
+    }
+
+    public static MidiNote of(int key, int on, int off, int velocity) {
+        return new MidiNote(key, on, off, velocity, off - on);
     }
 
     @Override

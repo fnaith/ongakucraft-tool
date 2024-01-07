@@ -24,19 +24,6 @@ import java.util.stream.IntStream;
 public final class MidiLoadingApp {
     private static final BlockDatasetVersion VERSION = BlockDatasetVersion.of("1.18.2", 2975);
 
-    private static void printMidiFile(String filePath) {
-        log.info("filePath : {}", filePath);
-        final var midiFile = MidiReader.read(filePath);
-        log.info("msDuration : {}", midiFile.getMsDuration());
-        log.info("wholeNoteTicks : {}", midiFile.getWholeNoteTicks());
-        for (final var track : midiFile.getTrackList()) {
-            log.info("track : {}", track.getId());
-            for (final var note : track.getNoteList()) {
-                log.info("note : {}", note);
-            }
-        }
-    }
-
     private static void checkMidiFiles(String dirPath) {
         try {
             final var okCount = new AtomicInteger(0);
@@ -255,8 +242,6 @@ public final class MidiLoadingApp {
 
     public static void main(String[] args) {
         try {
-//            printMidiFile("data/generated/input/Happy_Birthday/Happy_Birthday_for_Violin.mid");
-//            printMidiFile("data/generated/input/Happy_Birthday/Happy_Birthday_for_Violin-align.mid");
 //            final var rootDirPath = "C:\\Users\\User\\Downloads\\midi";
 //            checkMidiFiles(rootDirPath);
 
@@ -269,9 +254,10 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-4-6"; // 1987616
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Megalovania - Undertale\\Meglovania-"; // megalovania (6).mid, remove 10,11,12
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Hey Ya - OutKast"; // megalovania (6).mid, remove 10,11,12
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\High Hopes\\ok"; // D:\Sync\Ongakucraft\midi\High Hopes\ok\High_Hopes (3).mid
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\High Hopes\\ok"; // D:\Sync\Ongakucraft\midi\High Hopes\ok\High_Hopes (3).mid
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\blue clapper"; // BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mid
 
-            final var reportIndex = 2;
+            final var reportIndex = 1;
             final var reportList = findCandidates(rootDirPath, false, true);
             final var report = reportList.get(reportIndex);
             final var music = Music16.of(report, 1);//, 8, 6);
