@@ -1328,6 +1328,218 @@ division / staffs / min. : 16 / 11 / 01:32
         return structure;
     }
 
+    private static Structure livingLillennium(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var timeScale = 3;
+        final var midiFile = MidiReader.read(inputFilePath, timeScale);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1);
+        final var sequenceList = music.getSequenceList();
+/*
+sequences : 29
+(0) path : D:\Sync\Ongakucraft\midi\living millennium - iyowa\1000_-_-clean.mid
+url : null
+division / staffs / min. : 16 / 12 / 03:09
+	track : 1 [piano 1]
+	ticks/start/end : 556 / 4 / 462
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |    5 |      |  116 |    3 |  226 |   17 |  189 |      |      |      |
+	track : 2 []
+	ticks/start/end : 533 / 4 / 455
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   11 |      |  148 |   16 |  108 |   15 |  234 |    1 |      |      |
+	track : 3 [piano 1]
+	ticks/start/end : 620 / 28 / 454
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   26 |    2 |  252 |   38 |  296 |      |    6 |      |
+	track : 4 []
+	ticks/start/end : 435 / 50 / 455
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   10 |    2 |  117 |    9 |  142 |   11 |  123 |    3 |   18 |      |
+	track : 5 [piano 1]
+	ticks/start/end : 1835 / 5 / 500
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   26 |   19 |  980 |   96 |  638 |    1 |   75 |      |      |      |
+	track : 6 []
+!!!	adjustable octaves [1, 2, 3]
+!!!	min/max/lower/higher : 30 / 62 / 1 / 0
+	ticks/start/end : 682 / 5 / 506
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|    8 |  199 |   23 |  330 |   15 |  106 |      |      |      |      |      |      |      |
+	track : 7 [piano 1]
+	ticks/start/end : 252 / 120 / 449
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   86 |   16 |  150 |      |      |      |      |      |
+	track : 8 []
+!!!	adjustable octaves [1, 2, 3]
+!!!	min/max/lower/higher : 30 / 65 / 14 / 0
+	ticks/start/end : 642 / 28 / 495
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|   14 |  362 |   25 |  194 |    9 |   24 |      |      |      |      |      |      |      |
+	track : 9 [piano 1]
+	ticks/start/end : 76 / 408 / 500
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |      |      |   24 |   10 |   42 |      |      |      |
+	track : 10 []
+	ticks/start/end : 38 / 408 / 454
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   12 |    5 |   21 |      |      |      |      |      |
+	track : 11 [piano 1]
+	ticks/start/end : 654 / 5 / 501
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |  622 |   12 |   19 |      |    1 |      |      |      |      |      |      |      |
+	track : 12 [piano 1]
+	ticks/start/end : 633 / 5 / 501
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |    3 |  492 |  138 |      |      |      |      |      |      |      |      |      |
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 49- 87/548
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 61- 72/  8
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 48- 90/503
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 52- 72/ 29
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 56- 93/551
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 62- 87/ 47
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 68- 79/ 18
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  8/ 48- 92/221
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  8/ 53- 94/110
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  8/ 62- 94/ 89
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  8/ 67- 87/ 13
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 51- 88/642
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 55- 84/525
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 60- 86/492
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 63- 84/156
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 70- 85/ 11
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 71- 87/  6
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 88- 88/  2
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 12/ 89- 89/  1
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 20/ 27- 62/384
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 20/ 39- 58/271
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 20/ 53- 58/ 25
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 23/ 55- 75/252
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 24/ 29- 65/641
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 25/ 73- 85/ 76
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 26/ 61- 73/ 38
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 27/ 36- 49/479
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 27/ 38- 55/173
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 29/ 42- 51/630
+
+/function ongakucraft:set_circuit
+/tp @a 36 -35 0 0 90
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..8431}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..8431}] as @a at @s run tp @s ~ ~ ~0.3333 0 90
+/execute if entity @e[scores={ticks=8431..8441}] as @a at @s run scoreboard players set @a ticks 0
+
+// 1 bpm 100 / tick rate 30
+// 46 bpm 200 / 45*16*3/3*2 = *1,440* / tick rate 60
+// 64 bpm 100 / 63*16*3/3*2 = *2,016* / tick rate 30
+*/
+        final List<Structure> circuits = new ArrayList<>();
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR, Instrument.FLUTE);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR, Instrument.FLUTE);
+        final var convertor2 = FindFirstInstrumentNoteConvertor.of(0, Instrument.SQUARE_WAVE, Instrument.CHIME);
+        final var convertor22 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.CHIME);
+        final var convertor3 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP, Instrument.FLUTE, Instrument.BELL);
+        final var convertor4 = FindFirstInstrumentNoteConvertor.of(1, Instrument.HARP, Instrument.XYLOPHONE);
+        final var convertor42 = FindFirstInstrumentNoteConvertor.of(1, Instrument.HARP, Instrument.BELL);
+        final var convertor5 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.SQUARE_WAVE);
+        final var convertor52 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.HARP);
+        final var convertor6 = FindFirstInstrumentNoteConvertor.of(1, Instrument.FLUTE);
+        final var convertor7 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BANJO, Instrument.DIDGERIDOO);
+        final var convertor8 = FindFirstInstrumentNoteConvertor.of(0, Instrument.COW_BELL);
+        final var convertor9 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE);
+        final var convertor10 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.GUITAR);
+        final var convertor11 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS_DRUM);
+        final CircuitBuilder rightBuilderF = FishBoneOneSide3Builder.of(blockDataset, true, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {0}, {1},
+                {2}, {3},
+                {4}, {5}, {6},
+                {7}, {8}, {9}, {10},
+                {11}, {12}, {13}, {14}, {15}, {16}, {17}, {18},
+                {19}, {20}, {21},
+                {22},
+                {23},
+                {24},
+                {25},
+                {26}, {27},
+                {28}
+        };
+        final NoteConvertor[] convertors = {
+                convertor0, convertor0,
+                convertor1, convertor1,
+                convertor2, convertor22, convertor22,
+                convertor3, convertor3, convertor3, convertor3,
+                convertor4, convertor4, convertor42, convertor42, convertor42, convertor42, convertor42, convertor42,
+                convertor5, convertor52, convertor52,
+                convertor6,
+                convertor7,
+                convertor8,
+                convertor9,
+                convertor10, convertor10,
+                convertor11
+        };
+        final CircuitBuilder[] builders = {
+                rightBuilderF, rightBuilderF,
+                rightBuilderF, rightBuilderF,
+                rightBuilderF, rightBuilderF, rightBuilderF,
+                rightBuilderF, rightBuilderF, rightBuilderF, rightBuilderF,
+                rightBuilderF, rightBuilderF, rightBuilderF, rightBuilderF, rightBuilderF, rightBuilderF, rightBuilderF, rightBuilderF,
+                rightBuilderF, rightBuilderF, rightBuilderF,
+                rightBuilderF,
+                rightBuilderF,
+                rightBuilderF,
+                rightBuilderF,
+                rightBuilderF, rightBuilderF,
+                rightBuilderF
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            for (final var index : groups[i]) {
+                final var noteConvertor = convertors[index];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(index)));
+            }
+            circuits.add(builders[i].generate(subSequenceList));
+        }
+
+        final var heads = List.of(
+                Position.of(0, 0, 0), Position.of(0, 3, 0),
+                Position.of(7, 0, 0), Position.of(7, 3, 0),
+                Position.of(14, 0, 0), Position.of(14, 3, 0), Position.of(14, 6, 0),
+                Position.of(21, 0, 0), Position.of(21, 3, 0), Position.of(21, 6, 0), Position.ZERO,
+                Position.of(28, 0, 0), Position.of(28, 3, 0), Position.of(28, 6, 0), Position.ZERO,
+                Position.ZERO, Position.ZERO, Position.ZERO, Position.ZERO,
+                Position.of(35, 0, 0), Position.of(35, 3, 0), Position.of(35, 6, 0),
+                Position.of(42, 0, 0), Position.of(42, 3, 0),
+                Position.of(49, 0, 0), Position.of(49, 3, 0),
+                Position.of(56, 0, 0), Position.of(56, 3, 0), Position.of(56, 6, 0)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            if (10 == i || (14 <= i && i <= 18)) {
+                continue;
+            }
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(1000)));
+
+        final var outputFilePath = String.format("%s/%s/structure/living-millennium.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -1389,8 +1601,12 @@ division / staffs / min. : 16 / 11 / 01:32
 //            nbtWriter.write(structure, "C:\\Users\\User\\AppData\\Roaming\\.minecraft\\saves\\case62c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 //            nbtWriter.write(structure, outputFilePath);
 
-            final var inputFilePath = String.format("%s/input/high-hopes/High_Hopes (3).mid", ROOT_DIR_PATH);
-            final var structure = highHopes(VERSION, inputFilePath);
+//            final var inputFilePath = String.format("%s/input/high-hopes/High_Hopes (3).mid", ROOT_DIR_PATH);
+//            final var structure = highHopes(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\Test World 193\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/living millennium - iyowa/1000_-_-clean.mid", ROOT_DIR_PATH);
+            final var structure = livingLillennium(VERSION, inputFilePath);
             nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\Test World 193\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);

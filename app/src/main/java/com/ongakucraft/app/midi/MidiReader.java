@@ -27,6 +27,10 @@ public final class MidiReader {
     private static final int SIMULTANEOUS_TRACKS = 1;
 
     public static MidiFile read(String filePath) {
+        return read(filePath, 1);
+    }
+
+    public static MidiFile read(String filePath, int timeScale) {
         final var sourceUrl = getSourceUrl(filePath);
         final var sequence = getSequence(filePath);
         checkFileType(sequence, filePath);
@@ -34,7 +38,7 @@ public final class MidiReader {
         final var msDuration = (int)(sequence.getMicrosecondLength() / 1000);
         final var wholeNoteTicks = getWholeNoteTicks(sequence);
         final List<MidiTempo> tempoList = new ArrayList<>();
-        final var tracks = getMidiTracks(sequence.getTracks(), tempoList);
+        final var tracks = getMidiTracks(sequence.getTracks(), tempoList, timeScale);
         return MidiFile.of(filePath, sourceUrl, msDuration, wholeNoteTicks, tracks, tempoList);
     }
 
@@ -70,14 +74,14 @@ public final class MidiReader {
         return sequence.getResolution() * 4;
     }
 
-    private static List<MidiTrack> getMidiTracks(Track[] tracks, List<MidiTempo> tempoList) {
+    private static List<MidiTrack> getMidiTracks(Track[] tracks, List<MidiTempo> tempoList, int timeScale) {
         final var instruments = getInstruments();
         final var trackIdToBuilder = new HashMap<Integer, MidiTrackBuilder>();
         iterateNote(tracks, (id, event) -> {
             final var trackBuilder = trackIdToBuilder.computeIfAbsent(id, info -> new MidiTrackBuilder());
             final var sm = (ShortMessage) event.getMessage();
             final var key = sm.getData1();
-            final var tick = (int) event.getTick();
+            final var tick = ((int) event.getTick()) * timeScale;
             switch (sm.getCommand()) {
                 case ShortMessage.NOTE_ON:
                     final var velocity = sm.getData2();

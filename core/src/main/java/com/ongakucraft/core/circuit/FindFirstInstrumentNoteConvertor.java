@@ -29,7 +29,7 @@ public final class FindFirstInstrumentNoteConvertor implements NoteConvertor {
             }
         }
         if (null == instrument) {
-            throw new OcException("[FindFirstInstrumentNoteConvertor][convert] fail : {}, {}, {}", sequence.getId(), beat, note.getKey());
+            throw new OcException("[FindFirstInstrumentNoteConvertor][convert] fail : %d, %d, %d", sequence.getId(), beat, note.getKey());
         }
         return Note.of(instrument.getPath(), key - instrument.getKeyRange().getMin());
     }
