@@ -1,7 +1,8 @@
 package com.ongakucraft.core.ftm;
 
 import com.ongakucraft.core.OcException;
-import lombok.*;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @ToString

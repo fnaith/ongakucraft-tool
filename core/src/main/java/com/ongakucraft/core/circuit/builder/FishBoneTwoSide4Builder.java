@@ -8,19 +8,19 @@ import com.ongakucraft.core.structure.Structure;
 
 import java.util.List;
 
-public final class FishBoneTwoSideBuilder extends CircuitBuilder {
-    public static FishBoneTwoSideBuilder of(BlockDataset blockDataset, String floorPath, String stubPath) {
-        return new FishBoneTwoSideBuilder(blockDataset,
-                                          FishBoneOneSideBuilder.of(blockDataset, false, floorPath, stubPath),
-                                          FishBoneOneSideBuilder.of(blockDataset, true, floorPath, stubPath));
+public final class FishBoneTwoSide4Builder extends CircuitBuilder {
+    public static FishBoneTwoSide4Builder of(BlockDataset blockDataset, String floorPath, String stubPath) {
+        return new FishBoneTwoSide4Builder(blockDataset,
+                                           FishBoneOneSide4Builder.of(blockDataset, false, floorPath, stubPath),
+                                           FishBoneOneSide4Builder.of(blockDataset, true, floorPath, stubPath));
     }
 
     private final FishBoneOneSideBuilder fishBoneRightSideBuilder;
     private final FishBoneOneSideBuilder fishBoneLeftSideBuilder;
 
-    private FishBoneTwoSideBuilder(BlockDataset blockDataset,
-                                   FishBoneOneSideBuilder fishBoneLeftSideBuilder,
-                                   FishBoneOneSideBuilder fishBoneRightSideBuilder) {
+    private FishBoneTwoSide4Builder(BlockDataset blockDataset,
+                                    FishBoneOneSideBuilder fishBoneLeftSideBuilder,
+                                    FishBoneOneSideBuilder fishBoneRightSideBuilder) {
         super(blockDataset);
         this.fishBoneLeftSideBuilder = fishBoneLeftSideBuilder;
         this.fishBoneRightSideBuilder = fishBoneRightSideBuilder;

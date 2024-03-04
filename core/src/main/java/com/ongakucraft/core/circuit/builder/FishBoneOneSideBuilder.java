@@ -8,19 +8,16 @@ import com.ongakucraft.core.structure.Cursor;
 import java.util.List;
 
 public final class FishBoneOneSideBuilder extends CircuitBuilder {
-    public static final int BEATS_PER_SECTION = 4;
-
-    public static FishBoneOneSideBuilder of(BlockDataset blockDataset, boolean turnRight, String floorPath, String stubPath) {
-        return new FishBoneOneSideBuilder(blockDataset, turnRight, floorPath, stubPath);
-    }
-
+    private final int beatsPerSection;
     private final boolean turnRight;
     private final String floor;
     private final String stub;
 
-    private FishBoneOneSideBuilder(BlockDataset blockDataset, boolean turnRight,
-                                   String floorPath, String stubPath) {
+    public FishBoneOneSideBuilder(BlockDataset blockDataset,
+                                  int beatsPerSection, boolean turnRight,
+                                  String floorPath, String stubPath) {
         super(blockDataset);
+        this.beatsPerSection = beatsPerSection;
         this.turnRight = turnRight;
         floor = floorPath;
         stub = stubPath;
@@ -41,12 +38,12 @@ public final class FishBoneOneSideBuilder extends CircuitBuilder {
         final var sequence0 = sequenceList.get(0);
         final var sequence1 = sequenceList.get(1);
         final var maxBeat = sequenceList.stream().map(List::size).max(Integer::compareTo).orElse(0);
-        final var beats = maxBeat + (BEATS_PER_SECTION - maxBeat % BEATS_PER_SECTION) % BEATS_PER_SECTION;
+        final var beats = maxBeat + (beatsPerSection - maxBeat % beatsPerSection) % beatsPerSection;
         for (var beat = 0; beat < beats; ++beat) {
-            final var beatIndex = beat % BEATS_PER_SECTION;
+            final var beatIndex = beat % beatsPerSection;
             if (0 == beatIndex) {
                 branchLength = 0;
-                for (var i = 0; i < BEATS_PER_SECTION; ++i) {
+                for (var i = 0; i < beatsPerSection; ++i) {
                     for (final var sequence : sequenceList) {
                         if (beat + i < sequence.size() && null != sequence.get(beat + i)) {
                             branchLength = i + 1;
@@ -55,7 +52,7 @@ public final class FishBoneOneSideBuilder extends CircuitBuilder {
                 }
 
                 trunkCursorLow.place(floor).step();
-                trunkCursorHigh.placeRepeater(BEATS_PER_SECTION).step();
+                trunkCursorHigh.placeRepeater(beatsPerSection).step();
 
                 branchCursorLow = trunkCursorLow.clone().face(turn).step();
                 branchCursorHigh = trunkCursorHigh.clone().face(turn).step();
