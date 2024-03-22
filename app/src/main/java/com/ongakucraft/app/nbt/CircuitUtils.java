@@ -1707,6 +1707,132 @@ division / staffs / min. : 16 / 6 / 02:11
         return structure;
     }
 
+    private static Structure blingBangBangBorn(BlockDatasetVersion version, String inputFilePath) throws Exception {
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1);
+        final var sequenceList = music.getSequenceList();
+/*
+sequences : 9
+(0) path : D:\Sync\Ongakucraft\midi\bling bang bang born - Mashle OP 2\Bling-Bang-Bang-Born (1).mid
+url : https://musescore.com/user/38788197/scores/14167417
+division / staffs / min. : 16 / 5 / 01:14
+	track : 0 [vibraphone]
+	ticks/start/end : 342 / 0 / 93
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   80 |    3 |  224 |    1 |   34 |      |      |      |
+	track : 1 [marimba]
+	ticks/start/end : 367 / 3 / 93
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   54 |    1 |  311 |    1 |      |      |      |      |
+	track : 2 []
+	ticks/start/end : 19 / 0 / 94
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   14 |    2 |    3 |      |      |      |      |      |      |      |
+	track : 3 [xylophone]
+	ticks/start/end : 411 / 1 / 92
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |      |      |  139 |    1 |  263 |      |    8 |      |
+	track : 4 [piano 1]
+	ticks/start/end : 225 / 1 / 94
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |  225 |      |      |      |      |      |      |      |      |      |      |      |
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 56- 84/272
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 66- 84/ 70
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 56- 77/250
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 68- 78/117
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 45- 55/ 18
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  5/ 57- 57/  1
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  7/ 69- 98/383
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  7/ 72- 88/ 28
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  9/ 36- 36/225
+
+/function ongakucraft:set_circuit
+/tp @a 33 -38 -6 0 40
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..1570}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..1570}] as @a at @s run tp @s ~ ~ ~0.5 0 40
+/execute if entity @e[scores={ticks=1570..1590}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final List<Structure> circuits = new ArrayList<>();
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.XYLOPHONE);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.PLING, Instrument.XYLOPHONE);
+        final var convertor2 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP);
+        final var convertor3 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP);
+        final var convertor4 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR);
+        final var convertor5 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR);
+        final var convertor6 = FindFirstInstrumentNoteConvertor.of(0, Instrument.XYLOPHONE, Instrument.IRON_XYLOPHONE);
+        final var convertor7 = FindFirstInstrumentNoteConvertor.of(0, Instrument.XYLOPHONE, Instrument.IRON_XYLOPHONE);
+        final var convertor8 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS_DRUM);
+        final CircuitBuilder leftBuilderF = FishBoneOneSide2Builder.of(blockDataset, false, "barrier", "redstone_lamp");
+        final CircuitBuilder rightBuilderF = FishBoneOneSide2Builder.of(blockDataset, true, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {0, 1},
+                {2, 3},
+                {4, 5},
+                {6, 7},
+                {8}
+        };
+        final NoteConvertor[] convertors = {
+                convertor0, convertor1,
+                convertor2, convertor3,
+                convertor4, convertor5,
+                convertor6, convertor7,
+                convertor8
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            for (final var index : groups[i]) {
+                final var noteConvertor = convertors[index];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(index)));
+            }
+            circuits.add(leftBuilderF.generate(subSequenceList));
+            circuits.add(rightBuilderF.generate(subSequenceList));
+        }
+
+        final var gap = 9;
+        final var heads = List.of(
+                Position.of((gap + 0), 0, 0),
+                Position.of(-(gap + 0), 0, 0),
+
+                Position.of((gap + 5), -3, 1),
+                Position.of(-(gap + 5), -3, 1),
+
+                Position.of((gap + 10), 0, 3),
+                Position.of(-(gap + 10), 0, 3),
+
+                Position.of((gap + 15), -3, 6),
+                Position.of(-(gap + 15), -3, 6),
+
+                Position.of((gap + 20), 0, 10),
+                Position.of(-(gap + 20), 0, 10)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/bling-bang-bang-born.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -1776,9 +1902,13 @@ division / staffs / min. : 16 / 6 / 02:11
 //            final var structure = livingLillennium(VERSION, inputFilePath);
 //            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\Test World 193\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 
-            final var inputFilePath = String.format("%s/input/HOLOTORI Dance/HOLOTORI_Dance-clean.mid", ROOT_DIR_PATH);
-            final var structure = holotoriDance(VERSION, inputFilePath);
-            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case65c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            final var inputFilePath = String.format("%s/input/HOLOTORI Dance/HOLOTORI_Dance-clean.mid", ROOT_DIR_PATH);
+//            final var structure = holotoriDance(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case65c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/bling bang bang born - Mashle OP 2/Bling-Bang-Bang-Born (1).mid", ROOT_DIR_PATH);
+            final var structure = blingBangBangBorn(VERSION, inputFilePath);
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case66c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }

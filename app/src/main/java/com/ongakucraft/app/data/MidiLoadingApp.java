@@ -172,10 +172,10 @@ public final class MidiLoadingApp {
                 final var unalignedTicks = unalignedNotes.stream().map(note -> note.getOn() / report.getFile().getWholeNoteTicks() + 1).toList();
                 sb.append(String.format("\tnotes/unaligned : %d / %d%n", track.getNoteList().size(), unalignedTicks.size()));
                 sb.append(String.format("\t\t%s%n", unalignedTicks));
-                for (final var note : unalignedNotes) {
-                    log.info("{} {}", (note.getOn() / 1) / 1920, (note.getOn() / 1) % 1920);
-                }
-                log.info("----------");
+//                for (final var note : unalignedNotes) {
+//                    log.info("{} {}", (note.getOn() / 1) / 1920, (note.getOn() / 1) % 1920);
+//                }
+//                log.info("----------");
             }
         }
         return sb.toString();
@@ -261,10 +261,11 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\High Hopes\\ok"; // D:\Sync\Ongakucraft\midi\High Hopes\ok\High_Hopes (3).mid
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\blue clapper"; // BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mid
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\living millennium - iyowa";
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\HOLOTORI Dance";
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\HOLOTORI Dance";
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\bling bang bang born - Mashle OP 2";
 
             final var reportIndex = 0;
-            final var timeScale = 2;
+            final var timeScale = 1;
             final var reportList = findCandidates(rootDirPath, true, true, timeScale);
             final var report = reportList.get(reportIndex);
             final var music = Music16.of(report, 1);//, 8, 6);
