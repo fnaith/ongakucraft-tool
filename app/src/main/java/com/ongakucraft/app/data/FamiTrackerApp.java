@@ -4,6 +4,7 @@ import com.ongakucraft.app.midi.MidiReader;
 import com.ongakucraft.core.OcException;
 import com.ongakucraft.core.ftm.FtmChannel;
 import com.ongakucraft.core.ftm.FtmEffect;
+import com.ongakucraft.core.ftm.FtmInstrument;
 import com.ongakucraft.core.ftm.FtmNote;
 import com.ongakucraft.core.ftm.FtmSong;
 import com.ongakucraft.core.midi.MidiNote;
@@ -154,7 +155,8 @@ public final class FamiTrackerApp {
         channelList.add(FtmChannel.of(toFtmTrack(allMonoTracks.get(2), durationToRows, 14)));
         channelList.add(FtmChannel.of(toFtmTrack(allMonoTracks.get(3), durationToRows, 14)));
         channelList.add(null);
-        final var song = FtmSong.of(146, channelList);
+        final var song = FtmSong.of("BLUE CLAPPER", "Ongakucraft", "COVER Corp.",
+                                    146, List.of(), channelList);
         log.info(song.toString());
     }
 
@@ -759,7 +761,6 @@ public final class FamiTrackerApp {
         }
     }
 
-
     private static void setChannel(List<FtmNote> mxlChannel, int instrument, int volume) {
         for (final var ftmNote : mxlChannel) {
             if (null != ftmNote) {
@@ -768,7 +769,7 @@ public final class FamiTrackerApp {
             }
         }
     }
-    private static void blueClapperFromMxl(String filePath) {
+    private static void blueClapperFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
         final var scorePartwise = loadMxl(filePath);
         parseMxl(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
         // remove rest note
@@ -869,17 +870,24 @@ public final class FamiTrackerApp {
                 }
             }
         }
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        instrumentList.add(nameToInstrument.get("gemuwo-candid-2a03-Piano"));
         for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
             final var channel1 = mxlChannelList.get("1");
             final var channel2 = mxlChannelList.get("2");
             final var channel3 = mxlChannelList.get("3");
             final var channel5 = mxlChannelList.get("5");
             final var channel6 = mxlChannelList.get("6");
-            setChannel(channel1, 4, 8);
-            setChannel(channel2, 4, 8);
-            setChannel(channel3, 7, 7);
-            setChannel(channel5, 11, 6);
-            setChannel(channel6, 11, 6);
+            setChannel(channel1, 0, 8);
+            setChannel(channel2, 0, 8);
+            setChannel(channel3, 1, 7);
+            setChannel(channel5, 3, 6);
+            setChannel(channel6, 3, 6);
             final List<FtmChannel> channelList = new ArrayList<>();
             channelList.add(FtmChannel.of(channel1));
             channelList.add(FtmChannel.of(channel2));
@@ -889,7 +897,8 @@ public final class FamiTrackerApp {
             channelList.add(FtmChannel.of(channel5));
             channelList.add(FtmChannel.of(channel6));
             channelList.add(null);
-            final var ftmSong = FtmSong.of(146, channelList);
+            final var ftmSong = FtmSong.of("BLUE CLAPPER", "Ongakucraft", "COVER Corp.",
+                                           146, instrumentList, channelList);
 //            log.info("channelList : {}", channelList.size());
             log.info("{}", ftmSong);
         }
@@ -917,7 +926,11 @@ public final class FamiTrackerApp {
 //            final var mxlRows = groupMxlNoteNameByRow(mxlFilePath, measures, mxlDivisions16List.get(0));
 //            diffNoteGroupByRow(midiRows, mxlRows, measures);
 
-            blueClapperFromMxl(mxlFilePath);
+            // load instrument
+//            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
+            final var instrumentRootDirPath = "D:\\Share\\LoopHero\\8bits\\_instrument_txt";
+            final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
+            blueClapperFromMxl(mxlFilePath, nameToInstrument);
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
         }
