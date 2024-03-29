@@ -11,7 +11,8 @@ import java.util.stream.IntStream;
 
 @Getter
 public final class Staff {
-    public static Staff of(MidiTrackReport trackReport, int beats, int divisionTicks, int startSequenceId, int maxDuration, int extendDuration, int extendModular) {
+    public static Staff of(MidiTrackReport trackReport, int beats, int divisionTicks, int startSequenceId, int maxDuration,
+                           int extendMinDuration, int extendDuration, int extendModular) {
         final var beatToNoteList = generateBeatToNotes(beats);
         for (var note : trackReport.getTrack().getNoteList()) {
             for (var tick = note.getOn(); tick < note.getOff(); tick += divisionTicks) {
@@ -19,6 +20,9 @@ public final class Staff {
                 final var beatIndex = beat - (note.getOn() / divisionTicks);
                 if (maxDuration < beatIndex + 1) {
                     if (note.getDuration() / divisionTicks < extendDuration) {
+                        if (note.getDuration() / divisionTicks < extendMinDuration) {
+                            continue;
+                        }
                         if (0 != beatIndex % extendModular) {
                             continue;
                         }

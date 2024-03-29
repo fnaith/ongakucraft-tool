@@ -1833,6 +1833,134 @@ division / staffs / min. : 16 / 5 / 01:14
         return structure;
     }
 
+    private static Structure alive(BlockDatasetVersion version, String inputFilePath) throws Exception {
+/*
+sequences : 6
+url : https://musescore.com/user/28845685/scores/8948702
+division / staffs / min. : 16 / 2 / 01:29
+	track : 0 [piano 1]
+	ticks/start/end : 260 / 0 / 53
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   60 |      |  151 |      |   49 |      |      |      |
+	track : 1 []
+!!!	adjustable octaves [1, 2]
+!!!	min/max/lower/higher : 31 / 69 / 7 / 0
+	ticks/start/end : 341 / 0 / 53
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |   78 |      |  187 |      |   68 |      |    1 |      |      |      |      |      |
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 55- 79/173
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 62- 84/ 78
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 81- 86/  9
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 24- 69/287
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 31- 62/ 52
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 36- 55/  2
+
+/function ongakucraft:set_circuit
+/tp @a 23 -44 -8 0 30
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..904}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..904}] as @a at @s run tp @s ~ ~ ~0.5 0 30
+/execute if entity @e[scores={ticks=904..914}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1, 6, 32, 1);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final CircuitBuilder rightBuilderS = SquareWaveBuilder.of(blockDataset, true, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderS = SquareWaveBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderC = CheckPatternBuilder.of(blockDataset, false, 0, "barrier", "redstone_lamp");
+        final CircuitBuilder rightBuilderCD = CheckPatternBuilder.of(blockDataset, true, 1, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {2}, {0}, {1},
+                {4}, {3}, {5},
+                {2}, {0}, {1},
+                {4}, {3}, {5},
+                {2}, {0}, {1},
+                {4}, {3}, {5},
+        };
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.HARP, Instrument.BELL);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.HARP, Instrument.BELL);
+        final NoteConvertor[][] convertors = {
+                {convertor0}, {convertor0}, {convertor0},
+                {convertor1}, {convertor1}, {convertor1},
+                {convertor0}, {convertor0}, {convertor0},
+                {convertor1}, {convertor1}, {convertor1},
+                {convertor0}, {convertor0}, {convertor0},
+                {convertor1}, {convertor1}, {convertor1}
+        };
+        final CircuitBuilder[] builders = {
+                rightBuilderS, rightBuilderS, rightBuilderS,
+                leftBuilderS, leftBuilderS, leftBuilderS,
+                leftBuilderC, leftBuilderC, leftBuilderC,
+                leftBuilderC, leftBuilderC, leftBuilderC,
+                rightBuilderCD, rightBuilderCD, rightBuilderCD,
+                rightBuilderCD, rightBuilderCD, rightBuilderCD
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            final var group = groups[i];
+            for (var j = 0; j < group.length; ++j) {
+                final var noteConvertor = convertors[i][j];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(group[j])));
+            }
+            final var struct = builders[i].generate(subSequenceList);
+            struct.regulate();
+
+            circuits.add(struct);
+        }
+
+        final var sideOffset = 18;
+        final var frontOffset = 8;
+        final var mid = 4;
+        final var heads = List.of(
+                Position.of(8, -1, 1),
+                Position.of(4, -1, 0),
+                Position.of(0, -1, 1),
+                Position.of(8, 2, 1),
+                Position.of(4, 2, 0),
+                Position.of(0, 2, 1),
+                Position.of(mid + sideOffset + 1, 8, frontOffset),
+                Position.of(mid + sideOffset + 1 + 2, 5, frontOffset + 2),
+                Position.of(mid + sideOffset + 1 + 4, 2, frontOffset + 4),
+                Position.of(mid + sideOffset + 1 + 4, -1, frontOffset + 4),
+                Position.of(mid + sideOffset + 1 + 2, -4, frontOffset + 2),
+                Position.of(mid + sideOffset + 1, -7, frontOffset),
+                Position.of(mid - sideOffset, 8, frontOffset),
+                Position.of(mid - sideOffset - 2, 5, frontOffset + 2),
+                Position.of(mid - sideOffset - 4, 2, frontOffset + 4),
+                Position.of(mid - sideOffset - 4, -1, frontOffset + 4),
+                Position.of(mid - sideOffset - 2, -4, frontOffset + 2),
+                Position.of(mid - sideOffset, -7, frontOffset)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+        structure.regulate();
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/alive.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -1906,9 +2034,13 @@ division / staffs / min. : 16 / 5 / 01:14
 //            final var structure = holotoriDance(VERSION, inputFilePath);
 //            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case65c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 
-            final var inputFilePath = String.format("%s/input/bling bang bang born - Mashle OP 2/Bling-Bang-Bang-Born (1).mid", ROOT_DIR_PATH);
-            final var structure = blingBangBangBorn(VERSION, inputFilePath);
-            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case66c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            final var inputFilePath = String.format("%s/input/bling bang bang born - Mashle OP 2/Bling-Bang-Bang-Born (1).mid", ROOT_DIR_PATH);
+//            final var structure = blingBangBangBorn(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case66c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/Alive - Arknights/Alive.mid", ROOT_DIR_PATH);
+            final var structure = alive(VERSION, inputFilePath);
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case67c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }
