@@ -436,7 +436,7 @@ public final class FamiTrackerApp {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Barline barline) {
                 if (null != barline.getRepeat()) {
-                    throw new OcException("part %d measure %d repeat unsupported : %s", p_m[0], p_m[1]);
+                    throw new OcException("part %d measure %d repeat unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
                 }
             } else if (noteOrBackupOrForward instanceof final Backup backup) {
                 if (0 != backup.getDuration().scale()) {
@@ -465,7 +465,15 @@ public final class FamiTrackerApp {
                     }
                 }
             } else if (noteOrBackupOrForward instanceof final Note note) {
-                if (0 != note.getDuration().scale()) {
+                if (null != note.getGrace()) {
+                    // TODO grace note
+                    switch (note.getType().getValue()) {
+                        case "eighth", "16th":
+                            break;
+                        default:
+                            throw new OcException("part %d measure %d grace note type unknown : %s", p_m[0], p_m[1], note.getType().getValue());
+                    }
+                } else if (0 != note.getDuration().scale()) {
                     throw new OcException("part %d measure %d note duration should be int : %s", p_m[0], p_m[1], note.getDuration().toString());
                 }
             }
@@ -906,15 +914,15 @@ public final class FamiTrackerApp {
 
     public static void main(String[] args) {
         try {
-//            final var rootDirPath = "/Users/wilson/Downloads";
-            final var rootDirPath = "D:/Sync/Ongakucraft/midi/blue clapper";
+//            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
+            final var rootDirPath = "D:/Share/LoopHero/mxl/";
             final var measures = 149;
             final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-split.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-cut.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-split2.mid";
 //            final var mxlFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mxl";
-            final var mxlFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT.mxl";
+            final var mxlFilePath = rootDirPath + "5th/BLUE_CLAPPER/BLUE_CLAPPER__Hololive_IDOL_PROJECT.mxl";
 
 //            printMidiFile(midiFilePath);
 //            final var midiRows = groupMidiNoteNameByRow(midiFilePath, measures);
@@ -928,9 +936,56 @@ public final class FamiTrackerApp {
 
             // load instrument
 //            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
-            final var instrumentRootDirPath = "D:\\Share\\LoopHero\\8bits\\_instrument_txt";
+            final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
             final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
-            blueClapperFromMxl(mxlFilePath, nameToInstrument);
+//            blueClapperFromMxl(mxlFilePath, nameToInstrument);
+
+//            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl"); TODO divisions16
+//            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
+//            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
+//            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
+//            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_me (1).mxl");
+//            checkMxl(rootDirPath + "5th/Nenenenenenenene Daibakusou - Momosuzu Nene/mxl");
+//            checkMxl(rootDirPath + "5th/HOLOGRAM CIRCUS - Omaru Polka/HOLOGRAM_CIRCUS_-_Omaru_Polka.mxl");
+//            checkMxl(rootDirPath + "5th/HOLOGRAM CIRCUS - Omaru Polka/HOLOGRAM_CIRCUS.mxl");
+//            checkMxl(rootDirPath + "5th/Saikyoutic Polka/mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/_Kiseki_Knot__Hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/Kiseki_Knot_-_hololive_4th_Generation.mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/Kiseki_Knot.mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/mxl");
+//            checkMxl(rootDirPath + "4th/Dreamy Sheep - Tsunomaki watame/mxl");
+//            checkMxl(rootDirPath + "4th/Everlasting Soul - Tsunomaki Watame/Everlasting_Soul.mxl");
+//            checkMxl(rootDirPath + "4th/mayday mayday - Tsunomaki Watame/mayday_mayday.mxl");
+//            checkMxl(rootDirPath + "4th/FACT - Tokoyami Towa/FACT.mxl");
+//            checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl"); TODO repeat
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco.mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl"); TODO divisions16
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_Full_Band.mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers.mxl");
+//            checkMxl(rootDirPath + "6th/IrohaStep - kazama iroha/mxl");
+//            checkMxl(rootDirPath + "6th/Laplus Darkness Stream BGM/Laplus_Darkness_StreamLoading_BGM__Osanzi.mxl"); TODO repeat
+//            checkMxl(rootDirPath + "6th/Paralyze - Sakamata Chloe/Paralyze_-_Sakamata_Chloe.mxl");
+//            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO_-_.mxl");
+//            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakka_Ryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakkaryoran_Hanafubuki_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/_Hyakkaryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/hanafubuki.mxl");
+//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night.mxl"); TODO repeat
+//            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck__Hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl"); TODO repeat
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl"); TODO repeat
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl"); TODO divisions16
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_.mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/shiny_smily_story-hololive.mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story.mxl");
+//            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG__hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG.mxl");
+//            checkMxl(rootDirPath + "idol/Suspect/Suspect_-_hololive_IDOL_PROJECT.mxl");
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
         }
