@@ -15,6 +15,8 @@ import org.audiveris.proxymusic.util.Marshalling;
 
 import java.io.File;
 import java.lang.String;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -63,7 +65,7 @@ public final class FamiTrackerApp {
         for (final var track : midiFile.getTrackList()) {
             for (final var note : track.getNoteList()) {
                 if (0 != note.getOn() % ticksPerRow) {
-                    throw new OcException("note on should be int : %s/%d", note.getOn(), ticksPerRow);
+                    throw new OcException("note on should be int : %d/%d", note.getOn(), ticksPerRow);
                 }
                 final var row = rows.get(note.getOn() / ticksPerRow);
                 row.add(FtmNote.keyToName(note.getKey()));
@@ -230,7 +232,106 @@ public final class FamiTrackerApp {
         }
     }
 
-    private static String pitchToName(Pitch pitch) {
+    private static void parseMxlWithRepeat(ScorePartwise scorePartwise,
+                                           Consumer<ScorePartwise> scoreFunc,
+                                           BiConsumer<Integer, ScorePartwise.Part> partFunc,
+                                           BiConsumer<int[], ScorePartwise.Part.Measure> measureFunc) {
+        if (null != scoreFunc) {
+            scoreFunc.accept(scorePartwise);
+        }
+        for (int p = 0; p < scorePartwise.getPart().size(); ++p) {
+            final var part = scorePartwise.getPart().get(p);
+            partFunc.accept(p, part);
+            final Set<Integer> usedRepeatForward = new HashSet<>();
+            Integer repeatForward = null;
+            Integer ending1Start = null;
+            Integer ending1Stop = null;
+            final List<Integer> mList = new ArrayList<>();
+            for (int m = 0; m < part.getMeasure().size();) {
+                mList.add(m);
+                var needContinue = false;
+                final var measure = part.getMeasure().get(m);
+                for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
+                    if (noteOrBackupOrForward instanceof final Barline barline) {
+                        if (null != barline.getEnding()) {
+                            final var ending = barline.getEnding();
+                            if ("1".equals(ending.getNumber())) {
+                                if (StartStopDiscontinue.START == ending.getType()) {
+                                    ending1Start = m;
+                                } else {
+                                    ending1Stop = m;
+                                }
+                            }
+                        }
+                        if (null != barline.getRepeat()) {
+                            final var repeat = barline.getRepeat();
+                            switch (repeat.getDirection()) {
+                                case FORWARD -> {
+                                    if (!usedRepeatForward.contains(m)) {
+                                        usedRepeatForward.add(m);
+                                        repeatForward = m;
+                                    }
+                                }
+                                case BACKWARD -> {
+                                    if (!usedRepeatForward.contains(m)) {
+                                        usedRepeatForward.add(m);
+                                        if (null == repeatForward) {
+                                            repeatForward = 0;
+                                        }
+                                        m = repeatForward;
+                                        repeatForward = null;
+                                        needContinue = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (needContinue) {
+                    continue;
+                }
+                ++m;
+                if (null != ending1Start && ending1Start == m) {
+                    m = ending1Stop + 1;
+                    ending1Start = null;
+                    ending1Stop = null;
+                }
+            }
+            mxlMeasureSize = mList.size();
+            for (final int m : mList) {
+                final var measure = part.getMeasure().get(m);
+                measureFunc.accept(new int[]{p, m}, measure);
+            }
+        }
+    }
+
+    private static BigDecimal getDuration(Note note) { // TODO replace all note.getDuration()
+        final var duration = note.getDuration();
+        if (null != duration) {
+            return duration;
+        }
+        if (null != note.getGrace()) {
+            final var type = note.getType().getValue();
+            if (null != type) {
+                return switch (type) {
+                    case "eighth" -> BigDecimal.valueOf(mxlDivisions4).divide(BigDecimal.valueOf(2), RoundingMode.UNNECESSARY);
+                    case "16th" -> BigDecimal.valueOf(mxlDivisions4).divide(BigDecimal.valueOf(4), RoundingMode.UNNECESSARY);
+                    default -> null;
+                };
+            }
+        }
+        return null;
+    }
+
+    private static String pitchToName(Note note) {
+        final var pitch = note.getPitch();
+        final var unpitched = note.getUnpitched();
+        if (null == pitch) {
+            if (null == unpitched) {
+                return null;
+            }
+            return unpitched.getDisplayStep().name() + '-' + unpitched.getDisplayOctave();
+        }
         final var alter = null == pitch.getAlter() ? '-' : switch (pitch.getAlter().toString()) {
             case "-1" -> 'b';
             case "1" -> '#';
@@ -251,8 +352,8 @@ public final class FamiTrackerApp {
     }
 
     private static boolean isSamePitch(FtmNote ftmNote, Note note) {
-        final var name = pitchToName(note.getPitch());
-        if (name.equals(FtmNote.keyToName(ftmNote.getKey()))) {
+        final var name = pitchToName(note);
+        if (FtmNote.keyToName(ftmNote.getKey()).equals(name)) {
             return true;
         }
         for (final var key : ftmNote.getChord()) {
@@ -415,12 +516,14 @@ public final class FamiTrackerApp {
         }
     }
 
-    private static List<Integer> mxlDivisions16List;
+    private static List<Integer> mxlDivisions4List;
     private static List<Integer> mxlMeasureSizeList;
+    private static int mxlRepeatCount;
 
     private static void checkMxlScore(ScorePartwise scorePartwise) {
-        mxlDivisions16List = new ArrayList<>();
+        mxlDivisions4List = new ArrayList<>();
         mxlMeasureSizeList = new ArrayList<>();
+        mxlRepeatCount = 0;
     }
 
     private static void checkMxlPart(int p, ScorePartwise.Part part) {
@@ -432,11 +535,62 @@ public final class FamiTrackerApp {
         }
     }
 
+    private static int lastEndingStop;
     private static void checkMxlMeasure(int[] p_m, ScorePartwise.Part.Measure measure) {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Barline barline) {
                 if (null != barline.getRepeat()) {
-                    throw new OcException("part %d measure %d repeat unsupported : %s", p_m[0], p_m[1]);
+                    final var repeat = barline.getRepeat();
+                    switch (repeat.getDirection()) {
+                        case FORWARD -> {
+                            ++mxlRepeatCount;
+                            if (mxlRepeatCount <= 0) {
+                                throw new OcException("part %d measure %d unmatched repeat forward : %s", p_m[0], p_m[1], repeat);
+                            }
+                        }
+                        case BACKWARD -> {
+                            if (0 < mxlRepeatCount) {
+                                --mxlRepeatCount;
+                            }
+                        }
+                        default -> throw new OcException("part %d measure %d unknown repeat direction : %s", p_m[0], p_m[1], repeat);
+                    }
+                    if (null != repeat.getAfterJump()) {
+                        throw new OcException("part %d measure %d repeat after jump unsupported : %s", p_m[0], p_m[1], repeat);
+                    }
+                    if (null != repeat.getTimes()) {
+                        throw new OcException("part %d measure %d repeat times unsupported : %s", p_m[0], p_m[1], repeat);
+                    }
+                    if (null != repeat.getWinged()) {
+                        throw new OcException("part %d measure %d repeat winged unsupported : %s", p_m[0], p_m[1], repeat);
+                    }
+                }
+                if (null != barline.getEnding()) {
+                    final var ending = barline.getEnding();
+                    switch (ending.getNumber()) {
+                        case "1" -> {
+                            switch (ending.getType()) {
+                                case START -> {}
+                                case STOP -> {
+                                    if (null == barline.getRepeat() || BackwardForward.BACKWARD != barline.getRepeat().getDirection()) {
+                                        throw new OcException("part %d measure %d unmatched ending stop : %s", p_m[0], p_m[1], ending);
+                                    }
+                                    lastEndingStop = p_m[1];
+                                }
+                                default -> throw new OcException("part %d measure %d unknown ending type : %s", p_m[0], p_m[1], ending);
+                            }
+                        }
+                        case "2" -> {
+                            if (StartStopDiscontinue.START == ending.getType()) {
+                                if (lastEndingStop + 1 != p_m[1]) {
+                                    throw new OcException("part %d measure %d unmatched ending start : %s", p_m[0], p_m[1], ending);
+                                }
+                            }
+                        }
+                        default -> throw new OcException("part %d measure %d unknown ending number : %s", p_m[0], p_m[1], ending);
+                    }
+                } else {
+                    lastEndingStop = -1;
                 }
             } else if (noteOrBackupOrForward instanceof final Backup backup) {
                 if (0 != backup.getDuration().scale()) {
@@ -453,19 +607,32 @@ public final class FamiTrackerApp {
                         throw new OcException("part %d measure %d divisions should be int : %s", p_m[0], p_m[1], divisions.toString());
                     }
                     final var divisions4 = divisions.intValue();
-                    final var divisions16 = divisions4 / 4;
-                    if (divisions4 != divisions16 * 4) {
-                        throw new OcException("part %d measure %d divisions16 should be int : %d/4", p_m[0], p_m[1], divisions4);
+                    if (!mxlDivisions4List.contains(divisions4)) {
+                        mxlDivisions4List.add(divisions4);
                     }
-                    if (!mxlDivisions16List.contains(divisions16)) {
-                        mxlDivisions16List.add(divisions16);
-                    }
-                    if (1 != mxlDivisions16List.size()) {
-                        throw new OcException("part %d measure %d divisions16 should be unique : %s", p_m[0], p_m[1], mxlDivisions16List.toString());
+                    if (1 != mxlDivisions4List.size()) {
+                        throw new OcException("part %d measure %d divisions4 should be unique : %s", p_m[0], p_m[1], mxlDivisions4List.toString());
                     }
                 }
             } else if (noteOrBackupOrForward instanceof final Note note) {
-                if (0 != note.getDuration().scale()) {
+                if (null != note.getGrace()) {
+                    final var grace = note.getGrace();
+                    if (null != grace.getStealTimePrevious()) {
+                        throw new OcException("part %d measure %d unknown grace steal time previous : %s", p_m[0], p_m[1], grace);
+                    }
+                    if (null != grace.getStealTimeFollowing()) {
+                        throw new OcException("part %d measure %d unknown grace steal time following : %s", p_m[0], p_m[1], grace);
+                    }
+                    if (null != grace.getMakeTime()) {
+                        throw new OcException("part %d measure %d unknown grace make time : %s", p_m[0], p_m[1], grace);
+                    }
+                    switch (note.getType().getValue()) {
+                        case "eighth", "16th":
+                            break;
+                        default:
+                            throw new OcException("part %d measure %d grace note type unknown : %s", p_m[0], p_m[1], note.getType().getValue());
+                    }
+                } else if (0 != note.getDuration().scale()) {
                     throw new OcException("part %d measure %d note duration should be int : %s", p_m[0], p_m[1], note.getDuration().toString());
                 }
             }
@@ -479,7 +646,7 @@ public final class FamiTrackerApp {
 //        log.info("mxlMeasureSizeList : {}", mxlMeasureSizeList);
     }
 
-    public static List<List<String>> groupMxlNoteNameByRow(String filePath, int measures, int divisions16) {
+    public static List<List<String>> groupMxlNoteNameByRow(String filePath, int measures, int divisions4) {
         final List<List<String>> rows = new ArrayList<>();
         for (int m = 0; m < measures; ++m) {
             for (int i = 0; i < 16; ++i) {
@@ -496,26 +663,26 @@ public final class FamiTrackerApp {
                 for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
                     if (noteOrBackupOrForward instanceof final Backup backup) {
                         final var duration = backup.getDuration().intValue();
-                        rowIndex -= duration / divisions16;
+                        rowIndex -= duration * 4 / divisions4;
                     } else if (noteOrBackupOrForward instanceof final Forward forward) {
                         final var duration = forward.getDuration().intValue();
-                        rowIndex += duration / divisions16;
+                        rowIndex += duration * 4 / divisions4;
                     } else if (noteOrBackupOrForward instanceof final Note note) {
                         final var isChord = null != note.getChord();
                         if (!isChord) {
                             rowIndex += prevRows;
                         }
                         final var duration = note.getDuration().intValue();
-                        if (0 != duration % divisions16) {
-                            throw new OcException("part %d measure %d note rows should be int : %s/%d", p, m, duration, mxlDivisions16);
+                        if (0 != (duration * 4) % divisions4) {
+                            throw new OcException("part %d measure %d note rows should be int : %d/%d", p, m, duration, divisions4);
                         }
                         if (!isTieStop(note)) {
-                            final var pitch = note.getPitch();
-                            if (null != pitch) {
-                                rows.get(rowIndex).add(pitchToName(pitch));
+                            final var pitchName = pitchToName(note);
+                            if (null != pitchName) {
+                                rows.get(rowIndex).add(pitchName);
                             }
                         }
-                        prevRows = duration / divisions16;
+                        prevRows = duration * 4 / divisions4;
                     }
                 }
             }
@@ -543,7 +710,7 @@ public final class FamiTrackerApp {
     }
 
     // process per score
-    private static int mxlDivisions16;
+    private static int mxlDivisions4;
     private static int mxlMeasureSize;
     private static Map<Integer, Map<String, List<FtmNote>>> mxlPartToVoiceToChannel;
     private static Map<Integer, Map<String, Integer>> mxlPartToVoiceToStaff;
@@ -565,7 +732,7 @@ public final class FamiTrackerApp {
     }
 
     private static void processMxlScore(ScorePartwise scorePartwise) {
-        mxlDivisions16 = mxlDivisions16List.get(0);
+        mxlDivisions4 = mxlDivisions4List.get(0);
         mxlMeasureSize = mxlMeasureSizeList.get(0);
         mxlPartToVoiceToChannel = new LinkedHashMap<>();
         mxlPartToVoiceToStaff = new LinkedHashMap<>();
@@ -634,36 +801,38 @@ public final class FamiTrackerApp {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Backup backup) {
                 final var duration = backup.getDuration().intValue();
-                final var rows = duration / mxlDivisions16;
-                if (duration != rows * mxlDivisions16) {
-                    throw new OcException("part %d measure %d backup rows should be int : %s/%d", p_m[0], p_m[1], duration, mxlDivisions16);
+                final var rows = duration * 4 / mxlDivisions4;
+                if (duration != rows * mxlDivisions4 / 4) {
+                    throw new OcException("part %d measure %d backup rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
                 }
                 mxlRowIndex -= rows;
             } else if (noteOrBackupOrForward instanceof final Forward forward) {
                 final var duration = forward.getDuration().intValue();
-                final var rows = duration / mxlDivisions16;
-                if (duration != rows * mxlDivisions16) {
-                    throw new OcException("part %d measure %d forward rows should be int : %s/%d", p_m[0], p_m[1], duration, mxlDivisions16);
+                final var rows = duration * 4 / mxlDivisions4;
+                if (duration != rows * mxlDivisions4 / 4) {
+                    throw new OcException("part %d measure %d forward rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
                 }
                 mxlRowIndex += rows;
             } else if (noteOrBackupOrForward instanceof final Note note) {
-                if (note.getStaff().intValue() != mxlVoiceToStaff.computeIfAbsent(note.getVoice(), k -> note.getStaff().intValue())) {
-                    throw new OcException("part %d measure %d voice %s staff not match : %d/%d", p_m[0], p_m[1], note.getVoice(), mxlVoiceToStaff.get(note.getVoice()), note.getStaff().intValue());
+                final var staffId = null == note.getStaff() ? -1 : note.getStaff().intValue();
+                if (staffId != mxlVoiceToStaff.computeIfAbsent(note.getVoice(), k -> staffId)) {
+                    throw new OcException("part %d measure %d voice %s staff not match : %d/%d", p_m[0], p_m[1], note.getVoice(), mxlVoiceToStaff.get(note.getVoice()), staffId);
                 }
                 final var isChord = null != note.getChord();
                 if (!isChord) {
                     mxlRowIndex += mxlPrevRows;
                 }
-                final var duration = note.getDuration().intValue();
-                final var rows = duration / mxlDivisions16;
+                // TODO grace
+                final var duration = getDuration(note).intValue();
+                final var rows = duration * 4 / mxlDivisions4;
                 var additionRows = 0;
                 var isTuplet = false;
-                if (duration != rows * mxlDivisions16) {
-                    if (mxlDivisions16 * 4 == duration * 3) {
+                if (duration != rows * mxlDivisions4 / 4) {
+                    if (mxlDivisions4 == duration * 3) {
                         isTuplet = true;
                     }
                     if (!isTuplet) {
-                        throw new OcException("part %d measure %d note rows should be int : %s/%d", p_m[0], p_m[1], duration, mxlDivisions16);
+                        throw new OcException("part %d measure %d note rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
                     }
                 }
                 final var mxlChannel = findMxlChannel(p_m, note.getVoice(), rows, isChord);
@@ -675,27 +844,27 @@ public final class FamiTrackerApp {
                     if (null == tieStartNote) {
                         throw new OcException("part %d measure %d can't find tie start", p_m[0], p_m[1]);
                     }
-                    if (!pitchToName(note.getPitch()).equals(pitchToName(tieStartNote.getPitch()))) {
-                        throw new OcException("part %d measure %d can't match tie start pitch : %s", p_m[0], p_m[1], pitchToName(tieStartNote.getPitch()), pitchToName(note.getPitch()));
+                    if (!Objects.equals(pitchToName(note), pitchToName(tieStartNote))) {
+                        throw new OcException("part %d measure %d can't match tie start pitch : %s", p_m[0], p_m[1], pitchToName(tieStartNote), pitchToName(note));
                     }
                     final var ftmNote = mxlChannel.get(mxlRowIndex - 1);
                     if (!isSamePitch(ftmNote, tieStartNote)) {
-                        throw new OcException("part %d measure %d can't match tie start key : %s %s", p_m[0], p_m[1], pitchToName(tieStartNote.getPitch()), FtmNote.keyToName(ftmNote.getKey()));
+                        throw new OcException("part %d measure %d can't match tie start key : %s %s", p_m[0], p_m[1], pitchToName(tieStartNote), FtmNote.keyToName(ftmNote.getKey()));
                     }
                     fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote);
                 } else {
-                    final var pitch = note.getPitch();
-                    if (null == pitch) {
+                    final var pitchName = pitchToName(note);
+                    if (null == pitchName) {
                         for (int i = 0; i < rows; ++i) {
                             mxlChannel.set(mxlRowIndex + i, FtmNote.REST);
                         }
                     } else {
                         if (isChord) {
                             final var ftmNote = mxlChannel.get(mxlRowIndex);
-                            ftmNote.addChord(pitchToName(pitch));
+                            ftmNote.addChord(pitchName);
                         } else {
-                            final var ftmNote = FtmNote.of(pitchToName(pitch));
-                            ftmNote.setPedal(mxlStaffToPedal.getOrDefault(note.getStaff().intValue(), false));
+                            final var ftmNote = FtmNote.of(pitchName);
+                            ftmNote.setPedal(mxlStaffToPedal.getOrDefault(staffId, false));
                             final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);
                             for (final var notation : note.getNotations()) {
                                 for (final var tiedOrSlurOrTuplet : notation.getTiedOrSlurOrTuplet()) {
@@ -769,9 +938,30 @@ public final class FamiTrackerApp {
             }
         }
     }
-    private static void blueClapperFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+
+    private static void processMxl(String filePath) {
         final var scorePartwise = loadMxl(filePath);
-        parseMxl(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
+        parseMxlWithRepeat(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
+        // remove empty channel
+        for (final var part : mxlPartToVoiceToChannel.keySet().stream().toList()) {
+            final var mxlVoiceToChannel = mxlPartToVoiceToChannel.get(part);
+            for (final var voice : mxlVoiceToChannel.keySet().stream().toList()) {
+                final var channel = mxlVoiceToChannel.get(voice);
+                if (channel.stream().allMatch(note -> null == note || FtmNote.REST == note)) {
+                    mxlVoiceToChannel.remove(voice);
+                }
+            }
+            if (mxlVoiceToChannel.isEmpty()) {
+                mxlPartToVoiceToChannel.remove(part);
+            }
+        }
+        // log channel
+        for (final var part : mxlPartToVoiceToChannel.keySet().stream().toList()) {
+            final var mxlVoiceToChannel = mxlPartToVoiceToChannel.get(part);
+            for (final var voice : mxlVoiceToChannel.keySet().stream().toList()) {
+                log.info("channel : {} {}", part, voice);
+            }
+        }
         // remove rest note
         for (final var mxlVoiceToChannel : mxlPartToVoiceToChannel.values()) {
             for (final var mxlChannel : mxlVoiceToChannel.values()) {
@@ -813,17 +1003,10 @@ public final class FamiTrackerApp {
                             throw new OcException("row %d fx should be null : %d", row, arpeggioIdx);
                         }
                         switch (ftmNote.getChord().size()) {
-                            case 1:
-                                ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), 0));
-                                break;
-                            case 2:
-                                ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(1) - ftmNote.getKey()));
-                                break;
-                            case 3:
-                                ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(2) - ftmNote.getKey()));
-                                break;
-                            default:
-                                throw new OcException("row %d chord too many : %d %d", row, ftmNote.getKey(), ftmNote.getChord());
+                            case 1 -> ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), 0));
+                            case 2 -> ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(1) - ftmNote.getKey()));
+                            case 3 -> ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(2) - ftmNote.getKey()));
+                            default -> throw new OcException("row %d chord too many : %d %d", row, ftmNote.getKey(), ftmNote.getChord());
                         }
                     }
                 }
@@ -870,13 +1053,16 @@ public final class FamiTrackerApp {
                 }
             }
         }
+    }
+
+    private static void blueClapperFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
         final List<FtmInstrument> instrumentList = new ArrayList<>();
         instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
         instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
         instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
         instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
         instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
-        instrumentList.add(nameToInstrument.get("gemuwo-candid-2a03-Piano"));
         for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
             final var channel1 = mxlChannelList.get("1");
             final var channel2 = mxlChannelList.get("2");
@@ -904,17 +1090,110 @@ public final class FamiTrackerApp {
         }
     }
 
+    private static void laLionFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        final var channel0 = mxlPartToVoiceToChannel.get(0).get("1");
+        final var channel1 = mxlPartToVoiceToChannel.get(1).get("1");
+        final var channel2 = mxlPartToVoiceToChannel.get(2).get("1");
+        final var channel3 = mxlPartToVoiceToChannel.get(2).get("5");
+        final var channel4 = mxlPartToVoiceToChannel.get(3).get("1");
+        final var channel5 = mxlPartToVoiceToChannel.get(3).get("2");
+        final var channel6 = mxlPartToVoiceToChannel.get(4).get("1");
+        final var channel7 = mxlPartToVoiceToChannel.get(5).get("1");
+        setChannel(channel0, 0, 8);
+        setChannel(channel1, 0, 8);
+        setChannel(channel2, 1, 7);
+        setChannel(channel3, 1, 7);
+        final List<FtmChannel> channelList = new ArrayList<>();
+        channelList.add(FtmChannel.of(channel0));
+        channelList.add(FtmChannel.of(channel1));
+        channelList.add(null);
+        channelList.add(null);
+        channelList.add(null);
+        channelList.add(FtmChannel.of(channel2));
+        channelList.add(FtmChannel.of(channel3));
+        channelList.add(null);
+        final var ftmSong = FtmSong.of("La Lion", "Ongakucraft", "COVER Corp.",
+                120, instrumentList, channelList);
+//            log.info("channelList : {}", channelList.size());
+        log.info("{}", ftmSong);
+    }
+
+    private static void shinySmilyStoryFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
+            final var channel1 = mxlChannelList.get("1");
+            final var channel5 = mxlChannelList.get("5");
+            setChannel(channel1, 0, 8);
+            setChannel(channel5, 3, 6);
+            final List<FtmChannel> channelList = new ArrayList<>();
+            channelList.add(FtmChannel.of(channel1));
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(FtmChannel.of(channel5));
+            channelList.add(null);
+            channelList.add(null);
+            final var ftmSong = FtmSong.of("Shiny Smily Story", "Ongakucraft", "COVER Corp.",
+                    168, instrumentList, channelList);
+//            log.info("channelList : {}", channelList.size());
+            log.info("{}", ftmSong);
+        }
+    }
+
+    private static void captureTheMomentFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
+            final var channel1 = mxlChannelList.get("1");
+            final var channel5 = mxlChannelList.get("5");
+            setChannel(channel1, 0, 8);
+            setChannel(channel5, 3, 6);
+            final List<FtmChannel> channelList = new ArrayList<>();
+            channelList.add(FtmChannel.of(channel1));
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(FtmChannel.of(channel5));
+            channelList.add(null);
+            channelList.add(null);
+            final var ftmSong = FtmSong.of("Shiny Smily Story", "Ongakucraft", "COVER Corp.",
+                    168, instrumentList, channelList);
+//            log.info("channelList : {}", channelList.size());
+            log.info("{}", ftmSong);
+        }
+    }
+
     public static void main(String[] args) {
         try {
-//            final var rootDirPath = "/Users/wilson/Downloads";
-            final var rootDirPath = "D:/Sync/Ongakucraft/midi/blue clapper";
+//            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
+            final var rootDirPath = "D:/Share/LoopHero/mxl/";
             final var measures = 149;
             final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-split.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-cut.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-split2.mid";
 //            final var mxlFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mxl";
-            final var mxlFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT.mxl";
+            final var mxlFilePath = rootDirPath + "5th/BLUE_CLAPPER/BLUE_CLAPPER__Hololive_IDOL_PROJECT.mxl";
 
 //            printMidiFile(midiFilePath);
 //            final var midiRows = groupMidiNoteNameByRow(midiFilePath, measures);
@@ -922,15 +1201,81 @@ public final class FamiTrackerApp {
 
 //            printMxl(mxlFilePath, false);
 //            printMxl(mxlFilePath, true);
-            checkMxl(mxlFilePath);
-//            final var mxlRows = groupMxlNoteNameByRow(mxlFilePath, measures, mxlDivisions16List.get(0));
+//            final var mxlRows = groupMxlNoteNameByRow(mxlFilePath, measures, mxlDivisions4List.get(0));
 //            diffNoteGroupByRow(midiRows, mxlRows, measures);
 
             // load instrument
 //            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
-            final var instrumentRootDirPath = "D:\\Share\\LoopHero\\8bits\\_instrument_txt";
+            final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
             final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
-            blueClapperFromMxl(mxlFilePath, nameToInstrument);
+//            checkMxl(mxlFilePath);
+//            blueClapperFromMxl(mxlFilePath, nameToInstrument);
+
+//            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO fix empty drum channel
+//            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
+//            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
+//            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
+//            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
+//            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_me (1).mxl");
+//            checkMxl(rootDirPath + "5th/Nenenenenenenene Daibakusou - Momosuzu Nene/mxl");
+//            checkMxl(rootDirPath + "5th/HOLOGRAM CIRCUS - Omaru Polka/HOLOGRAM_CIRCUS_-_Omaru_Polka.mxl");
+//            checkMxl(rootDirPath + "5th/HOLOGRAM CIRCUS - Omaru Polka/HOLOGRAM_CIRCUS.mxl");
+//            checkMxl(rootDirPath + "5th/Saikyoutic Polka/mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/_Kiseki_Knot__Hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/Kiseki_Knot_-_hololive_4th_Generation.mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/Kiseki_Knot.mxl");
+//            checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/mxl");
+//            checkMxl(rootDirPath + "4th/Dreamy Sheep - Tsunomaki watame/mxl");
+//            checkMxl(rootDirPath + "4th/Everlasting Soul - Tsunomaki Watame/Everlasting_Soul.mxl");
+//            checkMxl(rootDirPath + "4th/mayday mayday - Tsunomaki Watame/mayday_mayday.mxl");
+//            checkMxl(rootDirPath + "4th/FACT - Tokoyami Towa/FACT.mxl");
+//            checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco.mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_Full_Band.mxl");
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers.mxl");
+//            checkMxl(rootDirPath + "6th/IrohaStep - kazama iroha/mxl");
+//            checkMxl(rootDirPath + "6th/Laplus Darkness Stream BGM/Laplus_Darkness_StreamLoading_BGM__Osanzi.mxl"); // TODO fix 32th
+//            checkMxl(rootDirPath + "6th/Paralyze - Sakamata Chloe/Paralyze_-_Sakamata_Chloe.mxl");
+//            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO_-_.mxl");
+//            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakka_Ryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakkaryoran_Hanafubuki_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/_Hyakkaryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/hanafubuki.mxl");
+//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night.mxl");
+//            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck__Hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl");// TODO repeat (X)
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl");
+//            shinySmilyStoryFromMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl", nameToInstrument);
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_.mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/shiny_smily_story-hololive.mxl");
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story.mxl");
+//            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG__hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG.mxl");
+//            checkMxl(rootDirPath + "idol/Suspect/Suspect_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Candy-Go-Round/Candy-Go-Round.mxl");
+//            checkMxl(rootDirPath + "idol/Plasmagic Seasons/Plasmagic_Seasons.mxl");
+//            checkMxl(rootDirPath + "idol/Plasmagic Seasons/Plasmagic_Seasons_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days (1).mxl");
+//            checkMxl(rootDirPath + "idol/Dreaming Days/DREAMING_DAYS.mxl");
+//            checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days__Hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Asuiro ClearSky/ClearSky_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Prism Melody/Prism_Melody_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_short_ver._-_Matsuri_Subaru_Miko_Noel_Marine.mxl");
+//            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction.mxl");
+//            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction__hololive_English_-Myth-.mxl");
+//            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider.mxl");
+//            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider_.mxl");
+            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");// TODO fix grace
+            captureTheMomentFromMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl", nameToInstrument);
+//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moments.mxl");
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
         }

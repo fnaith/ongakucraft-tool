@@ -152,7 +152,7 @@ public final class FtmInstrumentApp {
                         final var sequence = idToSequence.get(sequenceId);
                         if (null == sequence) {
                             instrument.getSequences().add(null);
-                            log.warn("parseFti : {} {}", filePath, sequenceId);
+                            throw new OcException("parseFti : %s, %s", filePath, sequenceId);
                         } else {
                             instrument.getSequences().add(sequence);
                         }
