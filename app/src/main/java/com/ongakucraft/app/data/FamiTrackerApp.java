@@ -986,6 +986,22 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG_-_hololive_IDOL_PROJECT.mxl");
 //            checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG.mxl");
 //            checkMxl(rootDirPath + "idol/Suspect/Suspect_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Candy-Go-Round/Candy-Go-Round.mxl");
+//            checkMxl(rootDirPath + "idol/Plasmagic Seasons/Plasmagic_Seasons.mxl");
+//            checkMxl(rootDirPath + "idol/Plasmagic Seasons/Plasmagic_Seasons_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days (1).mxl");
+//            checkMxl(rootDirPath + "idol/Dreaming Days/DREAMING_DAYS.mxl");
+//            checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days__Hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Asuiro ClearSky/ClearSky_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/Prism Melody/Prism_Melody_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_-_hololive_IDOL_PROJECT.mxl");
+//            checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_short_ver._-_Matsuri_Subaru_Miko_Noel_Marine.mxl");
+//            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction.mxl");
+//            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction__hololive_English_-Myth-.mxl");
+//            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider.mxl");
+//            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider_.mxl");
+//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl"); TODO repeat
+//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moments.mxl");
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
         }
