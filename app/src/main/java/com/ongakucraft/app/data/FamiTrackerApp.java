@@ -436,7 +436,17 @@ public final class FamiTrackerApp {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Barline barline) {
                 if (null != barline.getRepeat()) {
-                    throw new OcException("part %d measure %d repeat unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                    final var repeat = barline.getRepeat();
+                    if (null != repeat.getAfterJump()) {
+                        throw new OcException("part %d measure %d repeat after jump unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                    }
+                    if (null != repeat.getTimes()) {
+                        throw new OcException("part %d measure %d repeat times unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                    }
+                    if (null != repeat.getWinged()) {
+                        throw new OcException("part %d measure %d repeat winged unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                    }
+                    // TODO repeat
                 }
             } else if (noteOrBackupOrForward instanceof final Backup backup) {
                 if (0 != backup.getDuration().scale()) {
@@ -455,7 +465,9 @@ public final class FamiTrackerApp {
                     final var divisions4 = divisions.intValue();
                     final var divisions16 = divisions4 / 4;
                     if (divisions4 != divisions16 * 4) {
-                        throw new OcException("part %d measure %d divisions16 should be int : %d/4", p_m[0], p_m[1], divisions4);
+                        // TODO divisions16 => BigDecimal
+//                        throw new OcException("part %d measure %d divisions16 should be int : %d/4", p_m[0], p_m[1], divisions4);
+//                        log.warn(String.format("part %d measure %d divisions16 should be int : %d/4", p_m[0], p_m[1], divisions4));
                     }
                     if (!mxlDivisions16List.contains(divisions16)) {
                         mxlDivisions16List.add(divisions16);
@@ -940,7 +952,7 @@ public final class FamiTrackerApp {
             final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
 //            blueClapperFromMxl(mxlFilePath, nameToInstrument);
 
-//            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl"); TODO divisions16
+            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO divisions16
 //            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
 //            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
 //            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
@@ -958,13 +970,13 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "4th/mayday mayday - Tsunomaki Watame/mayday_mayday.mxl");
 //            checkMxl(rootDirPath + "4th/FACT - Tokoyami Towa/FACT.mxl");
 //            checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/mxl");
-//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl"); TODO repeat
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl");// TODO repeat
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco.mxl");
-//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl"); TODO divisions16
+            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl");// TODO divisions16
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_Full_Band.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers.mxl");
 //            checkMxl(rootDirPath + "6th/IrohaStep - kazama iroha/mxl");
-//            checkMxl(rootDirPath + "6th/Laplus Darkness Stream BGM/Laplus_Darkness_StreamLoading_BGM__Osanzi.mxl"); TODO repeat
+//            checkMxl(rootDirPath + "6th/Laplus Darkness Stream BGM/Laplus_Darkness_StreamLoading_BGM__Osanzi.mxl");// TODO repeat
 //            checkMxl(rootDirPath + "6th/Paralyze - Sakamata Chloe/Paralyze_-_Sakamata_Chloe.mxl");
 //            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO_-_.mxl");
 //            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO.mxl");
@@ -973,12 +985,12 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/_Hyakkaryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
 //            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/hanafubuki.mxl");
 //            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night_-_hololive_IDOL_PROJECT.mxl");
-//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night.mxl"); TODO repeat
+//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night.mxl");// TODO repeat
 //            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck__Hololive_IDOL_PROJECT.mxl");
 //            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck_-_hololive_IDOL_PROJECT.mxl");
-//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl"); TODO repeat
-//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl"); TODO repeat
-//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl"); TODO divisions16
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl");// TODO repeat
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl");// TODO repeat
+            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl");// TODO divisions16
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_.mxl");
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/shiny_smily_story-hololive.mxl");
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story.mxl");
@@ -1000,7 +1012,7 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction__hololive_English_-Myth-.mxl");
 //            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider.mxl");
 //            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider_.mxl");
-//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl"); TODO repeat
+//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");// TODO repeat
 //            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moments.mxl");
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
