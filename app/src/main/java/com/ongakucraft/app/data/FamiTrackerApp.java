@@ -15,6 +15,7 @@ import org.audiveris.proxymusic.util.Marshalling;
 
 import java.io.File;
 import java.lang.String;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -63,7 +64,7 @@ public final class FamiTrackerApp {
         for (final var track : midiFile.getTrackList()) {
             for (final var note : track.getNoteList()) {
                 if (0 != note.getOn() % ticksPerRow) {
-                    throw new OcException("note on should be int : %s/%d", note.getOn(), ticksPerRow);
+                    throw new OcException("note on should be int : %d/%d", note.getOn(), ticksPerRow);
                 }
                 final var row = rows.get(note.getOn() / ticksPerRow);
                 row.add(FtmNote.keyToName(note.getKey()));
@@ -415,11 +416,11 @@ public final class FamiTrackerApp {
         }
     }
 
-    private static List<Integer> mxlDivisions16List;
+    private static List<Integer> mxlDivisions4List;
     private static List<Integer> mxlMeasureSizeList;
 
     private static void checkMxlScore(ScorePartwise scorePartwise) {
-        mxlDivisions16List = new ArrayList<>();
+        mxlDivisions4List = new ArrayList<>();
         mxlMeasureSizeList = new ArrayList<>();
     }
 
@@ -463,17 +464,11 @@ public final class FamiTrackerApp {
                         throw new OcException("part %d measure %d divisions should be int : %s", p_m[0], p_m[1], divisions.toString());
                     }
                     final var divisions4 = divisions.intValue();
-                    final var divisions16 = divisions4 / 4;
-                    if (divisions4 != divisions16 * 4) {
-                        // TODO divisions16 => BigDecimal
-//                        throw new OcException("part %d measure %d divisions16 should be int : %d/4", p_m[0], p_m[1], divisions4);
-//                        log.warn(String.format("part %d measure %d divisions16 should be int : %d/4", p_m[0], p_m[1], divisions4));
+                    if (!mxlDivisions4List.contains(divisions4)) {
+                        mxlDivisions4List.add(divisions4);
                     }
-                    if (!mxlDivisions16List.contains(divisions16)) {
-                        mxlDivisions16List.add(divisions16);
-                    }
-                    if (1 != mxlDivisions16List.size()) {
-                        throw new OcException("part %d measure %d divisions16 should be unique : %s", p_m[0], p_m[1], mxlDivisions16List.toString());
+                    if (1 != mxlDivisions4List.size()) {
+                        throw new OcException("part %d measure %d divisions4 should be unique : %s", p_m[0], p_m[1], mxlDivisions4List.toString());
                     }
                 }
             } else if (noteOrBackupOrForward instanceof final Note note) {
@@ -499,7 +494,7 @@ public final class FamiTrackerApp {
 //        log.info("mxlMeasureSizeList : {}", mxlMeasureSizeList);
     }
 
-    public static List<List<String>> groupMxlNoteNameByRow(String filePath, int measures, int divisions16) {
+    public static List<List<String>> groupMxlNoteNameByRow(String filePath, int measures, int divisions4) {
         final List<List<String>> rows = new ArrayList<>();
         for (int m = 0; m < measures; ++m) {
             for (int i = 0; i < 16; ++i) {
@@ -516,18 +511,18 @@ public final class FamiTrackerApp {
                 for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
                     if (noteOrBackupOrForward instanceof final Backup backup) {
                         final var duration = backup.getDuration().intValue();
-                        rowIndex -= duration / divisions16;
+                        rowIndex -= duration * 4 / divisions4;
                     } else if (noteOrBackupOrForward instanceof final Forward forward) {
                         final var duration = forward.getDuration().intValue();
-                        rowIndex += duration / divisions16;
+                        rowIndex += duration * 4 / divisions4;
                     } else if (noteOrBackupOrForward instanceof final Note note) {
                         final var isChord = null != note.getChord();
                         if (!isChord) {
                             rowIndex += prevRows;
                         }
                         final var duration = note.getDuration().intValue();
-                        if (0 != duration % divisions16) {
-                            throw new OcException("part %d measure %d note rows should be int : %s/%d", p, m, duration, mxlDivisions16);
+                        if (0 != (duration * 4) % divisions4) {
+                            throw new OcException("part %d measure %d note rows should be int : %d/%d", p, m, duration, divisions4);
                         }
                         if (!isTieStop(note)) {
                             final var pitch = note.getPitch();
@@ -535,7 +530,7 @@ public final class FamiTrackerApp {
                                 rows.get(rowIndex).add(pitchToName(pitch));
                             }
                         }
-                        prevRows = duration / divisions16;
+                        prevRows = duration * 4 / divisions4;
                     }
                 }
             }
@@ -563,7 +558,7 @@ public final class FamiTrackerApp {
     }
 
     // process per score
-    private static int mxlDivisions16;
+    private static int mxlDivisions4;
     private static int mxlMeasureSize;
     private static Map<Integer, Map<String, List<FtmNote>>> mxlPartToVoiceToChannel;
     private static Map<Integer, Map<String, Integer>> mxlPartToVoiceToStaff;
@@ -585,7 +580,7 @@ public final class FamiTrackerApp {
     }
 
     private static void processMxlScore(ScorePartwise scorePartwise) {
-        mxlDivisions16 = mxlDivisions16List.get(0);
+        mxlDivisions4 = mxlDivisions4List.get(0);
         mxlMeasureSize = mxlMeasureSizeList.get(0);
         mxlPartToVoiceToChannel = new LinkedHashMap<>();
         mxlPartToVoiceToStaff = new LinkedHashMap<>();
@@ -636,6 +631,9 @@ public final class FamiTrackerApp {
             }
         } else {
             for (int i = 0; i < rows; ++i) {
+//                if (96 == mxlRowIndex + i) { TODO remove
+//                    throw new OcException("part %d measure %d voice %s row %d should be empty", p_m[0], p_m[1], voice, mxlRowIndex + i);
+//                }
                 if (null != mxlChannel.get(mxlRowIndex + i)) {
                     throw new OcException("part %d measure %d voice %s row %d should be empty", p_m[0], p_m[1], voice, mxlRowIndex + i);
                 }
@@ -654,36 +652,37 @@ public final class FamiTrackerApp {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Backup backup) {
                 final var duration = backup.getDuration().intValue();
-                final var rows = duration / mxlDivisions16;
-                if (duration != rows * mxlDivisions16) {
-                    throw new OcException("part %d measure %d backup rows should be int : %s/%d", p_m[0], p_m[1], duration, mxlDivisions16);
+                final var rows = duration * 4 / mxlDivisions4;
+                if (duration != rows * mxlDivisions4 / 4) {
+                    throw new OcException("part %d measure %d backup rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
                 }
                 mxlRowIndex -= rows;
             } else if (noteOrBackupOrForward instanceof final Forward forward) {
                 final var duration = forward.getDuration().intValue();
-                final var rows = duration / mxlDivisions16;
-                if (duration != rows * mxlDivisions16) {
-                    throw new OcException("part %d measure %d forward rows should be int : %s/%d", p_m[0], p_m[1], duration, mxlDivisions16);
+                final var rows = duration * 4 / mxlDivisions4;
+                if (duration != rows * mxlDivisions4 / 4) {
+                    throw new OcException("part %d measure %d forward rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
                 }
                 mxlRowIndex += rows;
             } else if (noteOrBackupOrForward instanceof final Note note) {
-                if (note.getStaff().intValue() != mxlVoiceToStaff.computeIfAbsent(note.getVoice(), k -> note.getStaff().intValue())) {
-                    throw new OcException("part %d measure %d voice %s staff not match : %d/%d", p_m[0], p_m[1], note.getVoice(), mxlVoiceToStaff.get(note.getVoice()), note.getStaff().intValue());
+                final var staffId = null == note.getStaff() ? -1 : note.getStaff().intValue();
+                if (staffId != mxlVoiceToStaff.computeIfAbsent(note.getVoice(), k -> staffId)) {
+                    throw new OcException("part %d measure %d voice %s staff not match : %d/%d", p_m[0], p_m[1], note.getVoice(), mxlVoiceToStaff.get(note.getVoice()), staffId);
                 }
                 final var isChord = null != note.getChord();
                 if (!isChord) {
                     mxlRowIndex += mxlPrevRows;
                 }
                 final var duration = note.getDuration().intValue();
-                final var rows = duration / mxlDivisions16;
+                final var rows = duration * 4 / mxlDivisions4;
                 var additionRows = 0;
                 var isTuplet = false;
-                if (duration != rows * mxlDivisions16) {
-                    if (mxlDivisions16 * 4 == duration * 3) {
+                if (duration != rows * mxlDivisions4 / 4) {
+                    if (mxlDivisions4 == duration * 3) {
                         isTuplet = true;
                     }
                     if (!isTuplet) {
-                        throw new OcException("part %d measure %d note rows should be int : %s/%d", p_m[0], p_m[1], duration, mxlDivisions16);
+                        throw new OcException("part %d measure %d note rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
                     }
                 }
                 final var mxlChannel = findMxlChannel(p_m, note.getVoice(), rows, isChord);
@@ -715,7 +714,7 @@ public final class FamiTrackerApp {
                             ftmNote.addChord(pitchToName(pitch));
                         } else {
                             final var ftmNote = FtmNote.of(pitchToName(pitch));
-                            ftmNote.setPedal(mxlStaffToPedal.getOrDefault(note.getStaff().intValue(), false));
+                            ftmNote.setPedal(mxlStaffToPedal.getOrDefault(staffId, false));
                             final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);
                             for (final var notation : note.getNotations()) {
                                 for (final var tiedOrSlurOrTuplet : notation.getTiedOrSlurOrTuplet()) {
@@ -789,7 +788,7 @@ public final class FamiTrackerApp {
             }
         }
     }
-    private static void blueClapperFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+    private static void processMxl(String filePath) {
         final var scorePartwise = loadMxl(filePath);
         parseMxl(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
         // remove rest note
@@ -890,13 +889,16 @@ public final class FamiTrackerApp {
                 }
             }
         }
+    }
+
+    private static void blueClapperFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
         final List<FtmInstrument> instrumentList = new ArrayList<>();
         instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
         instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
         instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
         instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
         instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
-        instrumentList.add(nameToInstrument.get("gemuwo-candid-2a03-Piano"));
         for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
             final var channel1 = mxlChannelList.get("1");
             final var channel2 = mxlChannelList.get("2");
@@ -924,6 +926,70 @@ public final class FamiTrackerApp {
         }
     }
 
+    private static void laLionFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        final var channel0 = mxlPartToVoiceToChannel.get(0).get("1");
+        final var channel1 = mxlPartToVoiceToChannel.get(1).get("1");
+        final var channel2 = mxlPartToVoiceToChannel.get(2).get("1");
+        final var channel3 = mxlPartToVoiceToChannel.get(3).get("1");
+        final var channel4 = mxlPartToVoiceToChannel.get(4).get("1");
+        final var channel5 = mxlPartToVoiceToChannel.get(5).get("1");
+        setChannel(channel0, 0, 8);
+        setChannel(channel1, 0, 8);
+        setChannel(channel2, 1, 7);
+        setChannel(channel3, 3, 6);
+        setChannel(channel4, 3, 6);
+        setChannel(channel5, 2, 6);
+        final List<FtmChannel> channelList = new ArrayList<>();
+        channelList.add(FtmChannel.of(channel0));
+        channelList.add(FtmChannel.of(channel1));
+        channelList.add(FtmChannel.of(channel2));
+        channelList.add(FtmChannel.of(channel5));
+        channelList.add(null);
+        channelList.add(FtmChannel.of(channel3)); // TODO check null
+        channelList.add(FtmChannel.of(channel4)); // TODO check null
+        channelList.add(null);
+        final var ftmSong = FtmSong.of("La Lion", "Ongakucraft", "COVER Corp.",
+                120, instrumentList, channelList);
+//            log.info("channelList : {}", channelList.size());
+        log.info("{}", ftmSong);
+    }
+
+    private static void shinySmilyStoryFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
+            final var channel1 = mxlChannelList.get("1");
+            final var channel5 = mxlChannelList.get("5");
+            setChannel(channel1, 0, 8);
+            setChannel(channel5, 3, 6);
+            final List<FtmChannel> channelList = new ArrayList<>();
+            channelList.add(FtmChannel.of(channel1));
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(FtmChannel.of(channel5));
+            channelList.add(null);
+            channelList.add(null);
+            final var ftmSong = FtmSong.of("Shiny Smily Story", "Ongakucraft", "COVER Corp.",
+                    168, instrumentList, channelList);
+//            log.info("channelList : {}", channelList.size());
+            log.info("{}", ftmSong);
+        }
+    }
+
     public static void main(String[] args) {
         try {
 //            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
@@ -942,17 +1008,18 @@ public final class FamiTrackerApp {
 
 //            printMxl(mxlFilePath, false);
 //            printMxl(mxlFilePath, true);
-            checkMxl(mxlFilePath);
-//            final var mxlRows = groupMxlNoteNameByRow(mxlFilePath, measures, mxlDivisions16List.get(0));
+//            final var mxlRows = groupMxlNoteNameByRow(mxlFilePath, measures, mxlDivisions4List.get(0));
 //            diffNoteGroupByRow(midiRows, mxlRows, measures);
 
             // load instrument
 //            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
             final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
             final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
+//            checkMxl(mxlFilePath);
 //            blueClapperFromMxl(mxlFilePath, nameToInstrument);
 
-            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO divisions16
+            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO repeat
+            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
 //            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
 //            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
@@ -972,7 +1039,7 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl");// TODO repeat
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco.mxl");
-            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl");// TODO divisions16
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_Full_Band.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers.mxl");
 //            checkMxl(rootDirPath + "6th/IrohaStep - kazama iroha/mxl");
@@ -990,7 +1057,8 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck_-_hololive_IDOL_PROJECT.mxl");
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl");// TODO repeat
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl");// TODO repeat
-            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl");// TODO divisions16
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl");
+//            shinySmilyStoryFromMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_.mxl");
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/shiny_smily_story-hololive.mxl");
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story.mxl");
