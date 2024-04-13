@@ -231,6 +231,79 @@ public final class FamiTrackerApp {
         }
     }
 
+    private static void parseMxlWithRepeat(ScorePartwise scorePartwise,
+                                           Consumer<ScorePartwise> scoreFunc,
+                                           BiConsumer<Integer, ScorePartwise.Part> partFunc,
+                                           BiConsumer<int[], ScorePartwise.Part.Measure> measureFunc) {
+        if (null != scoreFunc) {
+            scoreFunc.accept(scorePartwise);
+        }
+        for (int p = 0; p < scorePartwise.getPart().size(); ++p) {
+            final var part = scorePartwise.getPart().get(p);
+            partFunc.accept(p, part);
+            final Set<Integer> usedRepeatForward = new HashSet<>();
+            Integer repeatForward = null;
+            Integer ending1Start = null;
+            Integer ending1Stop = null;
+            final List<Integer> mList = new ArrayList<>();
+            for (int m = 0; m < part.getMeasure().size();) {
+                mList.add(m);
+                var needContinue = false;
+                final var measure = part.getMeasure().get(m);
+                for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
+                    if (noteOrBackupOrForward instanceof final Barline barline) {
+                        if (null != barline.getEnding()) {
+                            final var ending = barline.getEnding();
+                            if (ending.getNumber().equals("1")) {
+                                if (StartStopDiscontinue.START == ending.getType()) {
+                                    ending1Start = m;
+                                } else {
+                                    ending1Stop = m;
+                                }
+                            }
+                        }
+                        if (null != barline.getRepeat()) {
+                            final var repeat = barline.getRepeat();
+                            switch (repeat.getDirection()) {
+                                case FORWARD -> {
+                                    if (!usedRepeatForward.contains(m)) {
+                                        usedRepeatForward.add(m);
+                                        repeatForward = m;
+                                    }
+                                }
+                                case BACKWARD -> {
+                                    if (!usedRepeatForward.contains(m)) {
+                                        usedRepeatForward.add(m);
+                                        if (null == repeatForward) {
+                                            repeatForward = 0;
+                                        }
+                                        m = repeatForward;
+                                        repeatForward = null;
+                                        needContinue = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (needContinue) {
+                    continue;
+                }
+                ++m;
+                if (null != ending1Start && ending1Start == m) {
+                    m = ending1Stop + 1;
+                    ending1Start = null;
+                    ending1Stop = null;
+                }
+            }
+            mxlMeasureSize = mList.size();
+            for (final int m : mList) {
+                final var measure = part.getMeasure().get(m);
+                measureFunc.accept(new int[]{p, m}, measure);
+            }
+        }
+    }
+
     private static String pitchToName(Pitch pitch) {
         final var alter = null == pitch.getAlter() ? '-' : switch (pitch.getAlter().toString()) {
             case "-1" -> 'b';
@@ -418,10 +491,12 @@ public final class FamiTrackerApp {
 
     private static List<Integer> mxlDivisions4List;
     private static List<Integer> mxlMeasureSizeList;
+    private static int mxlRepeatCount;
 
     private static void checkMxlScore(ScorePartwise scorePartwise) {
         mxlDivisions4List = new ArrayList<>();
         mxlMeasureSizeList = new ArrayList<>();
+        mxlRepeatCount = 0;
     }
 
     private static void checkMxlPart(int p, ScorePartwise.Part part) {
@@ -433,21 +508,62 @@ public final class FamiTrackerApp {
         }
     }
 
+    private static int lastEndingStop;
     private static void checkMxlMeasure(int[] p_m, ScorePartwise.Part.Measure measure) {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Barline barline) {
                 if (null != barline.getRepeat()) {
                     final var repeat = barline.getRepeat();
+                    switch (repeat.getDirection()) {
+                        case FORWARD -> {
+                            ++mxlRepeatCount;
+                            if (mxlRepeatCount <= 0) {
+                                throw new OcException("part %d measure %d unmatched repeat forward : %s", p_m[0], p_m[1], repeat);
+                            }
+                        }
+                        case BACKWARD -> {
+                            if (0 < mxlRepeatCount) {
+                                --mxlRepeatCount;
+                            }
+                        }
+                        default -> throw new OcException("part %d measure %d unknown repeat direction : %s", p_m[0], p_m[1], repeat);
+                    }
                     if (null != repeat.getAfterJump()) {
-                        throw new OcException("part %d measure %d repeat after jump unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                        throw new OcException("part %d measure %d repeat after jump unsupported : %s", p_m[0], p_m[1], repeat);
                     }
                     if (null != repeat.getTimes()) {
-                        throw new OcException("part %d measure %d repeat times unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                        throw new OcException("part %d measure %d repeat times unsupported : %s", p_m[0], p_m[1], repeat);
                     }
                     if (null != repeat.getWinged()) {
-                        throw new OcException("part %d measure %d repeat winged unsupported : %s", p_m[0], p_m[1], barline.getRepeat());
+                        throw new OcException("part %d measure %d repeat winged unsupported : %s", p_m[0], p_m[1], repeat);
                     }
-                    // TODO repeat
+                }
+                if (null != barline.getEnding()) {
+                    final var ending = barline.getEnding();
+                    switch (ending.getNumber()) {
+                        case "1" -> {
+                            switch (ending.getType()) {
+                                case START -> {}
+                                case STOP -> {
+                                    if (null == barline.getRepeat() || BackwardForward.BACKWARD != barline.getRepeat().getDirection()) {
+                                        throw new OcException("part %d measure %d unmatched ending stop : %s", p_m[0], p_m[1], ending);
+                                    }
+                                    lastEndingStop = p_m[1];
+                                }
+                                default -> throw new OcException("part %d measure %d unknown ending type : %s", p_m[0], p_m[1], ending);
+                            }
+                        }
+                        case "2" -> {
+                            if (StartStopDiscontinue.START == ending.getType()) {
+                                if (lastEndingStop + 1 != p_m[1]) {
+                                    throw new OcException("part %d measure %d unmatched ending start : %s", p_m[0], p_m[1], ending);
+                                }
+                            }
+                        }
+                        default -> throw new OcException("part %d measure %d unknown ending number : %s", p_m[0], p_m[1], ending);
+                    }
+                } else {
+                    lastEndingStop = -1;
                 }
             } else if (noteOrBackupOrForward instanceof final Backup backup) {
                 if (0 != backup.getDuration().scale()) {
@@ -473,7 +589,6 @@ public final class FamiTrackerApp {
                 }
             } else if (noteOrBackupOrForward instanceof final Note note) {
                 if (null != note.getGrace()) {
-                    // TODO grace note
                     switch (note.getType().getValue()) {
                         case "eighth", "16th":
                             break;
@@ -631,9 +746,6 @@ public final class FamiTrackerApp {
             }
         } else {
             for (int i = 0; i < rows; ++i) {
-//                if (96 == mxlRowIndex + i) { TODO remove
-//                    throw new OcException("part %d measure %d voice %s row %d should be empty", p_m[0], p_m[1], voice, mxlRowIndex + i);
-//                }
                 if (null != mxlChannel.get(mxlRowIndex + i)) {
                     throw new OcException("part %d measure %d voice %s row %d should be empty", p_m[0], p_m[1], voice, mxlRowIndex + i);
                 }
@@ -672,6 +784,9 @@ public final class FamiTrackerApp {
                 final var isChord = null != note.getChord();
                 if (!isChord) {
                     mxlRowIndex += mxlPrevRows;
+                }
+                if (null == note.getDuration()) {
+                    // TODO grace
                 }
                 final var duration = note.getDuration().intValue();
                 final var rows = duration * 4 / mxlDivisions4;
@@ -788,9 +903,10 @@ public final class FamiTrackerApp {
             }
         }
     }
+
     private static void processMxl(String filePath) {
         final var scorePartwise = loadMxl(filePath);
-        parseMxl(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
+        parseMxlWithRepeat(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
         // remove rest note
         for (final var mxlVoiceToChannel : mxlPartToVoiceToChannel.values()) {
             for (final var mxlChannel : mxlVoiceToChannel.values()) {
@@ -990,6 +1106,35 @@ public final class FamiTrackerApp {
         }
     }
 
+    private static void captureTheMomentFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
+        processMxl(filePath);
+        final List<FtmInstrument> instrumentList = new ArrayList<>();
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-piano"));
+        instrumentList.add(nameToInstrument.get("trojan-mage-2a03-Tri Bass 1"));
+        instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
+        instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
+        instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
+        for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
+            final var channel1 = mxlChannelList.get("1");
+            final var channel5 = mxlChannelList.get("5");
+            setChannel(channel1, 0, 8);
+            setChannel(channel5, 3, 6);
+            final List<FtmChannel> channelList = new ArrayList<>();
+            channelList.add(FtmChannel.of(channel1));
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(null);
+            channelList.add(FtmChannel.of(channel5));
+            channelList.add(null);
+            channelList.add(null);
+            final var ftmSong = FtmSong.of("Shiny Smily Story", "Ongakucraft", "COVER Corp.",
+                    168, instrumentList, channelList);
+//            log.info("channelList : {}", channelList.size());
+            log.info("{}", ftmSong);
+        }
+    }
+
     public static void main(String[] args) {
         try {
 //            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
@@ -1018,8 +1163,8 @@ public final class FamiTrackerApp {
 //            checkMxl(mxlFilePath);
 //            blueClapperFromMxl(mxlFilePath, nameToInstrument);
 
-            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO repeat
-            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
+//            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO fix channel
+//            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
 //            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
 //            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
@@ -1037,13 +1182,13 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "4th/mayday mayday - Tsunomaki Watame/mayday_mayday.mxl");
 //            checkMxl(rootDirPath + "4th/FACT - Tokoyami Towa/FACT.mxl");
 //            checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/mxl");
-//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl");// TODO repeat
+//            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco__Instrumental.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers__Kiryu_Coco.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_-_Kiryu_Coco.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers_Full_Band.mxl");
 //            checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers.mxl");
 //            checkMxl(rootDirPath + "6th/IrohaStep - kazama iroha/mxl");
-//            checkMxl(rootDirPath + "6th/Laplus Darkness Stream BGM/Laplus_Darkness_StreamLoading_BGM__Osanzi.mxl");// TODO repeat
+//            checkMxl(rootDirPath + "6th/Laplus Darkness Stream BGM/Laplus_Darkness_StreamLoading_BGM__Osanzi.mxl"); // TODO fix 32th
 //            checkMxl(rootDirPath + "6th/Paralyze - Sakamata Chloe/Paralyze_-_Sakamata_Chloe.mxl");
 //            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO_-_.mxl");
 //            checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO.mxl");
@@ -1052,11 +1197,11 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/_Hyakkaryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
 //            checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/hanafubuki.mxl");
 //            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night_-_hololive_IDOL_PROJECT.mxl");
-//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night.mxl");// TODO repeat
+//            checkMxl(rootDirPath + "idol/Koyoi wa Halloween Night/Halloween_Night.mxl");
 //            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck__Hololive_IDOL_PROJECT.mxl");
 //            checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck_-_hololive_IDOL_PROJECT.mxl");
-//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl");// TODO repeat
-//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl");// TODO repeat
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (1).mxl");// TODO repeat (X)
+//            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl");
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl");
 //            shinySmilyStoryFromMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_.mxl");
@@ -1080,7 +1225,8 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction__hololive_English_-Myth-.mxl");
 //            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider.mxl");
 //            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider_.mxl");
-//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");// TODO repeat
+//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");// TODO fix grace
+//            captureTheMomentFromMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moments.mxl");
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
