@@ -907,6 +907,28 @@ public final class FamiTrackerApp {
     private static void processMxl(String filePath) {
         final var scorePartwise = loadMxl(filePath);
         parseMxlWithRepeat(scorePartwise, FamiTrackerApp::processMxlScore, FamiTrackerApp::processMxlPart, FamiTrackerApp::processMxlMeasure);
+        // remove empty channel
+        for (final var part : mxlPartToVoiceToChannel.keySet().stream().toList()) {
+            final var mxlVoiceToChannel = mxlPartToVoiceToChannel.get(part);
+            for (final var voice : mxlVoiceToChannel.keySet().stream().toList()) {
+                final var channel = mxlVoiceToChannel.get(voice);
+                if (channel.stream().allMatch(note -> null == note || FtmNote.REST == note)) {
+                    mxlVoiceToChannel.remove(voice);
+                } else {
+                    log.info("remove : {} {}", part, voice);
+                }
+            }
+            if (mxlVoiceToChannel.isEmpty()) {
+                mxlPartToVoiceToChannel.remove(part);
+            }
+        }
+        // log channel
+        for (final var part : mxlPartToVoiceToChannel.keySet().stream().toList()) {
+            final var mxlVoiceToChannel = mxlPartToVoiceToChannel.get(part);
+            for (final var voice : mxlVoiceToChannel.keySet().stream().toList()) {
+                log.info("channel : {} {}", part, voice);
+            }
+        }
         // remove rest note
         for (final var mxlVoiceToChannel : mxlPartToVoiceToChannel.values()) {
             for (final var mxlChannel : mxlVoiceToChannel.values()) {
@@ -1053,23 +1075,19 @@ public final class FamiTrackerApp {
         final var channel0 = mxlPartToVoiceToChannel.get(0).get("1");
         final var channel1 = mxlPartToVoiceToChannel.get(1).get("1");
         final var channel2 = mxlPartToVoiceToChannel.get(2).get("1");
-        final var channel3 = mxlPartToVoiceToChannel.get(3).get("1");
-        final var channel4 = mxlPartToVoiceToChannel.get(4).get("1");
-        final var channel5 = mxlPartToVoiceToChannel.get(5).get("1");
+        final var channel3 = mxlPartToVoiceToChannel.get(2).get("5");
         setChannel(channel0, 0, 8);
         setChannel(channel1, 0, 8);
         setChannel(channel2, 1, 7);
-        setChannel(channel3, 3, 6);
-        setChannel(channel4, 3, 6);
-        setChannel(channel5, 2, 6);
+        setChannel(channel3, 1, 7);
         final List<FtmChannel> channelList = new ArrayList<>();
         channelList.add(FtmChannel.of(channel0));
         channelList.add(FtmChannel.of(channel1));
-        channelList.add(FtmChannel.of(channel2));
-        channelList.add(FtmChannel.of(channel5));
         channelList.add(null);
-        channelList.add(FtmChannel.of(channel3)); // TODO check null
-        channelList.add(FtmChannel.of(channel4)); // TODO check null
+        channelList.add(null);
+        channelList.add(null);
+        channelList.add(FtmChannel.of(channel2));
+        channelList.add(FtmChannel.of(channel3));
         channelList.add(null);
         final var ftmSong = FtmSong.of("La Lion", "Ongakucraft", "COVER Corp.",
                 120, instrumentList, channelList);
@@ -1163,8 +1181,8 @@ public final class FamiTrackerApp {
 //            checkMxl(mxlFilePath);
 //            blueClapperFromMxl(mxlFilePath, nameToInstrument);
 
-//            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO fix channel
-//            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
+            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO fix empty drum channel
+            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
 //            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
 //            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
