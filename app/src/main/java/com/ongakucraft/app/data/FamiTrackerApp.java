@@ -15,7 +15,6 @@ import org.audiveris.proxymusic.util.Marshalling;
 
 import java.io.File;
 import java.lang.String;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -254,7 +253,7 @@ public final class FamiTrackerApp {
                     if (noteOrBackupOrForward instanceof final Barline barline) {
                         if (null != barline.getEnding()) {
                             final var ending = barline.getEnding();
-                            if (ending.getNumber().equals("1")) {
+                            if ("1".equals(ending.getNumber())) {
                                 if (StartStopDiscontinue.START == ending.getType()) {
                                     ending1Start = m;
                                 } else {
@@ -304,7 +303,15 @@ public final class FamiTrackerApp {
         }
     }
 
-    private static String pitchToName(Pitch pitch) {
+    private static String pitchToName(Note note) {
+        final var pitch = note.getPitch();
+        final var unpitched = note.getUnpitched();
+        if (null == pitch) {
+            if (null == unpitched) {
+                return null;
+            }
+            return unpitched.getDisplayStep().name() + '-' + unpitched.getDisplayOctave();
+        }
         final var alter = null == pitch.getAlter() ? '-' : switch (pitch.getAlter().toString()) {
             case "-1" -> 'b';
             case "1" -> '#';
@@ -325,8 +332,8 @@ public final class FamiTrackerApp {
     }
 
     private static boolean isSamePitch(FtmNote ftmNote, Note note) {
-        final var name = pitchToName(note.getPitch());
-        if (name.equals(FtmNote.keyToName(ftmNote.getKey()))) {
+        final var name = pitchToName(note);
+        if (FtmNote.keyToName(ftmNote.getKey()).equals(name)) {
             return true;
         }
         for (final var key : ftmNote.getChord()) {
@@ -640,9 +647,9 @@ public final class FamiTrackerApp {
                             throw new OcException("part %d measure %d note rows should be int : %d/%d", p, m, duration, divisions4);
                         }
                         if (!isTieStop(note)) {
-                            final var pitch = note.getPitch();
-                            if (null != pitch) {
-                                rows.get(rowIndex).add(pitchToName(pitch));
+                            final var pitchName = pitchToName(note);
+                            if (null != pitchName) {
+                                rows.get(rowIndex).add(pitchName);
                             }
                         }
                         prevRows = duration * 4 / divisions4;
@@ -809,26 +816,26 @@ public final class FamiTrackerApp {
                     if (null == tieStartNote) {
                         throw new OcException("part %d measure %d can't find tie start", p_m[0], p_m[1]);
                     }
-                    if (!pitchToName(note.getPitch()).equals(pitchToName(tieStartNote.getPitch()))) {
-                        throw new OcException("part %d measure %d can't match tie start pitch : %s", p_m[0], p_m[1], pitchToName(tieStartNote.getPitch()), pitchToName(note.getPitch()));
+                    if (!Objects.equals(pitchToName(note), pitchToName(tieStartNote))) {
+                        throw new OcException("part %d measure %d can't match tie start pitch : %s", p_m[0], p_m[1], pitchToName(tieStartNote), pitchToName(note));
                     }
                     final var ftmNote = mxlChannel.get(mxlRowIndex - 1);
                     if (!isSamePitch(ftmNote, tieStartNote)) {
-                        throw new OcException("part %d measure %d can't match tie start key : %s %s", p_m[0], p_m[1], pitchToName(tieStartNote.getPitch()), FtmNote.keyToName(ftmNote.getKey()));
+                        throw new OcException("part %d measure %d can't match tie start key : %s %s", p_m[0], p_m[1], pitchToName(tieStartNote), FtmNote.keyToName(ftmNote.getKey()));
                     }
                     fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote);
                 } else {
-                    final var pitch = note.getPitch();
-                    if (null == pitch) {
+                    final var pitchName = pitchToName(note);
+                    if (null == pitchName) {
                         for (int i = 0; i < rows; ++i) {
                             mxlChannel.set(mxlRowIndex + i, FtmNote.REST);
                         }
                     } else {
                         if (isChord) {
                             final var ftmNote = mxlChannel.get(mxlRowIndex);
-                            ftmNote.addChord(pitchToName(pitch));
+                            ftmNote.addChord(pitchName);
                         } else {
-                            final var ftmNote = FtmNote.of(pitchToName(pitch));
+                            final var ftmNote = FtmNote.of(pitchName);
                             ftmNote.setPedal(mxlStaffToPedal.getOrDefault(staffId, false));
                             final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);
                             for (final var notation : note.getNotations()) {
@@ -914,8 +921,6 @@ public final class FamiTrackerApp {
                 final var channel = mxlVoiceToChannel.get(voice);
                 if (channel.stream().allMatch(note -> null == note || FtmNote.REST == note)) {
                     mxlVoiceToChannel.remove(voice);
-                } else {
-                    log.info("remove : {} {}", part, voice);
                 }
             }
             if (mxlVoiceToChannel.isEmpty()) {
@@ -970,17 +975,10 @@ public final class FamiTrackerApp {
                             throw new OcException("row %d fx should be null : %d", row, arpeggioIdx);
                         }
                         switch (ftmNote.getChord().size()) {
-                            case 1:
-                                ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), 0));
-                                break;
-                            case 2:
-                                ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(1) - ftmNote.getKey()));
-                                break;
-                            case 3:
-                                ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(2) - ftmNote.getKey()));
-                                break;
-                            default:
-                                throw new OcException("row %d chord too many : %d %d", row, ftmNote.getKey(), ftmNote.getChord());
+                            case 1 -> ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), 0));
+                            case 2 -> ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(1) - ftmNote.getKey()));
+                            case 3 -> ftmNote.setEffect(arpeggioIdx, FtmEffect.arpeggio(ftmNote.getChord().get(0) - ftmNote.getKey(), ftmNote.getChord().get(2) - ftmNote.getKey()));
+                            default -> throw new OcException("row %d chord too many : %d %d", row, ftmNote.getKey(), ftmNote.getChord());
                         }
                     }
                 }
@@ -1076,6 +1074,10 @@ public final class FamiTrackerApp {
         final var channel1 = mxlPartToVoiceToChannel.get(1).get("1");
         final var channel2 = mxlPartToVoiceToChannel.get(2).get("1");
         final var channel3 = mxlPartToVoiceToChannel.get(2).get("5");
+        final var channel4 = mxlPartToVoiceToChannel.get(3).get("1");
+        final var channel5 = mxlPartToVoiceToChannel.get(3).get("2");
+        final var channel6 = mxlPartToVoiceToChannel.get(4).get("1");
+        final var channel7 = mxlPartToVoiceToChannel.get(5).get("1");
         setChannel(channel0, 0, 8);
         setChannel(channel1, 0, 8);
         setChannel(channel2, 1, 7);
@@ -1155,8 +1157,8 @@ public final class FamiTrackerApp {
 
     public static void main(String[] args) {
         try {
-//            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
-            final var rootDirPath = "D:/Share/LoopHero/mxl/";
+            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
+//            final var rootDirPath = "D:/Share/LoopHero/mxl/";
             final var measures = 149;
             final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-split.mid";
@@ -1175,8 +1177,8 @@ public final class FamiTrackerApp {
 //            diffNoteGroupByRow(midiRows, mxlRows, measures);
 
             // load instrument
-//            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
-            final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
+            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
+//            final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
             final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
 //            checkMxl(mxlFilePath);
 //            blueClapperFromMxl(mxlFilePath, nameToInstrument);
