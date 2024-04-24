@@ -15,6 +15,8 @@ import org.audiveris.proxymusic.util.Marshalling;
 
 import java.io.File;
 import java.lang.String;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -301,6 +303,24 @@ public final class FamiTrackerApp {
                 measureFunc.accept(new int[]{p, m}, measure);
             }
         }
+    }
+
+    private static BigDecimal getDuration(Note note) { // TODO replace all note.getDuration()
+        final var duration = note.getDuration();
+        if (null != duration) {
+            return duration;
+        }
+        if (null != note.getGrace()) {
+            final var type = note.getType().getValue();
+            if (null != type) {
+                return switch (type) {
+                    case "eighth" -> BigDecimal.valueOf(mxlDivisions4).divide(BigDecimal.valueOf(2), RoundingMode.UNNECESSARY);
+                    case "16th" -> BigDecimal.valueOf(mxlDivisions4).divide(BigDecimal.valueOf(4), RoundingMode.UNNECESSARY);
+                    default -> null;
+                };
+            }
+        }
+        return null;
     }
 
     private static String pitchToName(Note note) {
@@ -596,6 +616,16 @@ public final class FamiTrackerApp {
                 }
             } else if (noteOrBackupOrForward instanceof final Note note) {
                 if (null != note.getGrace()) {
+                    final var grace = note.getGrace();
+                    if (null != grace.getStealTimePrevious()) {
+                        throw new OcException("part %d measure %d unknown grace steal time previous : %s", p_m[0], p_m[1], grace);
+                    }
+                    if (null != grace.getStealTimeFollowing()) {
+                        throw new OcException("part %d measure %d unknown grace steal time following : %s", p_m[0], p_m[1], grace);
+                    }
+                    if (null != grace.getMakeTime()) {
+                        throw new OcException("part %d measure %d unknown grace make time : %s", p_m[0], p_m[1], grace);
+                    }
                     switch (note.getType().getValue()) {
                         case "eighth", "16th":
                             break;
@@ -792,10 +822,8 @@ public final class FamiTrackerApp {
                 if (!isChord) {
                     mxlRowIndex += mxlPrevRows;
                 }
-                if (null == note.getDuration()) {
-                    // TODO grace
-                }
-                final var duration = note.getDuration().intValue();
+                // TODO grace
+                final var duration = getDuration(note).intValue();
                 final var rows = duration * 4 / mxlDivisions4;
                 var additionRows = 0;
                 var isTuplet = false;
@@ -1157,8 +1185,8 @@ public final class FamiTrackerApp {
 
     public static void main(String[] args) {
         try {
-            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
-//            final var rootDirPath = "D:/Share/LoopHero/mxl/";
+//            final var rootDirPath = "/Users/wilson/Downloads/mxl/";
+            final var rootDirPath = "D:/Share/LoopHero/mxl/";
             final var measures = 149;
             final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-clean.mid";
 //            final var midiFilePath = rootDirPath + "/BLUE_CLAPPER__Hololive_IDOL_PROJECT-split.mid";
@@ -1177,14 +1205,14 @@ public final class FamiTrackerApp {
 //            diffNoteGroupByRow(midiRows, mxlRows, measures);
 
             // load instrument
-            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
-//            final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
+//            final var instrumentRootDirPath = "/Users/wilson/Downloads/_instrument_txt/";
+            final var instrumentRootDirPath = "D:/Share/LoopHero/8bits/_instrument_txt";
             final var nameToInstrument = FtmInstrumentApp.loadFtmInstruments(instrumentRootDirPath);
 //            checkMxl(mxlFilePath);
 //            blueClapperFromMxl(mxlFilePath, nameToInstrument);
 
-            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO fix empty drum channel
-            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
+//            checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");// TODO fix empty drum channel
+//            laLionFromMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy.mxl");
 //            checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl");
 //            checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl");
@@ -1245,8 +1273,8 @@ public final class FamiTrackerApp {
 //            checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction__hololive_English_-Myth-.mxl");
 //            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider.mxl");
 //            checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider_.mxl");
-//            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");// TODO fix grace
-//            captureTheMomentFromMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl", nameToInstrument);
+            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");// TODO fix grace
+            captureTheMomentFromMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl", nameToInstrument);
 //            checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moments.mxl");
         } catch (Exception e) {
             log.error("FamiTrackerApp", e);
