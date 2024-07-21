@@ -1961,6 +1961,110 @@ division / staffs / min. : 16 / 2 / 01:29
         return structure;
     }
 
+    private static Structure unwelcomeSchool(BlockDatasetVersion version, String inputFilePath) throws Exception {
+/*
+sequences : 4
+url : https://musescore.com/user/79422448/scores/13415836
+division / staffs / min. : 16 / 4 / 02:08
+	track : 0 [violin, pizzicatostr, tremolo str]
+	ticks/start/end : 522 / 0 / 142
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   42 |      |  367 |   11 |  102 |      |      |      |
+	track : 1 [violin, pizzicatostr, tremolo str]
+	ticks/start/end : 443 / 0 / 142
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |  203 |    7 |  213 |      |   18 |      |    2 |      |
+	track : 2 [strings, pizzicatostr, tremolo str]
+	ticks/start/end : 488 / 0 / 142
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   78 |    3 |  385 |    1 |   21 |      |      |      |      |      |
+	track : 3 [strings, pizzicatostr, tremolo str]
+	ticks/start/end : 384 / 0 / 142
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |  101 |    2 |  245 |    3 |   33 |      |      |      |      |      |      |      |
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 57- 88/522
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  2/ 55- 93/443
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 50- 77/488
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 38- 64/384
+
+/function ongakucraft:set_circuit
+/tp @a 23 -44 -8 0 30
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..904}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..904}] as @a at @s run tp @s ~ ~ ~0.5 0 30
+/execute if entity @e[scores={ticks=904..914}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1, 6, 32, 1);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final CircuitBuilder rightBuilderS = SquareWaveBuilder.of(blockDataset, true, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderS = SquareWaveBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {0}, {1}, // TODO 1 become background
+                {2}, {3}
+        };
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP, Instrument.BELL);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP, Instrument.BELL);
+        final NoteConvertor[][] convertors = {
+                {convertor0}, {convertor0},
+                {convertor0}, {convertor0}
+        };
+        final CircuitBuilder[] builders = {
+                leftBuilderS, rightBuilderS,
+                leftBuilderS, rightBuilderS
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            final var group = groups[i];
+            for (var j = 0; j < group.length; ++j) {
+                final var noteConvertor = convertors[i][j];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(group[j])));
+            }
+            final var struct = builders[i].generate(subSequenceList);
+            struct.regulate();
+
+            circuits.add(struct);
+        }
+
+        final var sideOffset = 18;
+        final var frontOffset = 8;
+        final var mid = 4;
+        final var heads = List.of(
+                Position.of(2, 3, 1),
+                Position.of(-2, 3, 1),
+                Position.of(2, 0, 1),
+                Position.of(-2, 0, 1)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+        structure.regulate();
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/unwelcome-school.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -2038,9 +2142,13 @@ division / staffs / min. : 16 / 2 / 01:29
 //            final var structure = blingBangBangBorn(VERSION, inputFilePath);
 //            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case66c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 
-            final var inputFilePath = String.format("%s/input/Alive - Arknights/Alive.mid", ROOT_DIR_PATH);
-            final var structure = alive(VERSION, inputFilePath);
-            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case67c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            final var inputFilePath = String.format("%s/input/Alive - Arknights/Alive.mid", ROOT_DIR_PATH);
+//            final var structure = alive(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case67c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/Blue Archive - Unwelcome School/Unwelcome_School_-_Mitsukiyo (1).mid", ROOT_DIR_PATH);
+            final var structure = unwelcomeSchool(VERSION, inputFilePath);
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case68c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }
