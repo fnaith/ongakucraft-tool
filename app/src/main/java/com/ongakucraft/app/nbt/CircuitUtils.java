@@ -2009,18 +2009,24 @@ division / staffs / min. : 16 / 4 / 02:08
         final CircuitBuilder leftBuilderS = SquareWaveBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
 
         final int[][] groups = {
-                {0}, {1}, // TODO 1 become background
-                {2}, {3}
+                {0}, {0}, {1}, {1}, // TODO 1 become background
+                {2}, {2}, {3}, {3}
         };
-        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP, Instrument.BELL);
-        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP, Instrument.BELL);
+        final var convertor00 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BELL);
+        final var convertor01 = FindFirstInstrumentNoteConvertor.of(0, Instrument.SQUARE_WAVE, Instrument.BELL);
+        final var convertor10 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.CHIME);
+        final var convertor11 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.XYLOPHONE);
+        final var convertor20 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.PLING);
+        final var convertor21 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor30 = FindFirstInstrumentNoteConvertor.of(0, Instrument.DIDGERIDOO, Instrument.BANJO);
+        final var convertor31 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS_DRUM, Instrument.BANJO);
         final NoteConvertor[][] convertors = {
-                {convertor0}, {convertor0},
-                {convertor0}, {convertor0}
+                {convertor00}, {convertor01}, {convertor10}, {convertor11},
+                {convertor20}, {convertor21}, {convertor30}, {convertor31}
         };
         final CircuitBuilder[] builders = {
-                leftBuilderS, rightBuilderS,
-                leftBuilderS, rightBuilderS
+                leftBuilderS, leftBuilderS, rightBuilderS, rightBuilderS,
+                leftBuilderS, leftBuilderS, rightBuilderS, rightBuilderS
         };
         for (var i = 0; i < groups.length; ++i) {
             final List<List<Note>> subSequenceList = new ArrayList<>();
@@ -2039,10 +2045,14 @@ division / staffs / min. : 16 / 4 / 02:08
         final var frontOffset = 8;
         final var mid = 4;
         final var heads = List.of(
+                Position.of(6, 3, 1),
                 Position.of(2, 3, 1),
                 Position.of(-2, 3, 1),
+                Position.of(-6, 3, 1),
+                Position.of(6, 0, 1),
                 Position.of(2, 0, 1),
-                Position.of(-2, 0, 1)
+                Position.of(-2, 0, 1),
+                Position.of(-6, 0, 1)
         );
 
         var structure = new Structure();
