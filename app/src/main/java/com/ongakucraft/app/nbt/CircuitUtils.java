@@ -1989,14 +1989,14 @@ division / staffs / min. : 16 / 4 / 02:08
 [main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 38- 64/384
 
 /function ongakucraft:set_circuit
-/tp @a 23 -44 -8 0 30
+/tp @a 11 -52 -4 0 36
 /scoreboard players set @a ticks 1
 /execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
 /execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
 
-/execute if entity @e[scores={ticks=1..904}] run scoreboard players add @a ticks 1
-/execute if entity @e[scores={ticks=21..904}] as @a at @s run tp @s ~ ~ ~0.5 0 30
-/execute if entity @e[scores={ticks=904..914}] as @a at @s run scoreboard players set @a ticks 0
+/execute if entity @e[scores={ticks=1..2354}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..2354}] as @a at @s run tp @s ~ ~ ~0.5 0 36
+/execute if entity @e[scores={ticks=2354..2364}] as @a at @s run scoreboard players set @a ticks 0
 */
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
         final var midiFile = MidiReader.read(inputFilePath);
@@ -2012,14 +2012,14 @@ division / staffs / min. : 16 / 4 / 02:08
                 {0}, {0}, {1}, {1}, // TODO 1 become background
                 {2}, {2}, {3}, {3}
         };
-        final var convertor00 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BELL);
-        final var convertor01 = FindFirstInstrumentNoteConvertor.of(0, Instrument.SQUARE_WAVE, Instrument.BELL);
+        final var convertor01 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BELL);
+        final var convertor00 = FindFirstInstrumentNoteConvertor.of(0, Instrument.SQUARE_WAVE, Instrument.BELL);
         final var convertor10 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.CHIME);
         final var convertor11 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.XYLOPHONE);
         final var convertor20 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.PLING);
         final var convertor21 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
         final var convertor30 = FindFirstInstrumentNoteConvertor.of(0, Instrument.DIDGERIDOO, Instrument.BANJO);
-        final var convertor31 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS_DRUM, Instrument.BANJO);
+        final var convertor31 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.BANJO);
         final NoteConvertor[][] convertors = {
                 {convertor00}, {convertor01}, {convertor10}, {convertor11},
                 {convertor20}, {convertor21}, {convertor30}, {convertor31}
@@ -2045,14 +2045,14 @@ division / staffs / min. : 16 / 4 / 02:08
         final var frontOffset = 8;
         final var mid = 4;
         final var heads = List.of(
-                Position.of(6, 3, 1),
-                Position.of(2, 3, 1),
-                Position.of(-2, 3, 1),
-                Position.of(-6, 3, 1),
-                Position.of(6, 0, 1),
-                Position.of(2, 0, 1),
-                Position.of(-2, 0, 1),
-                Position.of(-6, 0, 1)
+                Position.of(6 + mid, 3, 1),
+                Position.of(2 + mid, 3, 1),
+                Position.of(-2 - mid, 3, 1),
+                Position.of(-6 - mid, 3, 1),
+                Position.of(6 + mid, 0, 1),
+                Position.of(2 + mid, 0, 1),
+                Position.of(-2 - mid, 0, 1),
+                Position.of(-6 - mid, 0, 1)
         );
 
         var structure = new Structure();
