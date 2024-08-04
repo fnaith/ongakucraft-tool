@@ -2075,6 +2075,137 @@ division / staffs / min. : 16 / 4 / 02:08
         return structure;
     }
 
+    private static Structure shunkanHeartbeat(BlockDatasetVersion version, String inputFilePath) throws Exception {
+/*
+sequences : 12
+(1) path : D:\Sync\Ongakucraft\midi\ReGLOSS - Shunkan Heartbeat\����??????-clean2.mid
+url : null
+division / staffs / min. : 16 / 4 / 03:26
+	track : 1 [piano 1]
+	ticks/start/end : 836 / 0 / 215
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |   43 |    1 |  368 |    7 |  296 |      |  121 |      |
+	track : 2 []
+	ticks/start/end : 561 / 15 / 211
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |  188 |    7 |  237 |      |  129 |      |      |      |
+	track : 3 [piano 1]
+	ticks/start/end : 278 / 0 / 199
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |  139 |      |  122 |      |   17 |      |      |      |      |      |
+	track : 4 []
+!!!	adjustable octaves [1, 2]
+!!!	min/max/lower/higher : 31 / 70 / 33 / 0
+	ticks/start/end : 662 / 0 / 215
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |  156 |      |  221 |      |  210 |      |   42 |      |      |      |      |      |
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 55- 94/550
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 62- 94/269
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 75- 87/ 17
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 56- 82/397
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 65- 87/135
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 72- 84/ 29
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  7/ 47- 73/132
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  7/ 53- 67/ 89
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  7/ 55- 70/ 57
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 10/ 24- 70/488
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 10/ 36- 70/139
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count : 10/ 56- 70/ 35
+
+/function ongakucraft:set_circuit
+/tp @a 12 -49 -6 0 15
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..3589}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..3589}] as @a at @s run tp @s ~ ~ ~0.5 0 15
+/execute if entity @e[scores={ticks=3589..3599}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1, 6, 0, 1);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final CircuitBuilder rightBuilderS = SquareWaveBuilder.of(blockDataset, true, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderS = SquareWaveBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {0}, {1}, {2},
+                {3}, {4}, {5},
+                {6}, {7}, {8},
+                {9}, {10}, {11}
+        };
+        final var convertor00 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
+        final var convertor01 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.XYLOPHONE);
+        final var convertor02 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BANJO, Instrument.FLUTE);
+        final var convertor10 = FindFirstInstrumentNoteConvertor.of(0, Instrument.SQUARE_WAVE, Instrument.CHIME);
+        final var convertor11 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.CHIME);
+        final var convertor12 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.CHIME);
+        final var convertor20 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.GUITAR);
+        final var convertor21 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.GUITAR);
+        final var convertor22 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.GUITAR);
+        final var convertor30 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.HARP, Instrument.FLUTE);
+        final var convertor31 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.HARP, Instrument.FLUTE);
+        final var convertor32 = FindFirstInstrumentNoteConvertor.of(1, Instrument.BASS, Instrument.HARP, Instrument.FLUTE);
+        final NoteConvertor[][] convertors = {
+                {convertor00}, {convertor01}, {convertor02},
+                {convertor10}, {convertor11}, {convertor12},
+                {convertor20}, {convertor21}, {convertor22},
+                {convertor30}, {convertor31}, {convertor32}
+        };
+        final CircuitBuilder[] builders = {
+                rightBuilderS, rightBuilderS, rightBuilderS,
+                leftBuilderS, leftBuilderS, leftBuilderS,
+                rightBuilderS, rightBuilderS, rightBuilderS,
+                leftBuilderS, leftBuilderS, leftBuilderS
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            final var group = groups[i];
+            for (var j = 0; j < group.length; ++j) {
+                final var noteConvertor = convertors[i][j];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(group[j])));
+            }
+            final var struct = builders[i].generate(subSequenceList);
+            struct.regulate();
+
+            circuits.add(struct);
+        }
+
+        final var sideOffset = 18;
+        final var frontOffset = 8;
+        final var mid = 2;
+        final var heads = List.of(
+                Position.of(-2 - mid, 6, 3), Position.of(-1 - mid, 3, 2), Position.of(-0 - mid, 0, 1),
+                Position.of(2 + mid, 6, 3), Position.of(1 + mid, 3, 2), Position.of(0 + mid, 0, 1),
+                Position.of(-7 - mid * 2, 6, 5), Position.of(-5 - mid * 2, 3, 3), Position.of(-3 - mid * 2, 0, 1),
+                Position.of(7 + mid * 2, 6, 5), Position.of(5 + mid * 2, 3, 3), Position.of(3 + mid * 2, 0, 1)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+        structure.regulate();
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/shunkan-heartbeat.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -2156,9 +2287,13 @@ division / staffs / min. : 16 / 4 / 02:08
 //            final var structure = alive(VERSION, inputFilePath);
 //            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case67c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 
-            final var inputFilePath = String.format("%s/input/Blue Archive - Unwelcome School/Unwelcome_School_-_Mitsukiyo (1).mid", ROOT_DIR_PATH);
-            final var structure = unwelcomeSchool(VERSION, inputFilePath);
-            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case68c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            final var inputFilePath = String.format("%s/input/Blue Archive - Unwelcome School/Unwelcome_School_-_Mitsukiyo (1).mid", ROOT_DIR_PATH);
+//            final var structure = unwelcomeSchool(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case68c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/ReGLOSS - Shunkan Heartbeat/Shunkan Heartbeat.mid", ROOT_DIR_PATH);
+            final var structure = shunkanHeartbeat(VERSION, inputFilePath);
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case69c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }
