@@ -264,9 +264,10 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\HOLOTORI Dance";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\bling bang bang born - Mashle OP 2";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Alive - Arknights";
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Blue Archive - Unwelcome School";
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Blue Archive - Unwelcome School";
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\ReGLOSS - Shunkan Heartbeat";
 
-            final var reportIndex = 0;
+            final var reportIndex = 1;
             final var timeScale = 1;
             final var reportList = findCandidates(rootDirPath, true, true, timeScale);
             final var report = reportList.get(reportIndex);
