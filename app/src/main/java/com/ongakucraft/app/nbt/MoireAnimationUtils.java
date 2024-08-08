@@ -213,26 +213,6 @@ https://www.reddit.com/r/Minecraft/comments/uznjk2/comment/iab970v/?utm_source=s
 /function ongakucraft:summon_animation
 /kill @e[type=item]
 /scoreboard players set @a ticks 1
-
-/tp @s 10.908 -50.750 40.654 180 0 // 0 RED RED
-/tp @s 10.908 -50.758 40.654 180 0 // 8 PINK RED
-/tp @s 10.908 -50.766 40.654 180 0 // 16 ORANGE RED
-/tp @s 10.908 -50.774 40.654 180 0 // 24 YELLOW RED
-/tp @s 10.908 -50.782 40.654 180 0 // 32 GREEN RED
-/tp @s 10.908 -50.790 40.654 180 0 // 40 MAGENTA RED
-/tp @s 10.908 -50.798 40.654 180 0 // 44 CYAN RED
-/tp @s 10.908 -50.806 40.654 180 0 // 44 BLUE RED
-
-/tp @s 10.908 -50.774 40.654 180 0 // 24 YELLOW RED
-/tp @s 10.916 -50.774 40.654 180 0 // 25 YELLOW PINK
-/tp @s 10.924 -50.774 40.654 180 0 // 26 YELLOW ORANGE
-/tp @s 10.932 -50.774 40.654 180 0 // 27 YELLOW YELLOW
-/tp @s 10.940 -50.774 40.654 180 0 // 28 YELLOW GREEN
-/tp @s 10.948 -50.774 40.654 180 0 // 29 YELLOW MAGENTA
-/tp @s 10.956 -50.774 40.654 180 0 // 30 YELLOW CYAN
-/tp @s 10.964 -50.774 40.654 180 0 // 31 YELLOW BLUE
-
-/tp @s 10.964 -50.806 40.654 180 0 // 63 BLUE BLUE
 */
         final var frameStart = 0;
         final var frameEnd = 63;
@@ -310,9 +290,9 @@ https://www.reddit.com/r/Minecraft/comments/uznjk2/comment/iab970v/?utm_source=s
         final var blocksPerLine = 8;
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
         final var structure = new Structure();
-        final var playerX = new BigDecimal("10.908");
-        final var playerY = new BigDecimal("-50.750");
-        final var playerZ = new BigDecimal("40.654");
+        final var playerX = new BigDecimal("11.407");
+        final var playerY = new BigDecimal("-48.466");
+        final var playerZ = new BigDecimal("43.440");
         final var playerStep = new BigDecimal("0.008");
         var head = Position.ZERO;
         var dir = Direction.S;
