@@ -2206,6 +2206,139 @@ division / staffs / min. : 16 / 4 / 03:26
         return structure;
     }
 
+    private static Structure ghostsAndGlass(BlockDatasetVersion version, String inputFilePath) throws Exception {
+/*
+sequences : 4
+(0) path : D:\Sync\Ongakucraft\midi\Halo Reach - Ghosts and Glass\Ghosts_and_Glass.mid
+url : https://musescore.com/user/43634933/scores/8178984
+division / staffs / min. : 8 / 4 / 02:32
+	track : 0 [trombone, mutedtrumpet]
+	ticks/start/end : 116 / 0 / 87
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   14 |    4 |   94 |    3 |    1 |      |      |      |      |      |
+	track : 1 [trombone, mutedtrumpet]
+	ticks/start/end : 144 / 0 / 87
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   19 |   25 |   94 |    3 |    3 |      |      |      |      |      |
+	track : 2 [trombone, mutedtrumpet]
+	ticks/start/end : 74 / 10 / 87
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |   43 |    6 |   25 |      |      |      |      |      |      |      |
+	track : 3 [trombone, mutedtrumpet]
+	ticks/start/end : 80 / 0 / 87
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |   49 |    3 |   27 |      |    1 |      |      |      |      |      |      |      |
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 51- 68/116
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  2/ 46- 68/144
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 43- 65/ 74
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  4/ 32- 58/ 80
+
+/function ongakucraft:set_circuit
+/tp @a 33 -49 -6 0 21
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..1470}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..1470}] as @a at @s run tp @s ~ ~ ~0.5 0 21
+/execute if entity @e[scores={ticks=1470..1480}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1, 6, 0, 1);
+        final var sequenceList = music.getSequenceList();
+        final var music2 = Music16.of(midiFileReport, 1, 3, 100, 1);
+        final var sequenceList2 = music2.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final CircuitBuilder rightBuilderC0 = CheckPatternBuilder.of(blockDataset, true, 0, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderC0 = CheckPatternBuilder.of(blockDataset, false, 0, "barrier", "redstone_lamp");
+        final CircuitBuilder rightBuilderC1 = CheckPatternBuilder.of(blockDataset, true, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderC1 = CheckPatternBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {0}, {1},
+                {2}, {3},
+                {10}, {11},
+                {12}, {13},
+                {10}, {11},
+                {12}, {13}
+        };
+        final var convertor00 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor01 = FindFirstInstrumentNoteConvertor.of(1, Instrument.FLUTE, Instrument.HARP);
+        final var convertor02 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR);
+        final var convertor03 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor10 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor11 = FindFirstInstrumentNoteConvertor.of(1, Instrument.FLUTE, Instrument.SQUARE_WAVE);
+        final var convertor12 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR);
+        final var convertor13 = FindFirstInstrumentNoteConvertor.of(0, Instrument.DIDGERIDOO, Instrument.HARP);
+        final NoteConvertor[][] convertors = {
+                {convertor00}, {convertor01},
+                {convertor02}, {convertor03},
+                {convertor10}, {convertor11},
+                {convertor12}, {convertor13},
+                {convertor10}, {convertor11},
+                {convertor12}, {convertor13}
+        };
+        final CircuitBuilder[] builders = {
+                leftBuilderC0, rightBuilderC0,
+                leftBuilderC0, rightBuilderC0,
+                leftBuilderC1, rightBuilderC1,
+                leftBuilderC1, rightBuilderC1,
+                leftBuilderC0, rightBuilderC0,
+                leftBuilderC0, rightBuilderC0
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            final var group = groups[i];
+            for (var j = 0; j < group.length; ++j) {
+                final var noteConvertor = convertors[i][j];
+                if (group[j] < 10) {
+                    subSequenceList.add(noteConvertor.convert(sequenceList.get(group[j])));
+                } else {
+                    subSequenceList.add(noteConvertor.convert(sequenceList2.get(group[j] % 10)));
+                }
+            }
+            final var struct = builders[i].generate(subSequenceList);
+            struct.regulate();
+
+            circuits.add(struct);
+        }
+
+        final var sideOffset = 30;
+        final var frontOffset = 16;
+        final var mid = 1;
+        final var heads = List.of(
+                Position.of(1 + mid, 3, 0), Position.of(-2 - mid, 3, 0),
+                Position.of(1 + mid, 0, 0), Position.of(-2 - mid, 0, 0),
+                Position.of(1 + mid + sideOffset, 3, frontOffset), Position.of(-2 - mid + sideOffset, 3, frontOffset),
+                Position.of(1 + mid + sideOffset, 0, frontOffset), Position.of(-2 - mid + sideOffset, 0, frontOffset),
+                Position.of(1 + mid - sideOffset, 3, frontOffset), Position.of(-2 - mid - sideOffset, 3, frontOffset),
+                Position.of(1 + mid - sideOffset, 0, frontOffset), Position.of(-2 - mid - sideOffset, 0, frontOffset)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+        structure.regulate();
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/ghosts-and-glass.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -2291,9 +2424,13 @@ division / staffs / min. : 16 / 4 / 03:26
 //            final var structure = unwelcomeSchool(VERSION, inputFilePath);
 //            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case68c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 
-            final var inputFilePath = String.format("%s/input/ReGLOSS - Shunkan Heartbeat/Shunkan Heartbeat.mid", ROOT_DIR_PATH);
-            final var structure = shunkanHeartbeat(VERSION, inputFilePath);
-            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case69c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            final var inputFilePath = String.format("%s/input/ReGLOSS - Shunkan Heartbeat/Shunkan Heartbeat.mid", ROOT_DIR_PATH);
+//            final var structure = shunkanHeartbeat(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case69c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/Halo Reach - Ghosts and Glass/Ghosts_and_Glass.mid", ROOT_DIR_PATH);
+            final var structure = ghostsAndGlass(VERSION, inputFilePath);
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case70c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }
