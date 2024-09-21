@@ -1,4 +1,10 @@
-package com.ongakucraft.app.data;
+package com.ongakucraft.app.ftm;
+
+import com.ongakucraft.core.OcException;
+import com.ongakucraft.core.ftm.FtmInstrument;
+import com.ongakucraft.core.ftm.FtmSample;
+import com.ongakucraft.core.ftm.FtmSequence;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,15 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.ongakucraft.core.OcException;
-import com.ongakucraft.core.ftm.FtmInstrument;
-import com.ongakucraft.core.ftm.FtmSample;
-import com.ongakucraft.core.ftm.FtmSequence;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-public final class FtmInstrumentApp {
+public final class FtmInstrumentUtils {
     private static final Pattern SPACES = Pattern.compile("\s+");
 
     private static List<String> readFti(String filePath) throws IOException {
@@ -216,5 +215,5 @@ public final class FtmInstrumentApp {
         }
     }
 
-    private FtmInstrumentApp() {}
+    private FtmInstrumentUtils() {}
 }

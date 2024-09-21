@@ -1,16 +1,15 @@
 package com.ongakucraft.app.graphics;
 
+import com.ongakucraft.core.color.LabColor;
+import com.ongakucraft.core.color.RgbColor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
-import com.ongakucraft.core.color.LabColor;
-import com.ongakucraft.core.color.RgbColor;
-
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class PixelArtUtils {
