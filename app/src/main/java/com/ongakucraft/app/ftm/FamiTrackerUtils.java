@@ -1204,12 +1204,27 @@ public final class FamiTrackerUtils {
         checkMxl(rootDirPath + "0th/soiree - Hoshimachi Suisei/.mxl");
         checkMxl(rootDirPath + "0th/soiree - Hoshimachi Suisei/_-_.mxl");
         checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/.mxl");
+        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_-_.mxl");
         checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_-_Ayase.mxl");
-//        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_Michizure.mxl"); // TODO みちづれ https://musescore.com/user/79422487/scores/14763547
-        // TODO バイバイレイニー
+        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_Michizure.mxl");
+        checkMxl(rootDirPath + "0th/Bye Bye Rainy - Hoshimachi Suisei/.mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST.mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__.mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST (1).mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__Hoshimachi_Suisei.mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST_-_HOSHIMACHI_SUISEI.mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__Hoshimachi_Suisei_by_Cassi.mxl");
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST_-_____Shiroha.mxl");
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar.mxl");
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar (1).mxl");
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar (2).mxl");
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar_-_____Shiroha.mxl");
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar_-_Hoshimachi_Suisei.mxl");
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar__Hoshimachi_Suisei__THE_FIRST_TAKE_Version.mxl");
+        checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/.mxl");
+        checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/__.mxl");
+        checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/Tenkyuu.mxl");
         // TODO Stellar Stellar
-        // TODO GHOST
-        // TODO 駆けろ / 天球、彗星は夜を跨いで
         // TODO Next Color Planet
     }
 
