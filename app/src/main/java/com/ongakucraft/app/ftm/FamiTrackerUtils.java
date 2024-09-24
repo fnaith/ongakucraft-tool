@@ -1224,8 +1224,13 @@ public final class FamiTrackerUtils {
         checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/.mxl");
         checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/__.mxl");
         checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/Tenkyuu.mxl");
-        // TODO Stellar Stellar
-        // TODO Next Color Planet
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/New_Colour_Planet.mxl");
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/NEXT_COLOR_PLANET.mxl");
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/NEXT_COLOR_PLANET_-_____Shiro.mxl");
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/Next_Color_Planet_-_Hoshimachi_Suisei (1).mxl");
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/Next_Color_Planet_-_Hoshimachi_Suisei.mxl");
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/Next_Color_Planet__Hoshimachi_Suisei_for_String_Orchestra.mxl");
+        checkMxl(rootDirPath + "0th/Next Color Planet - Hoshimachi Suisei/Next_Colour_Planet.mxl");
     }
 
     private static void check1th(String rootDirPath) {
@@ -1499,9 +1504,11 @@ public final class FamiTrackerUtils {
     }
 
     private static void checkUnit(String rootDirPath) {
-        // TODO BABACORN
-        // TODO PekoMiko
-        // TODO story time - Star Flower
+        checkMxl(rootDirPath + "unit/Happiness World - BABACORN/Happiness_World.mxl");
+        checkMxl(rootDirPath + "unit/PekoMiko Great War/PekoMiko_Great_War.mxl");
+        checkMxl(rootDirPath + "unit/story time – Star Flower/story_time.mxl");
+        checkMxl(rootDirPath + "unit/story time – Star Flower/story_time__full_ver..mxl");
+        checkMxl(rootDirPath + "unit/story time – Star Flower/story_time_-_Star_Flower_Hoshimachi_Suisei_AZKi_Moona_Hoshinova_IRyS.mxl");
     }
 
     public static void main(String[] args) {
