@@ -773,6 +773,7 @@ public final class MxlFile {
     }
 
     public void processMxl() {
+        check();
         parseMxlWithRepeat(this::processMxlScore, this::processMxlPart, this::processMxlMeasure);
         // remove empty channel
         for (final var part : mxlPartToVoiceToChannel.keySet().stream().toList()) {
