@@ -10,25 +10,21 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class FtmChannel {
-    public static FtmChannel of(List<FtmNote> noteList) {
-        var maxFxIdx = -1;
-        for (final var note : noteList) {
-            if (null != note) {
-                for (int idx = 0; idx < 4; ++idx) {
-                    if (null != note.getEffect(idx)) {
-                        maxFxIdx = Math.max(maxFxIdx, idx);
-                    }
-                }
+    public static FtmChannel of(List<FtmNote> ftmNotes) {
+        var fxCount = 0;
+        for (final var ftmNote : ftmNotes) {
+            if (null != ftmNote) {
+                fxCount = Math.max(fxCount, ftmNote.getEffects().size());
             }
         }
-        maxFxIdx = Math.max(maxFxIdx, 0);
-        return new FtmChannel(Collections.unmodifiableList(noteList), maxFxIdx + 1);
+        fxCount = Math.max(fxCount, 1);
+        return new FtmChannel(Collections.unmodifiableList(ftmNotes), fxCount);
     }
 
-    private final List<FtmNote> noteList;
+    private final List<FtmNote> notes;
     private final int fxCount;
 
     public int size() {
-        return noteList.size();
+        return notes.size();
     }
 }

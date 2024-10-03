@@ -17,6 +17,12 @@ public final class FtmEffect {
     }
 
     public static FtmEffect arpeggio(int x, int y) {
+        if (x < 0 || 16 <= x) {
+            throw new OcException("[FtmEffect] x should in [0, 16) : %d", x);
+        }
+        if (y < 0 || 16 <= y) {
+            throw new OcException("[FtmEffect] y should in [0, 16) : %d", y);
+        }
         return new FtmEffect('0', true, x, y);
     }
 

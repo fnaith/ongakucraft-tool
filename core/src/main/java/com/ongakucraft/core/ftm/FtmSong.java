@@ -54,12 +54,18 @@ public final class FtmSong {
         final List<FtmNote> noteList = new ArrayList<>();
         for (var i = 0; i < rows; ++i) {
             if (i < channel.size()) {
-                noteList.add(channel.getNoteList().get(i));
+                noteList.add(channel.getNotes().get(i));
             } else {
                 noteList.add(null);
             }
         }
         return FtmChannel.of(noteList);
+    }
+
+    private static String midiKeyToPitchName(int key) {
+        final var octave = String.valueOf((key / 12) - 1);
+        final var semitone = key % 12;
+        return "C-C#D-D#E-F-F#G-G#A-A#B-".substring(semitone * 2, semitone * 2 + 2) + octave;
     }
 
     private static String format(FtmEffect fx) {
@@ -73,15 +79,15 @@ public final class FtmSong {
         final var sb = new StringBuilder();
         if (null == note) {
             sb.append("... .. .");
-        } else if (FtmNote.NOTE_CUT == note.getKey()) {
+        } else if (note.isNoteCut()) {
             sb.append("--- .. .");
         } else {
             final var volume = 0 < note.getVolume() ? String.valueOf(note.getVolume()) : ".";
-            sb.append(String.format("%s %02d %s", FtmNote.keyToName(note.getKey()), note.getInstrument(), volume));
+            sb.append(String.format("%s %02d %s", midiKeyToPitchName(note.getKey()), note.getInstrument(), volume));
         }
         for (var idx = 0; idx < fxCount; ++idx) {
             sb.append(' ');
-            sb.append(format(null == note ? null : note.getEffect(idx)));
+            sb.append(format(null == note || note.getEffects().size() < fxCount ? null : note.getEffects().get(idx)));
         }
         return sb.toString();
     }
@@ -218,7 +224,7 @@ PLAYBACKRATE    0 16639
                 sb.append(String.format("ROW %02x", row % rowPerPattern));
                 for (final var channel : song.getChannelList()) {
                     sb.append(" : ");
-                    sb.append(format(channel.getNoteList().get(row), channel.getFxCount()));
+                    sb.append(format(channel.getNotes().get(row), channel.getFxCount()));
                 }
                 sb.append('\n');
             }
