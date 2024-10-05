@@ -19,7 +19,11 @@ public final class FtmNote {
     static {
         nameToKey = new HashMap<>();
         for (int key = 0; key < 128; ++key) {
-            nameToKey.put(keyToName(key), key);
+            final var name = keyToName(key);
+            nameToKey.put(name, key);
+            if (name.startsWith("F-")) {
+                nameToKey.put("E#" + name.substring(2), key);
+            }
         }
     }
 
@@ -29,6 +33,15 @@ public final class FtmNote {
     }
 
     private static int nameToKey(String name) {
+//        if (null == nameToKey.get(name)) {
+//            System.out.println(name);
+//        }
+//        if (name.startsWith("E#")) {
+//            name = "F-" + name.substring(2);
+//        }
+//        if (null == nameToKey.get(name)) {
+//            System.out.println(name);
+//        }
         return nameToKey.get(name);
     }
 
@@ -49,6 +62,7 @@ public final class FtmNote {
     private int tuplet;
     private boolean accent;
     private boolean staccato;
+    private boolean tenuto;
     private boolean arpeggiate;
     private boolean pedal;
     private int instrument;

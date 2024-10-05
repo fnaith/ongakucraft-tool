@@ -24,6 +24,18 @@ public final class FamiTrackerUtils {
         }
     }
 
+    private static List<List<FtmNote>> getChannels(Map<Integer, Map<String, List<FtmNote>>> mxlPartToVoiceToChannel) {
+        final List<List<FtmNote>> channels = new ArrayList<>();
+        for (final var part : mxlPartToVoiceToChannel.keySet().stream().sorted().toList()) {
+            final var mxlVoiceToChannel = mxlPartToVoiceToChannel.get(part);
+            for (final var voice : mxlVoiceToChannel.keySet().stream().sorted().toList()) {
+                log.info("channel : {} {}", part, voice);
+                channels.add(mxlVoiceToChannel.get(voice));
+            }
+        }
+        return channels;
+    }
+
     private static void write(FtmSong ftmSong, String filePath) throws Exception {
         IOUtils.write(ftmSong.toString(), new FileOutputStream(filePath), StandardCharsets.UTF_8);
     }
@@ -38,33 +50,31 @@ public final class FamiTrackerUtils {
         instrumentList.add(nameToInstrument.get("cookie-snow-2a03-kick bass"));
         instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
         instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
-        for (final var mxlChannelList : mxlPartToVoiceToChannel.values()) {
-            final var channel1 = mxlChannelList.get("1");
-            final var channel2 = mxlChannelList.get("2");
-            final var channel3 = mxlChannelList.get("3");
-            final var channel5 = mxlChannelList.get("5");
-            final var channel6 = mxlChannelList.get("6");
-            setChannel(channel1, 0, 8);
-            setChannel(channel2, 0, 8);
-            setChannel(channel3, 1, 7);
-            setChannel(channel5, 3, 6);
-            setChannel(channel6, 3, 6);
-            final List<FtmChannel> channelList = new ArrayList<>();
-            channelList.add(FtmChannel.of(channel1));
-            channelList.add(FtmChannel.of(channel2));
-            channelList.add(FtmChannel.of(channel3));
-            channelList.add(null);
-            channelList.add(null);
-            channelList.add(FtmChannel.of(channel5));
-            channelList.add(FtmChannel.of(channel6));
-            channelList.add(null);
-            final var ftmSong = FtmSong.of("BLUE CLAPPER", "Ongakucraft", "COVER Corp.",
-                                           146, instrumentList, channelList);
+        final var channels = getChannels(mxlPartToVoiceToChannel);
+        final var channel0 = channels.get(0);
+        final var channel1 = channels.get(1);
+        final var channel2 = channels.get(2);
+        final var channel3 = channels.get(3);
+        final var channel4 = channels.get(4);
+        setChannel(channel0, 0, 8);
+        setChannel(channel1, 0, 8);
+        setChannel(channel2, 1, 7);
+        setChannel(channel3, 3, 6);
+        setChannel(channel4, 3, 6);
+        final List<FtmChannel> channelList = new ArrayList<>();
+        channelList.add(FtmChannel.of(channel0));
+        channelList.add(FtmChannel.of(channel1));
+        channelList.add(FtmChannel.of(channel2));
+        channelList.add(null);
+        channelList.add(null);
+        channelList.add(FtmChannel.of(channel3));
+        channelList.add(FtmChannel.of(channel4));
+        channelList.add(null);
+        final var ftmSong = FtmSong.of("BLUE CLAPPER", "Ongakucraft", "COVER Corp.",
+                                       146, instrumentList, channelList);
 //            log.info("channelList : {}", channelList.size());
 //            log.info("{}", ftmSong);
-            return ftmSong;
-        }
-        return null;
+        return ftmSong;
     }
 
     private static FtmSong laLionFromMxl(String filePath, Map<String, FtmInstrument> nameToInstrument) {
@@ -77,14 +87,15 @@ public final class FamiTrackerUtils {
         instrumentList.add(nameToInstrument.get("isabelle-salmon-2a03-saw synth"));
         instrumentList.add(nameToInstrument.get("cookie-smile-vrc6-chimes"));
         instrumentList.add(nameToInstrument.get("isabelle-trouble-fds-Bass"));
-        final var channel0 = mxlPartToVoiceToChannel.get(0).get("1");
-        final var channel1 = mxlPartToVoiceToChannel.get(1).get("1");
-        final var channel2 = mxlPartToVoiceToChannel.get(2).get("1");
-        final var channel3 = mxlPartToVoiceToChannel.get(2).get("5");
-        final var channel4 = mxlPartToVoiceToChannel.get(3).get("1"); // TODO
-        final var channel5 = mxlPartToVoiceToChannel.get(3).get("2"); // TODO
-        final var channel6 = mxlPartToVoiceToChannel.get(4).get("1"); // TODO
-        final var channel7 = mxlPartToVoiceToChannel.get(5).get("1"); // TODO
+        final var channels = getChannels(mxlPartToVoiceToChannel);
+        final var channel0 = channels.get(0);
+        final var channel1 = channels.get(1);
+        final var channel2 = channels.get(2);
+        final var channel3 = channels.get(3);
+        final var channel4 = channels.get(4); // TODO
+        final var channel5 = channels.get(5); // TODO
+        final var channel6 = channels.get(6); // TODO
+        final var channel7 = channels.get(7); // TODO
         setChannel(channel0, 0, 8);
         setChannel(channel1, 0, 8);
         setChannel(channel2, 1, 7);
