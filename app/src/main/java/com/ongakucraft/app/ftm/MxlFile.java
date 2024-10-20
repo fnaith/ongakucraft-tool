@@ -890,6 +890,7 @@ public final class MxlFile {
             }
         }
     }
+
     private static void check0th(String rootDirPath) {
         checkMxl(rootDirPath + "0th/Step and Go - Tokino Sora/Step_and_Go____Tokino_Sora.mxl");
 //        checkMxl(rootDirPath + "0th/Kotonoha - Roboco-san/____Kotonoha_-_Roboco-san.mxl");

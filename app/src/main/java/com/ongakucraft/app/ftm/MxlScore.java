@@ -1,32 +1,44 @@
 package com.ongakucraft.app.ftm;
 
 import com.ongakucraft.core.OcException;
-import lombok.extern.slf4j.Slf4j;
 import org.audiveris.proxymusic.ScorePartwise;
-import org.audiveris.proxymusic.mxl.Mxl;
-import org.audiveris.proxymusic.util.Marshalling;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class MxlScore {
     final List<MxlPart> parts;
 
-    public MxlScore(ScorePartwise scorePartwise) {
-//        mxlDivisions4List = new ArrayList<>(); TODO
-//        mxlRepeatCount = 0; TODO
-        parts = Collections.unmodifiableList(parse(scorePartwise));
+    public MxlScore(String filePath, ScorePartwise scorePartwise) {
+        var parts = parse(filePath, scorePartwise);
+        fixEndingNoteOnlyOnFirstPart(filePath, scorePartwise, parts);
         checkMeasureSizeIsUnique(parts);
+        this.parts = Collections.unmodifiableList(parts);
     }
 
-    private static List<MxlPart> parse(ScorePartwise scorePartwise) {
+    private static List<MxlPart> parse(String filePath, ScorePartwise scorePartwise) {
         final List<MxlPart> parts = new ArrayList<>();
         for (int p = 0; p < scorePartwise.getPart().size(); ++p) {
             final var part = scorePartwise.getPart().get(p);
-            parts.add(new MxlPart(p, part));
+            parts.add(new MxlPart(filePath, p, part));
         }
         return parts;
+    }
+
+    private static void fixEndingNoteOnlyOnFirstPart(String filePath, ScorePartwise scorePartwise, List<MxlPart> parts) {
+        final var measureSizes = parts.stream().map(MxlPart::getMeasureSize).collect(Collectors.toSet());
+        if (2 != measureSizes.size()) {
+            return;
+        }
+        final var firstMeasureSize = parts.get(0).getMeasureSize();
+        for (var p = 1; p < parts.size(); ++p) {
+            final var part = parts.get(p);
+            if (part.getMeasureSize() < firstMeasureSize) {
+                parts.set(p, new MxlPart(filePath, part.getId(), scorePartwise.getPart().get(p), parts.get(0).getMeasureIndexList()));
+            }
+        }
     }
 
     private static void checkMeasureSizeIsUnique(List<MxlPart> parts) {
