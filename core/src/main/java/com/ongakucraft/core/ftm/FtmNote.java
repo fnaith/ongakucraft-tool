@@ -42,6 +42,9 @@ public final class FtmNote {
 //        if (null == nameToKey.get(name)) {
 //            System.out.println(name);
 //        }
+        if (null == nameToKey.get(name)) {
+            return -1; // TODO
+        }
         return nameToKey.get(name);
     }
 

@@ -7,6 +7,8 @@ import org.audiveris.proxymusic.*;
 import java.lang.String;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public final class MxlMeasure {
@@ -105,10 +107,64 @@ public final class MxlMeasure {
         }
     }
 
+    private static int getDuration(int partId, int measureId, Note note, int divisions4) {
+        if (null != note.getDuration()) {
+            return note.getDuration().intValue();
+        }
+        if (null != note.getGrace()) {
+            final var type = note.getType().getValue();
+            if (null != type) {
+                return switch (type) {
+                    case "whole" -> BigDecimal.valueOf(divisions4).intValue();
+                    case "half" -> BigDecimal.valueOf(divisions4).multiply(BigDecimal.valueOf(2)).intValue();
+                    case "quarter" -> BigDecimal.valueOf(divisions4).intValue();
+                    case "eighth" -> BigDecimal.valueOf(divisions4).divide(BigDecimal.valueOf(2), RoundingMode.UNNECESSARY).intValue();
+                    case "16th" -> BigDecimal.valueOf(divisions4).divide(BigDecimal.valueOf(4), RoundingMode.UNNECESSARY).intValue();
+                    default -> throw new OcException("part %d measure %d unknown note type : %s", partId, measureId);
+                };
+            }
+        }
+        throw new OcException("part %d measure %d unknown note duration : %s", partId, measureId);
+    }
+
+    private static String pitchToName(int partId, int measureId, Note note) {
+        final var pitch = note.getPitch();
+        final var unpitched = note.getUnpitched();
+        if (null == pitch) {
+            if (null == unpitched) {
+                return null;
+            }
+            return unpitched.getDisplayStep().name() + '-' + unpitched.getDisplayOctave();
+        }
+        final var alter = null == pitch.getAlter() ? '-' : switch (pitch.getAlter().toString()) {
+            case "-1" -> 'b';
+            case "1" -> '#';
+            case "-2" -> 'b'; // TODO
+            case "2" -> '#'; // TODO
+            default -> throw new OcException("alter should be in [-1, 0, -] : %s", pitch.getAlter().toString());
+        };
+        var sa = pitch.getStep().name() + alter;
+        if ('b' == alter) {
+            sa = switch (sa) {
+                case "Ab" -> "G#";
+                case "Bb" -> "A#";
+                case "Cb" -> "B-";
+                case "Db" -> "C#";
+                case "Eb" -> "D#";
+                case "Fb" -> "E-";
+                case "Gb" -> "F#";
+                default -> throw new OcException("part %d measure %d minor not unsupported : %s", partId, measureId, sa);
+            };
+        }
+        return sa + pitch.getOctave();
+    }
+
     private static void parse(String filePath, int partId, int measureId, ScorePartwise.Part.Measure measure, int divisions4) {
         check(partId, measureId, measure, divisions4);
         // TODO
         var mxlRowIndex = 0;
+        var mxlPrevRows = 0;
+        final Map<String, Integer> mxlVoiceToTuplet = new HashMap<>();
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
             if (noteOrBackupOrForward instanceof final Backup backup) {
                 final var duration = backup.getDuration().intValue();
@@ -118,102 +174,98 @@ public final class MxlMeasure {
                 final var duration = forward.getDuration().intValue();
                 final var rows = duration * 4 / divisions4;
                 mxlRowIndex += rows;
-            } else if (noteOrBackupOrForward instanceof final Note note) {/* TODO
+            } else if (noteOrBackupOrForward instanceof final Note note) {
                 final var staffId = null == note.getStaff() ? -1 : note.getStaff().intValue();
 //                if (staffId != mxlVoiceToStaff.computeIfAbsent(note.getVoice(), k -> staffId)) {
-//                    throw new OcException("part %d measure %d voice %s staff not match : %d/%d", p_m[0], p_m[1], note.getVoice(), mxlVoiceToStaff.get(note.getVoice()), staffId);
+//                    throw new OcException("part %d measure %d voice %s staff not match : %d/%d", partId, measureId, note.getVoice(), mxlVoiceToStaff.get(note.getVoice()), staffId);
 //                }
                 final var isChord = null != note.getChord();
                 if (!isChord) {
                     mxlRowIndex += mxlPrevRows;
                 }
-                // TODO grace
-                final var duration = getDuration(note).intValue();
-                final var rows = duration * 4 / mxlDivisions4;
+                final var duration = getDuration(partId, measureId, note, divisions4);
+                final var rows = duration * 4 / divisions4;
                 var additionRows = 0;
                 var isTuplet = false;
-                if (duration != rows * mxlDivisions4 / 4) {
-                    if (mxlDivisions4 == duration * 3) {
+                if (duration != rows * divisions4 / 4) {
+                    if (divisions4 == duration * 3) {
                         isTuplet = true;
                     }
                     if (!isTuplet) {
-                        throw new OcException("part %d measure %d note rows should be int : %d/%d", p_m[0], p_m[1], duration, mxlDivisions4);
+                        throw new OcException("part %d measure %d note rows should be int : %d/%d", partId, measureId, duration, divisions4);
                     }
                 }
-                final var mxlChannel = findMxlChannel(p_m, note.getVoice(), rows, isChord);
-                if (isTieStart(note)) {
-                    offerTieStartNote(note);
-                }
-                if (isTieStop(note)) {
-                    final var tieStartNote = pollTieStartNote(note.getVoice());
-                    if (null == tieStartNote) {
-                        throw new OcException("part %d measure %d can't find tie start", p_m[0], p_m[1]);
+//                final var mxlChannel = findMxlChannel(p_m, note.getVoice(), rows, isChord); TODO
+                final var pitchName = pitchToName(partId, measureId, note);
+                if (null == pitchName) {
+                    for (int i = 0; i < rows; ++i) {
+//                        mxlChannel.set(mxlRowIndex + i, FtmNote.REST); TODO
                     }
-                    if (!Objects.equals(pitchToName(note), pitchToName(tieStartNote))) {
-                        throw new OcException("part %d measure %d can't match tie start pitch : %s", p_m[0], p_m[1], pitchToName(tieStartNote), pitchToName(note));
-                    }
-                    final var ftmNote = mxlChannel.get(mxlRowIndex - 1);
-                    if (!isSamePitch(ftmNote, tieStartNote)) {
-                        throw new OcException("part %d measure %d can't match tie start key : %s %s", p_m[0], p_m[1], pitchToName(tieStartNote), FtmNote.keyToName(ftmNote.getKey()));
-                    }
-                    fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote);
                 } else {
-                    final var pitchName = pitchToName(note);
-                    if (null == pitchName) {
-                        for (int i = 0; i < rows; ++i) {
-                            mxlChannel.set(mxlRowIndex + i, FtmNote.REST);
-                        }
+                    if (isChord) {
+//                        final var ftmNote = mxlChannel.get(mxlRowIndex); TODO
+//                        ftmNote.addChord(pitchName); TODO
                     } else {
-                        if (isChord) {
-                            final var ftmNote = mxlChannel.get(mxlRowIndex);
-                            ftmNote.addChord(pitchName);
-                        } else {
-                            final var ftmNote = FtmNote.of(pitchName);
-                            ftmNote.setPedal(mxlStaffToPedal.getOrDefault(staffId, false));
-                            final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);
-                            for (final var notation : note.getNotations()) {
-                                for (final var tiedOrSlurOrTuplet : notation.getTiedOrSlurOrTuplet()) {
-                                    if (tiedOrSlurOrTuplet instanceof final Articulations articulations) {
-                                        for (final var accentOrStrongAccentOrStaccato : articulations.getAccentOrStrongAccentOrStaccato()) {
-                                            switch (accentOrStrongAccentOrStaccato.getName().toString()) {
-                                                case "accent" -> ftmNote.setAccent(true);
-                                                case "staccato" -> ftmNote.setStaccato(true);
-                                                case "tenuto" -> ftmNote.setTenuto(true);
-                                                default -> throw new OcException("part %d measure %d unknown notation : %s", p_m[0], p_m[1], accentOrStrongAccentOrStaccato.getName().toString());
-                                            }
+                        final var ftmNote = FtmNote.of(pitchName);
+//                        ftmNote.setPedal(mxlStaffToPedal.getOrDefault(staffId, false)); TODO
+                        final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);
+                        for (final var notation : note.getNotations()) {
+                            for (final var tiedOrSlurOrTuplet : notation.getTiedOrSlurOrTuplet()) {
+                                if (tiedOrSlurOrTuplet instanceof final Articulations articulations) {
+                                    for (final var accentOrStrongAccentOrStaccato : articulations.getAccentOrStrongAccentOrStaccato()) {
+                                        switch (accentOrStrongAccentOrStaccato.getName().toString()) {
+                                            case "accent" -> ftmNote.setAccent(true);
+                                            case "staccato" -> ftmNote.setStaccato(true);
+                                            case "tenuto" -> ftmNote.setTenuto(true);
+                                            case "strong-accent" -> ftmNote.setTenuto(true);// TODO
+                                            case "detached-legato" -> ftmNote.setTenuto(true);// TODO
+                                            case "staccatissimo" -> ftmNote.setTenuto(true);// TODO
+                                            case "falloff" -> ftmNote.setTenuto(true);// TODO
+                                            case "caesura" -> ftmNote.setTenuto(true);// TODO
+                                            case "doit" -> ftmNote.setTenuto(true);// TODO
+                                            case "plop" -> ftmNote.setTenuto(true);// TODO
+                                            default -> throw new OcException("part %d measure %d unknown notation : %s", partId, measureId, accentOrStrongAccentOrStaccato.getName().toString());
                                         }
-                                    } else if (tiedOrSlurOrTuplet instanceof Arpeggiate) {
-                                        ftmNote.setArpeggiate(true);
-                                    } else if (tiedOrSlurOrTuplet instanceof Tied) {
-                                    } else if (tiedOrSlurOrTuplet instanceof Tuplet) {
-                                    } else if (tiedOrSlurOrTuplet instanceof final Slur slur) {
-                                        // TODO start / stop
-                                    } else if (tiedOrSlurOrTuplet instanceof final Fermata fermata) {
-                                        // TODO
-                                    } else if (tiedOrSlurOrTuplet instanceof final Ornaments ornaments) {
-                                        // TODO
-                                    } else if (tiedOrSlurOrTuplet instanceof final Slide slide) {
-                                        // TODO
-                                    } else {
-                                        throw new OcException("part %d measure %d unknown notation : %s", p_m[0], p_m[1], tiedOrSlurOrTuplet);
                                     }
+                                } else if (tiedOrSlurOrTuplet instanceof Arpeggiate) {
+                                    ftmNote.setArpeggiate(true);
+                                } else if (tiedOrSlurOrTuplet instanceof Tied) {
+                                } else if (tiedOrSlurOrTuplet instanceof Tuplet) {
+                                } else if (tiedOrSlurOrTuplet instanceof final Slur slur) {
+                                    // TODO start / stop
+                                } else if (tiedOrSlurOrTuplet instanceof final Fermata fermata) {
+                                    // TODO
+                                } else if (tiedOrSlurOrTuplet instanceof final Ornaments ornaments) {
+                                    // TODO
+                                } else if (tiedOrSlurOrTuplet instanceof final Slide slide) {
+                                    // TODO
+                                } else if (tiedOrSlurOrTuplet instanceof final Glissando glissando) {
+                                    // TODO
+                                } else if (tiedOrSlurOrTuplet instanceof final Technical technical) {
+                                    // TODO
+                                } else if (tiedOrSlurOrTuplet instanceof final NonArpeggiate nonArpeggiate) {
+                                    // TODO
+                                } else if (tiedOrSlurOrTuplet instanceof final OtherNotation otherNotation) {
+                                    // TODO
+                                } else {
+                                    throw new OcException("part %d measure %d unknown notation : %s", partId, measureId, tiedOrSlurOrTuplet);
                                 }
                             }
-                            ftmNote.setTuplet(tuplet);
-                            fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote);
                         }
-                        if (isTuplet) {
-                            mxlVoiceToTuplet.merge(note.getVoice(), 1, Integer::sum);
-                            if (3 == mxlVoiceToTuplet.get(note.getVoice())) {
-                                mxlVoiceToTuplet.remove(note.getVoice());
-                                additionRows += 1;
-                            }
+                        ftmNote.setTuplet(tuplet);
+//                        fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote); TODO
+                    }
+                    if (isTuplet) {
+                        mxlVoiceToTuplet.merge(note.getVoice(), 1, Integer::sum);
+                        if (3 == mxlVoiceToTuplet.get(note.getVoice())) {
+                            mxlVoiceToTuplet.remove(note.getVoice());
+                            additionRows += 1;
                         }
                     }
                 }
-                mxlPrevRows = rows + additionRows;*/
+                mxlPrevRows = rows + additionRows;
             }
-            /*else if (noteOrBackupOrForward instanceof final Direction direction) {
+            /*else if (noteOrBackupOrForward instanceof final Direction direction) { TODO
                 for (final var type : direction.getDirectionType()) {
                     var foundType = false;
                     if (null != type.getMetronome()) {
@@ -236,7 +288,7 @@ public final class MxlMeasure {
                         foundType = true;
                     }
                     if (!foundType) {
-                        throw new OcException("part %d measure %d unknown direction : %s", p_m[0], p_m[1], type);
+                        throw new OcException("part %d measure %d unknown direction : %s", partId, measureId, type);
                     }
                 }
             }*/
