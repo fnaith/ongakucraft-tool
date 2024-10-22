@@ -63,9 +63,9 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/.mxl"); 32nd
         checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_-_.mxl");
         checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_-_Ayase.mxl");
-//        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_Michizure.mxl"); note rows should be int : 3/16
+//        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_Michizure.mxl");// note rows should be int : 3/16
 //        checkMxl(rootDirPath + "0th/Bye Bye Rainy - Hoshimachi Suisei/.mxl"); 32nd
-//        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST.mxl");// note rows should be int : 8/12
 //        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__.mxl"); 32nd
 //        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST (1).mxl"); 32nd
         checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__Hoshimachi_Suisei.mxl");

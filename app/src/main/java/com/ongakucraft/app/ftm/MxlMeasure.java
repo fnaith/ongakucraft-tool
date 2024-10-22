@@ -107,22 +107,24 @@ public final class MxlMeasure {
         }
     }
 
+    private static int getDurationByType(int partId, int measureId, NoteType noteType, int divisions4) {
+        return switch (noteType.getValue()) {
+            case "whole" -> BigDecimal.valueOf(divisions4).intValue();
+            case "half" -> BigDecimal.valueOf(divisions4).multiply(BigDecimal.valueOf(2)).intValue();
+            case "quarter" -> BigDecimal.valueOf(divisions4).intValue();
+            case "eighth" -> BigDecimal.valueOf(divisions4).divide(BigDecimal.valueOf(2), RoundingMode.UNNECESSARY).intValue();
+            case "16th" -> BigDecimal.valueOf(divisions4).divide(BigDecimal.valueOf(4), RoundingMode.UNNECESSARY).intValue();
+            default -> throw new OcException("part %d measure %d unknown note type : %s", partId, measureId);
+        };
+    }
+
     private static int getDuration(int partId, int measureId, Note note, int divisions4) {
         if (null != note.getDuration()) {
             return note.getDuration().intValue();
         }
-        if (null != note.getGrace()) {
-            final var type = note.getType().getValue();
-            if (null != type) {
-                return switch (type) {
-                    case "whole" -> BigDecimal.valueOf(divisions4).intValue();
-                    case "half" -> BigDecimal.valueOf(divisions4).multiply(BigDecimal.valueOf(2)).intValue();
-                    case "quarter" -> BigDecimal.valueOf(divisions4).intValue();
-                    case "eighth" -> BigDecimal.valueOf(divisions4).divide(BigDecimal.valueOf(2), RoundingMode.UNNECESSARY).intValue();
-                    case "16th" -> BigDecimal.valueOf(divisions4).divide(BigDecimal.valueOf(4), RoundingMode.UNNECESSARY).intValue();
-                    default -> throw new OcException("part %d measure %d unknown note type : %s", partId, measureId);
-                };
-            }
+        final var noteType = note.getType();
+        if (null != noteType) {
+            return getDurationByType(partId, measureId, noteType, divisions4);
         }
         throw new OcException("part %d measure %d unknown note duration : %s", partId, measureId);
     }
@@ -184,14 +186,12 @@ public final class MxlMeasure {
                     mxlRowIndex += mxlPrevRows;
                 }
                 final var duration = getDuration(partId, measureId, note, divisions4);
+                final var durationByType = null == note.getType() ? -1 : getDurationByType(partId, measureId, note.getType(), divisions4);
                 final var rows = duration * 4 / divisions4;
                 var additionRows = 0;
-                var isTuplet = false;
-                if (duration != rows * divisions4 / 4) {
-                    if (divisions4 == duration * 3) {
-                        isTuplet = true;
-                    }
-                    if (!isTuplet) {
+                final var isTuplet = duration * 3 == durationByType * 2;
+                if (!isTuplet) {
+                    if (duration != rows * divisions4 / 4) {
                         throw new OcException("part %d measure %d note rows should be int : %d/%d", partId, measureId, duration, divisions4);
                     }
                 }
