@@ -9,33 +9,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public final class MxlMeasure {
     public MxlMeasure(String filePath, int partId, int measureId, ScorePartwise.Part.Measure measure, int divisions4) {
         parse(filePath, partId, measureId, measure, divisions4);
     }
-
-
-//    private static BigDecimal getDuration(Note note) {
-//        final var duration = note.getDuration();
-//        if (null != duration) {
-//            return duration;
-//        }
-//        if (null != note.getGrace()) {
-//            final var type = note.getType().getValue();
-//            if (null != type) {
-//                return switch (type) {
-//                    case "half" -> BigDecimal.valueOf(mxlDivisions4).multiply(BigDecimal.valueOf(2));
-//                    case "quarter" -> BigDecimal.valueOf(mxlDivisions4);
-//                    case "eighth" -> BigDecimal.valueOf(mxlDivisions4).divide(BigDecimal.valueOf(2), RoundingMode.UNNECESSARY);
-//                    case "16th" -> BigDecimal.valueOf(mxlDivisions4).divide(BigDecimal.valueOf(4), RoundingMode.UNNECESSARY);
-//                    default -> null;
-//                };
-//            }
-//        }
-//        return null;
-//    }
 
     private static void check(int partId, int measureId, ScorePartwise.Part.Measure measure, int divisions4) {
         for (final var noteOrBackupOrForward : measure.getNoteOrBackupOrForward()) {
@@ -80,7 +58,12 @@ public final class MxlMeasure {
             } else if (noteOrBackupOrForward instanceof final Note note) {
                 if (null != note.getType()) {
                     switch (note.getType().getValue()) {
-                        case "whole", "half", "quarter", "eighth", "16th":
+                        case "whole", "half", "quarter", "eighth":
+                            break;
+                        case "16th":
+                            if (null != note.getDot() && !note.getDot().isEmpty()) {
+                                throw new OcException("part %d measure %d note type is dotted 16th", partId, measureId);
+                            }
                             break;
                         default:
                             throw new OcException("part %d measure %d note type unknown : %s", partId, measureId, note.getType().getValue());
@@ -186,11 +169,17 @@ public final class MxlMeasure {
                     mxlRowIndex += mxlPrevRows;
                 }
                 final var duration = getDuration(partId, measureId, note, divisions4);
+                if (duration * 5 == divisions4) {
+                    throw new OcException("part %d measure %d note is tuplet 5 : %d/%d", partId, measureId, duration, divisions4);
+                }
+                if (6 < duration && duration == divisions4 * 2 / 7) {
+                    throw new OcException("part %d measure %d note is tuplet 7 : %d/%d", partId, measureId, duration, divisions4);
+                }
                 final var durationByType = null == note.getType() ? -1 : getDurationByType(partId, measureId, note.getType(), divisions4);
                 final var rows = duration * 4 / divisions4;
                 var additionRows = 0;
-                final var isTuplet = duration * 3 == durationByType * 2;
-                if (!isTuplet) {
+                final var isTriplet  = duration * 3 == durationByType * 2;
+                if (!isTriplet) {
                     if (duration != rows * divisions4 / 4) {
                         throw new OcException("part %d measure %d note rows should be int : %d/%d", partId, measureId, duration, divisions4);
                     }
@@ -255,7 +244,7 @@ public final class MxlMeasure {
                         ftmNote.setTuplet(tuplet);
 //                        fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote); TODO
                     }
-                    if (isTuplet) {
+                    if (isTriplet) {
                         mxlVoiceToTuplet.merge(note.getVoice(), 1, Integer::sum);
                         if (3 == mxlVoiceToTuplet.get(note.getVoice())) {
                             mxlVoiceToTuplet.remove(note.getVoice());

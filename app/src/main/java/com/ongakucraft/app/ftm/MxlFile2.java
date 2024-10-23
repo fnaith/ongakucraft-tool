@@ -63,21 +63,21 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/.mxl"); 32nd
         checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_-_.mxl");
         checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_-_Ayase.mxl");
-//        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_Michizure.mxl");// note rows should be int : 3/16
+//        checkMxl(rootDirPath + "0th/Michizure - Hoshimachi Suisei/_Michizure.mxl"); note rows should be int : 3/16
 //        checkMxl(rootDirPath + "0th/Bye Bye Rainy - Hoshimachi Suisei/.mxl"); 32nd
-        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST.mxl");// note rows should be int : 8/12
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST.mxl");
 //        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__.mxl"); 32nd
 //        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST (1).mxl"); 32nd
         checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__Hoshimachi_Suisei.mxl");
-//        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST_-_HOSHIMACHI_SUISEI.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST_-_HOSHIMACHI_SUISEI.mxl");
 //        checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST__Hoshimachi_Suisei_by_Cassi.mxl"); 32nd
         checkMxl(rootDirPath + "0th/GHOST - Hoshimachi Suisei/GHOST_-_____Shiroha.mxl");
 //        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar.mxl"); 32nd
 //        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar (1).mxl"); 32nd
 //        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar (2).mxl"); 32nd
-//        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar_-_____Shiroha.mxl"); note rows should be int : 12/60
-//        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar_-_Hoshimachi_Suisei.mxl"); note rows should be int : 12/60
-//        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar__Hoshimachi_Suisei__THE_FIRST_TAKE_Version.mxl"); note rows should be int : 16/12
+//        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar_-_____Shiroha.mxl"); tuplet 5
+//        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar_-_Hoshimachi_Suisei.mxl"); tuplet 5
+        checkMxl(rootDirPath + "0th/Stellar Stellar - Hoshimachi Suisei/Stellar_Stellar__Hoshimachi_Suisei__THE_FIRST_TAKE_Version.mxl");
 //        checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/.mxl"); 32nd
 //        checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/__.mxl"); 64th
 //        checkMxl(rootDirPath + "0th/Tenkyuu Suisei wa Yoru wo Mataide - Hoshimachi Suisei/Tenkyuu.mxl"); 32nd
@@ -93,21 +93,21 @@ public final class MxlFile2 {
     private static void check1th(String rootDirPath) {
 //        checkMxl(rootDirPath + "1th/Shallys - Aki Rosenthal/Shallys.mxl"); 32nd
 //        checkMxl(rootDirPath + "1th/Shallys - Aki Rosenthal/Shallys_-_Aki_Rosenthal.mxl"); 32nd
-//        checkMxl(rootDirPath + "1th/Heroine Audition - Aki Rosenthal/Heroine_Audition__Aki_Rosenthal.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "1th/Heroine Audition - Aki Rosenthal/Heroine_Audition__Aki_Rosenthal.mxl");
         checkMxl(rootDirPath + "1th/Your Destiny Situation - Aki Rosenthal/___Aki_Rosenthal.mxl");
         checkMxl(rootDirPath + "1th/REDHEART - Akai Haato/REDHEART.mxl");
 //        checkMxl(rootDirPath + "1th/REDHEART - Akai Haato/REDHEART_-_Akai_HaatoHaachama.mxl"); 32nd
-//        checkMxl(rootDirPath + "1th/REDHEART - Akai Haato/REDHEART_Jazz_ver..mxl"); note rows should be int : 3/8
+//        checkMxl(rootDirPath + "1th/REDHEART - Akai Haato/REDHEART_Jazz_ver..mxl"); note type is dotted 16th
         checkMxl(rootDirPath + "1th/Infinity - Akai Haato/Infinity_-_Akai_Haato_x_Haachama.mxl");
         // TODO 夏色まつり
         // TODO 夜空メル
     }
 
     private static void check2th(String rootDirPath) {
-//        checkMxl(rootDirPath + "2th/Mage of Violet - Murasaki Shion/Mage_of_Violet_-_Murasaki_Shion.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "2th/Mage of Violet - Murasaki Shion/Mage_of_Violet_-_Murasaki_Shion.mxl");
         checkMxl(rootDirPath + "2th/Docchi Docchi Song - Nakiri Ayame/Extended.mxl");
         // TODO 癒月ちょこ
-//        checkMxl(rootDirPath + "2th/Pleiades - Oozora Subaru/mxl (1).mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "2th/Pleiades - Oozora Subaru/mxl (1).mxl");
 //        checkMxl(rootDirPath + "2th/Aqua iro palette - Aqua Minato/_Aqua_Colored_Palette_-_Minato_Aqua.mxl"); 32nd
         checkMxl(rootDirPath + "2th/Aqua iro palette - Aqua Minato/_Aqua-Coloured_Palette_-__Minato_Aqua.mxl");
         checkMxl(rootDirPath + "2th/Aqua iro palette - Aqua Minato/Aqua_iro_palette_-_Aqua_Minato.mxl");
@@ -118,40 +118,40 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "2th/I Wanna - Minato Aqua/mxl (1).mxl"); 32nd
 //        checkMxl(rootDirPath + "2th/Imada Aoi - Minato Aqua/__.mxl"); 32nd
         checkMxl(rootDirPath + "2th/Imada Aoi - Minato Aqua/imada_aoi.mxl");
-//        checkMxl(rootDirPath + "2th/Imada Aoi - Minato Aqua/Imada_Aoi___-_Minato_Aqua_.mxl"); note rows should be int : 137/480
-//        checkMxl(rootDirPath + "2th/uni-birth - Minato Aqua/uni-birth.mxl"); note rows should be int : 2/12
+//        checkMxl(rootDirPath + "2th/Imada Aoi - Minato Aqua/Imada_Aoi___-_Minato_Aqua_.mxl"); tuplet 7
+        checkMxl(rootDirPath + "2th/uni-birth - Minato Aqua/uni-birth.mxl");
     }
 
     private static void check3th(String rootDirPath) {
-//        checkMxl(rootDirPath + "3th/Iiwake bunny - pekora/.mxl"); note rows should be int : 80/480
+//        checkMxl(rootDirPath + "3th/Iiwake bunny - pekora/.mxl"); tuplet 7
         checkMxl(rootDirPath + "3th/Pekorandom Brain - Usada Pekora/Pekorandom_Brain.mxl");
         checkMxl(rootDirPath + "3th/Atelier - Shiranui Flare/_Atelier_-_Shiranui_Flare.mxl");
         checkMxl(rootDirPath + "3th/Homenobi - Shirogane Noel/__.mxl");
-//        checkMxl(rootDirPath + "3th/ririkaru monster - Shirogane Noel/Monster.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "3th/ririkaru monster - Shirogane Noel/Monster.mxl");
 //        checkMxl(rootDirPath + "3th/Im Your Treasure Box - Houshou Marine/Im_Your_Treasure_Box.mxl"); 32nd
 //        checkMxl(rootDirPath + "3th/Im Your Treasure Box - Houshou Marine/Im_Your_Treasure_Box___ (1).mxl"); 32nd
 //        checkMxl(rootDirPath + "3th/Im Your Treasure Box - Houshou Marine/Im_Your_Treasure_Box___.mxl"); 32nd
-//        checkMxl(rootDirPath + "3th/Ahoy We are the Houshou Pirates - Houshou Marine/Ahoy_.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "3th/Ahoy We are the Houshou Pirates - Houshou Marine/Ahoy_.mxl");
 //        checkMxl(rootDirPath + "3th/Ahoy We are the Houshou Pirates - Houshou Marine/Ahoy___.mxl"); 32nd
 //        checkMxl(rootDirPath + "3th/Ahoy We are the Houshou Pirates - Houshou Marine/Ahoy___-_Marine_Hosho_Hololive.mxl"); 32nd
         checkMxl(rootDirPath + "3th/Ahoy We are the Houshou Pirates - Houshou Marine/c28d004cf9c4162124a77d4434b62a0d20cc589d.mxl");
         checkMxl(rootDirPath + "3th/Unison - Houshou Marine/UNISON.mxl");
-//        checkMxl(rootDirPath + "3th/Marine Set Sail - Houshou Marine/.mxl"); note rows should be int : 4/24
+//        checkMxl(rootDirPath + "3th/Marine Set Sail - Houshou Marine/.mxl"); note rows should be int : 9/24
         checkMxl(rootDirPath + "3th/omoikou - Uruha Rushia/.mxl");
-//        checkMxl(rootDirPath + "3th/omoikou - Uruha Rushia/omoikou_-_Uruha_Rushia.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "3th/omoikou - Uruha Rushia/omoikou_-_Uruha_Rushia.mxl");
     }
 
     private static void check4th(String rootDirPath) {
-//        checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "4th/Tokusya-Seizon Wonder-la-der - Amane Kanata/.mxl");
 //        checkMxl(rootDirPath + "4th/Oracle - Amane Kanata/Oracle___Amane_Kanata.mxl"); 32nd
 //        checkMxl(rootDirPath + "4th/Dreamy Sheep - Tsunomaki watame/.mxl"); 32nd
         checkMxl(rootDirPath + "4th/Everlasting Soul - Tsunomaki Watame/Everlasting_Soul.mxl");
-//        checkMxl(rootDirPath + "4th/mayday mayday - Tsunomaki Watame/mayday_mayday.mxl"); note rows should be int : 96/480
+//        checkMxl(rootDirPath + "4th/mayday mayday - Tsunomaki Watame/mayday_mayday.mxl"); tuplet 5
         checkMxl(rootDirPath + "4th/My Song - Tsunomaki Watame/My_song_-_Horie_Shota.mxl");
         checkMxl(rootDirPath + "4th/My Song - Tsunomaki Watame/My_Song_-_Tsunomaki_Watame.mxl");
         checkMxl(rootDirPath + "4th/My Song - Tsunomaki Watame/My_Song_WIP_-_Watame.mxl");
-//        checkMxl(rootDirPath + "4th/Ai-mai Chocolate - Tsunomaki Watame/Ai-mai_Chocolate_-_Tsunomaki_Watame.mxl"); note rows should be int : 2/12
-//        checkMxl(rootDirPath + "4th/Cloudy Sheep - Tsunomaki Watame/_Cloudy_Sheep_-_Tsunomaki_Watame.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "4th/Ai-mai Chocolate - Tsunomaki Watame/Ai-mai_Chocolate_-_Tsunomaki_Watame.mxl");
+        checkMxl(rootDirPath + "4th/Cloudy Sheep - Tsunomaki Watame/_Cloudy_Sheep_-_Tsunomaki_Watame.mxl");
 //        checkMxl(rootDirPath + "4th/FACT - Tokoyami Towa/FACT.mxl"); note rows should be int : 3/8
         // TODO 姫森ルーナ
         checkMxl(rootDirPath + "4th/Weather Hackers - Kiryu Coco/Weather_Hackers.mxl");
@@ -162,13 +162,13 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/_Kiseki_Knot__Hololive_IDOL_PROJECT.mxl"); 32nd
         checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/Kiseki_Knot.mxl");
         checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/Kiseki_Knot_-_hololive_4th_Generation.mxl");
-//        checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "4th/Kiseki Knot - hololive 4th Generation/.mxl");
     }
 
     private static void check5th(String rootDirPath) {
         checkMxl(rootDirPath + "5th/Asu e no Kyoukaisen - Yukihana Lamy/Asu_e_no_Taisen_-_Yukihana_Lamy-clean.mxl");
 //        checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_Me.mxl"); 32nd
-//        checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_me (1).mxl"); note rows should be int : 8/48
+//        checkMxl(rootDirPath + "5th/Lunch with me - Momosuzu Nene/Lunch_with_me (1).mxl"); note rows should be int : 9/48
 //        checkMxl(rootDirPath + "5th/Nenenenenenenene Daibakusou - Momosuzu Nene/.mxl"); 32nd
 //        checkMxl(rootDirPath + "5th/Congrachumarch - Momosuzu Nene/CHU__Congrachu_March.mxl"); 32nd
         checkMxl(rootDirPath + "5th/La-Lion/La-Lion_A_song_for_Nene_made_for_Shishiro_Botan.mxl");
@@ -176,14 +176,14 @@ public final class MxlFile2 {
         checkMxl(rootDirPath + "5th/HOLOGRAM CIRCUS - Omaru Polka/HOLOGRAM_CIRCUS_-_Omaru_Polka.mxl");
 //        checkMxl(rootDirPath + "5th/Saikyoutic Polka/.mxl"); 32nd
         checkMxl(rootDirPath + "5th/BLUE_CLAPPER/BLUE_CLAPPER__Hololive_IDOL_PROJECT.mxl");
-//        checkMxl(rootDirPath + "5th/Twinkle 4 You/Twinkle_4_You_-_NePoLaBo.mxl"); note rows should be int : 80/48
+//        checkMxl(rootDirPath + "5th/Twinkle 4 You/Twinkle_4_You_-_NePoLaBo.mxl"); tuplet 7
     }
 
     private static void check6th(String rootDirPath) {
 //        checkMxl(rootDirPath + "6th/drop candy - La+ Darknesss/drop_candy.mxl"); 32nd
         // TODO 鷹嶺ルイ
-//        checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO.mxl"); note rows should be int : 2/12
-//        checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO_-_.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO.mxl");
+        checkMxl(rootDirPath + "6th/WAO - Hakui Koyori/WAO_-_.mxl");
 //        checkMxl(rootDirPath + "6th/Paralyze - Sakamata Chloe/Paralyze_-_Sakamata_Chloe.mxl"); note rows should be int : 9/24
 //        checkMxl(rootDirPath + "6th/IrohaStep - kazama iroha/.mxl"); 32nd
     }
@@ -203,27 +203,27 @@ public final class MxlFile2 {
         checkMxl(rootDirPath + "en1/Excuse My Rudeness But Could You Please RIP - Calliope Mori/Excuse_My_Rudeness_But_Could_You_Please_RIP__WIP.mxl");
 //        checkMxl(rootDirPath + "en1/Guh - Calliope Mori/guh.mxl"); 32nd
         checkMxl(rootDirPath + "en1/Dead Beats - Mori Calliope/Dead_Beats_-_Mori_Calliope.mxl");
-//        checkMxl(rootDirPath + "en1/DO U - Takanashi Kiara/DO_U.mxl"); note rows should be int : 8/12
-//        checkMxl(rootDirPath + "en1/DO U - Takanashi Kiara/DO_U_-_KIRA__Takanashi_Kiara_Orchestral_Arrangement_by_Deemo_Harlos.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "en1/DO U - Takanashi Kiara/DO_U.mxl");
+        checkMxl(rootDirPath + "en1/DO U - Takanashi Kiara/DO_U_-_KIRA__Takanashi_Kiara_Orchestral_Arrangement_by_Deemo_Harlos.mxl");
         checkMxl(rootDirPath + "en1/SPARKS - Takanashi Kiara/SPARKS__Takanashi_Kiara.mxl");
-//        checkMxl(rootDirPath + "en1/HINOTORI - Takanashi Kiara/Hinotori.mxl"); note rows should be int : 4/6
+        checkMxl(rootDirPath + "en1/HINOTORI - Takanashi Kiara/Hinotori.mxl");
         checkMxl(rootDirPath + "en1/HINOTORI - Takanashi Kiara/Hinotori_by_Takanashi_Kiara.mxl");
 //        checkMxl(rootDirPath + "en1/HINOTORI - Takanashi Kiara/Hinotori_O.mxl"); 64th
-//        checkMxl(rootDirPath + "en1/Fever Night - Takanashi Kiara/Fever_Night_-_Takanashi_Kiara.mxl"); note rows should be int : 16/12
+        checkMxl(rootDirPath + "en1/Fever Night - Takanashi Kiara/Fever_Night_-_Takanashi_Kiara.mxl");
         checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/Violet (1).mxl");
 //        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/VIOLET (2).mxl"); 32nd
-//        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/Violet (3).mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/Violet (3).mxl");
 //        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/Violet.mxl"); 32nd
 //        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/Violet__seibin.mxl"); 32nd
-//        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/HL__I.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "en1/Violet - Ninomae Ina nis/HL__I.mxl");
         checkMxl(rootDirPath + "en1/MECONOPSIS - Ninomae Ina nis/MECONOPSIS.mxl");
-//        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/REFLECT_Preview_Size_-_Gawr_Gura.mxl"); note rows should be int : 40/60
+//        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/REFLECT_Preview_Size_-_Gawr_Gura.mxl"); tuplet 5
         checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/REFLECT_-_Gura__Test.mxl");
 //        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/REFLECT__Gawr_Gura_Reflect_-_Gawr_Gura.mxl"); 32nd
 //        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/REFLECT_-_Gawr_Gura.mxl"); 32nd
 //        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/REFLECT.mxl"); 32nd
-//        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/Reflect (1).mxl"); note rows should be int : 40/60
-//        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/ORIGINAL_REFLECT_-_Gawr_Gura_-_Farhan_Sarasin.mxl"); note rows should be int : 2/12
+//        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/Reflect (1).mxl"); tuplet 5
+        checkMxl(rootDirPath + "en1/REFLECT - Gawr Gura/ORIGINAL_REFLECT_-_Gawr_Gura_-_Farhan_Sarasin.mxl");
 //        checkMxl(rootDirPath + "en1/Tokyo Wabi Sabi Lullaby - Gawr Gura/Tokyo_Wabi_Sabi_Lullaby.mxl"); 32nd
         checkMxl(rootDirPath + "en1/ChikuTaku - Watson Amelia/ChikuTaku.mxl");
 //        checkMxl(rootDirPath + "en1/Non-Fiction/Non-Fiction.mxl"); 32nd
@@ -231,13 +231,13 @@ public final class MxlFile2 {
     }
 
     private static void checkEn2(String rootDirPath) {
-//        checkMxl(rootDirPath + "en2/Let Me Stay Here - Ceres Fauna/Let_Me_Say_Here.mxl"); note rows should be int : 9/24
+//        checkMxl(rootDirPath + "en2/Let Me Stay Here - Ceres Fauna/Let_Me_Say_Here.mxl"); dotted 16th
 //        checkMxl(rootDirPath + "en2/Daydream - Ouro Kronii/Daydream (1).mxl"); 32nd
 //        checkMxl(rootDirPath + "en2/Daydream - Ouro Kronii/Daydream.mxl"); 32nd
 //        checkMxl(rootDirPath + "en2/Daydream - Ouro Kronii/Daydream_-_Ouro_Kronii (1).mxl"); 32nd
-//        checkMxl(rootDirPath + "en2/Daydream - Ouro Kronii/Daydream_-_Ouro_Kronii.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "en2/Daydream - Ouro Kronii/Daydream_-_Ouro_Kronii.mxl");
 //        checkMxl(rootDirPath + "en2/A New Start - Nanashi Mumei/a_new_start (1).mxl"); note rows should be int : 3/8
-//        checkMxl(rootDirPath + "en2/A New Start - Nanashi Mumei/A_New_Start (2).mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "en2/A New Start - Nanashi Mumei/A_New_Start (2).mxl");
         checkMxl(rootDirPath + "en2/A New Start - Nanashi Mumei/A_New_Start.mxl");
         checkMxl(rootDirPath + "en2/A New Start - Nanashi Mumei/A_New_Start_-_Nanashi_Mumei.mxl");
 //        checkMxl(rootDirPath + "en2/A New Start - Nanashi Mumei/A_New_Start__Nanashi_Mumei_Ch..mxl"); 32nd
@@ -249,7 +249,7 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "en2/MESS - Hakos Baelz/MESS_-_Hakos_Baelz.mxl"); 32nd
         checkMxl(rootDirPath + "en2/Astrogirl - Tsukumo Sana/Astrogirl (1).mxl");
 //        checkMxl(rootDirPath + "en2/Astrogirl - Tsukumo Sana/Astrogirl.mxl"); 32nd
-//        checkMxl(rootDirPath + "en2/Astrogirl - Tsukumo Sana/Astrogirl__Tsukumo_Sana.mxl"); note rows should be int : 16/12
+        checkMxl(rootDirPath + "en2/Astrogirl - Tsukumo Sana/Astrogirl__Tsukumo_Sana.mxl");
     }
 
     private static void checkEn3(String rootDirPath) {
@@ -268,20 +268,20 @@ public final class MxlFile2 {
     }
 
     private static void checkGamers(String rootDirPath) {
-//        checkMxl(rootDirPath + "gamer/Say Fanfare - Shirakami Fubuki/Playable_Solo_Piano_Say_Say_Fanfare_-_Shirakami_Fubuki_.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "gamer/Say Fanfare - Shirakami Fubuki/Playable_Solo_Piano_Say_Say_Fanfare_-_Shirakami_Fubuki_.mxl");
         checkMxl(rootDirPath + "gamer/Say Fanfare - Shirakami Fubuki/Say_Fanfare.mxl");
-//        checkMxl(rootDirPath + "gamer/Say Fanfare - Shirakami Fubuki/Say_Fanfare__Shirakami_Fubuki.mxl"); note rows should be int : 40/60
+//        checkMxl(rootDirPath + "gamer/Say Fanfare - Shirakami Fubuki/Say_Fanfare__Shirakami_Fubuki.mxl"); tuplet 5
         checkMxl(rootDirPath + "gamer/Say Fanfare - Shirakami Fubuki/Shirakami_Fubuki_-_Say.mxl");
 //        checkMxl(rootDirPath + "gamer/LETTER - Shirakami Fubuki/LETTER.mxl"); 32nd
         checkMxl(rootDirPath + "gamer/LETTER - Shirakami Fubuki/LETTER_-_Shirakami_Fubuki.mxl");
-//        checkMxl(rootDirPath + "gamer/Hi Fine FOX - Shirakami Fubuki/Hi_Fine_FOX__Shirakami_Fubuki.mxl"); note rows should be int : 8/12
-//        checkMxl(rootDirPath + "gamer/KINGWORLD - Shirakami Fubuki/KINGWORLD_-_sasakure.UK___Fubuki_Piano_Solo_Arr._Harlos.mxl"); note rows should be int : 16/24
+        checkMxl(rootDirPath + "gamer/Hi Fine FOX - Shirakami Fubuki/Hi_Fine_FOX__Shirakami_Fubuki.mxl");
+//        checkMxl(rootDirPath + "gamer/KINGWORLD - Shirakami Fubuki/KINGWORLD_-_sasakure.UK___Fubuki_Piano_Solo_Arr._Harlos.mxl"); note rows should be int : 9/24
         checkMxl(rootDirPath + "gamer/KONKON Beats - Shirakami Fubuki/KONKON_Beats.mxl");
         // TODO 大神ミオ
         checkMxl(rootDirPath + "gamer/Mogu Mogu Yummy - Nekomata Okayu/YUMMY.mxl");
         checkMxl(rootDirPath + "gamer/Mogu Mogu Yummy - Nekomata Okayu/YUMMY (1).mxl");
 //        checkMxl(rootDirPath + "gamer/Mogu Mogu Yummy - Nekomata Okayu/Mogu_Mogu_Yummy__Nekomata_Okayu_MOGU_MOGU_YUMMY__YUMMY.mxl"); 32nd
-//        checkMxl(rootDirPath + "gamer/Saikyou Tensai Wonderful World of Korone - Inugami Korone/korones_saikyou_tensai_wonderful_world.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "gamer/Saikyou Tensai Wonderful World of Korone - Inugami Korone/korones_saikyou_tensai_wonderful_world.mxl");
 //        checkMxl(rootDirPath + "gamer/Saikyou Tensai Wonderful World of Korone - Inugami Korone/Saikyou_Tensai_Wonderful_World_of_Korone.mxl"); 32nd
 //        checkMxl(rootDirPath + "gamer/Doggy Gods Street - Inugami Korone/Doggy_Gods_Street_-_for_Sax_Quartet.mxl"); rows should be int : 8/12
         checkMxl(rootDirPath + "gamer/Haro Haro Nariyansu - Inugami Korone/HALO_HALO_NARIYANSU_ONDO.mxl");
@@ -328,13 +328,13 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "idol/Candy-Go-Round/Candy-Go-Round.mxl"); 32nd
 //        checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moments.mxl"); 32nd
         checkMxl(rootDirPath + "idol/Capture the Moment/Capture_the_Moment__Hololive_IDOL_PROJECT_Hololive_5th_Fes..mxl");
-//        checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_-_hololive_IDOL_PROJECT.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_-_hololive_IDOL_PROJECT.mxl");
         checkMxl(rootDirPath + "idol/DAILY DIARY/DAILY_DIARY_short_ver._-_Matsuri_Subaru_Miko_Noel_Marine.mxl");
         checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days (1).mxl");
         checkMxl(rootDirPath + "idol/Dreaming Days/DREAMING_DAYS.mxl");
-//        checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days__Hololive_IDOL_PROJECT.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "idol/Dreaming Days/Dreaming_Days__Hololive_IDOL_PROJECT.mxl");
         checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakka_Ryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
-//        checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakkaryoran_Hanafubuki_-_hololive_IDOL_PROJECT.mxl"); note rows should be int : 2/12
+        checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/__Hyakkaryoran_Hanafubuki_-_hololive_IDOL_PROJECT.mxl");
         checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/_Hyakkaryouran_Hanafubuki__hololive_IDOL_PROJECT.mxl");
         checkMxl(rootDirPath + "idol/Hyakkaryoran Hanafubuki/hanafubuki.mxl");
         checkMxl(rootDirPath + "idol/Kirameki Rider/Kirameki_Rider.mxl");
@@ -345,7 +345,7 @@ public final class MxlFile2 {
 //        checkMxl(rootDirPath + "idol/Non-Fiction/Non-Fiction__hololive_English_-Myth-.mxl"); 32nd
 //        checkMxl(rootDirPath + "idol/Plasmagic Seasons/Plasmagic_Seasons.mxl"); note rows should be int : 9/24
 //        checkMxl(rootDirPath + "idol/Plasmagic Seasons/Plasmagic_Seasons_-_hololive_IDOL_PROJECT.mxl"); note rows should be int : 9/24
-//        checkMxl(rootDirPath + "idol/Prism Melody/Prism_Melody_-_hololive_IDOL_PROJECT.mxl"); note rows should be int : 10/60
+//        checkMxl(rootDirPath + "idol/Prism Melody/Prism_Melody_-_hololive_IDOL_PROJECT.mxl"); tuplet 5
         checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck__Hololive_IDOL_PROJECT.mxl");
 //        checkMxl(rootDirPath + "idol/Shijoshugi Adtruck/_Shijoshugi_Adtruck_-_hololive_IDOL_PROJECT.mxl"); 32nd
         checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story (2).mxl");
@@ -353,14 +353,14 @@ public final class MxlFile2 {
         checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_.mxl");
         checkMxl(rootDirPath + "idol/Shiny_Smily_Story/Shiny_Smily_Story_-_Hololive_IDOL_PROJECT.mxl");
 //        checkMxl(rootDirPath + "idol/Shiny_Smily_Story/shiny_smily_story-hololive.mxl"); 32nd
-//        checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG.mxl"); note rows should be int : 2/12
-//        checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG__hololive_IDOL_PROJECT.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG.mxl");
+        checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG__hololive_IDOL_PROJECT.mxl");
 //        checkMxl(rootDirPath + "idol/STARDUST SONG/STARDUST_SONG_-_hololive_IDOL_PROJECT.mxl"); 32nd
         checkMxl(rootDirPath + "idol/Suspect/Suspect_-_hololive_IDOL_PROJECT.mxl");
     }
 
     private static void checkUnit(String rootDirPath) {
-//        checkMxl(rootDirPath + "unit/Happiness World - BABACORN/Happiness_World.mxl"); note rows should be int : 8/12
+        checkMxl(rootDirPath + "unit/Happiness World - BABACORN/Happiness_World.mxl");
         checkMxl(rootDirPath + "unit/PekoMiko Great War/PekoMiko_Great_War.mxl");
 //        checkMxl(rootDirPath + "unit/story time - Star Flower/story_time.mxl"); 32nd
 //        checkMxl(rootDirPath + "unit/story time - Star Flower/story_time__full_ver..mxl"); 32nd
