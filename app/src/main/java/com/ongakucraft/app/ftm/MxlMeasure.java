@@ -114,34 +114,37 @@ public final class MxlMeasure {
 
     private static String pitchToName(int partId, int measureId, Note note) {
         final var pitch = note.getPitch();
-        final var unpitched = note.getUnpitched();
         if (null == pitch) {
+            final var unpitched = note.getUnpitched();
             if (null == unpitched) {
                 return null;
             }
             return unpitched.getDisplayStep().name() + '-' + unpitched.getDisplayOctave();
         }
-        final var alter = null == pitch.getAlter() ? '-' : switch (pitch.getAlter().toString()) {
-            case "-1" -> 'b';
-            case "1" -> '#';
-            case "-2" -> 'b'; // TODO
-            case "2" -> '#'; // TODO
-            default -> throw new OcException("alter should be in [-1, 0, -] : %s", pitch.getAlter().toString());
+        var step = pitch.getStep().name();
+        var octave = pitch.getOctave();
+        final var alter = null == pitch.getAlter() ? 0 : pitch.getAlter().intValue();
+        var semitone = switch (step) {
+            case "C" -> 0;
+            case "D" -> 2;
+            case "E" -> 4;
+            case "F" -> 5;
+            case "G" -> 7;
+            case "A" -> 9;
+            case "B" -> 11;
+            default -> throw new OcException("part %d measure %d note step not unsupported : %s", partId, measureId, step);
         };
-        var sa = pitch.getStep().name() + alter;
-        if ('b' == alter) {
-            sa = switch (sa) {
-                case "Ab" -> "G#";
-                case "Bb" -> "A#";
-                case "Cb" -> "B-";
-                case "Db" -> "C#";
-                case "Eb" -> "D#";
-                case "Fb" -> "E-";
-                case "Gb" -> "F#";
-                default -> throw new OcException("part %d measure %d minor not unsupported : %s", partId, measureId, sa);
-            };
+        semitone += alter;
+        while (semitone < 0) {
+            semitone += 12;
+            --octave;
         }
-        return sa + pitch.getOctave();
+        while (11 < semitone) {
+            semitone -= 12;
+            ++octave;
+        }
+        step = "C-C#D-D#E-F-F#G-G#A-A#B-".substring(semitone * 2, semitone * 2 + 2);
+        return step + octave;
     }
 
     private static void parse(String filePath, int partId, int measureId, ScorePartwise.Part.Measure measure, int divisions4) {
@@ -195,9 +198,9 @@ public final class MxlMeasure {
 //                        final var ftmNote = mxlChannel.get(mxlRowIndex); TODO
 //                        ftmNote.addChord(pitchName); TODO
                     } else {
-                        final var ftmNote = FtmNote.of(pitchName);
+                        final var ftmNote = MxlNote.of(pitchName);
 //                        ftmNote.setPedal(mxlStaffToPedal.getOrDefault(staffId, false)); TODO
-                        final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);
+                        final var tuplet = mxlVoiceToTuplet.getOrDefault(note.getVoice(), 0);/* TODO
                         for (final var notation : note.getNotations()) {
                             for (final var tiedOrSlurOrTuplet : notation.getTiedOrSlurOrTuplet()) {
                                 if (tiedOrSlurOrTuplet instanceof final Articulations articulations) {
@@ -241,7 +244,7 @@ public final class MxlMeasure {
                                 }
                             }
                         }
-                        ftmNote.setTuplet(tuplet);
+                        ftmNote.setTuplet(tuplet);*/
 //                        fillNote(mxlChannel, mxlRowIndex, mxlRowIndex + rows, ftmNote); TODO
                     }
                     if (isTriplet) {
