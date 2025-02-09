@@ -2339,6 +2339,125 @@ division / staffs / min. : 8 / 4 / 02:32
         return structure;
     }
 
+    private static Structure ifTheMoonCouldSpeak(BlockDatasetVersion version, String inputFilePath) throws Exception {
+/*
+sequences : 5
+(0) path : D:\Sync\Ongakucraft\midi\如果月亮會說話 - 王心凌\_.mid
+url : https://musescore.com/user/11147046/scores/21752872
+division / staffs / min. : 16 / 2 / 03:04
+	track : 0 [piano 1]
+	ticks/start/end : 539 / 0 / 170
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |      |      |      |      |      |      |  379 |      |  160 |      |      |      |
+	track : 1 []
+	ticks/start/end : 621 / 1 / 170
+		|  F#1 |      |  F#2 |      |  F#3 |      |  F#4 |      |  F#5 |      |  F#6 |      |  F#7 |
+		|      |   70 |      |  191 |      |  326 |      |   34 |      |      |      |      |      |
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - ok/fail count : 1 / 0
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - -------------------------------------------------
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - path : D:\Sync\Ongakucraft\midi\如果月亮會說話 - 王心凌\_.mid
+url : https://musescore.com/user/11147046/scores/21752872
+division / staffs / min. : 16 / 2 / 03:04
+
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 67- 87/512
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  1/ 76- 79/ 27
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 39- 68/498
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 58- 68/122
+[main] INFO com.ongakucraft.app.data.MidiLoadingApp - id/min-max/count :  3/ 62- 62/  1
+
+/function ongakucraft:set_circuit
+/tp @a 29 -47 -6 0 24
+/scoreboard players set @a ticks 1
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
+/execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
+
+/execute if entity @e[scores={ticks=1..2870}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..2870}] as @a at @s run tp @s ~ ~ ~0.5 0 24
+/execute if entity @e[scores={ticks=2860..2870}] as @a at @s run scoreboard players set @a ticks 0
+*/
+        final var blockDataset = DataLoadingApp.loadBlockDataset(version);
+        final var midiFile = MidiReader.read(inputFilePath);
+        final var midiFileReport = MidiFileReport.of(midiFile);
+        final var music = Music16.of(midiFileReport, 1, 8, 100, 4);
+        final var sequenceList = music.getSequenceList();
+
+        final List<Structure> circuits = new ArrayList<>();
+        final CircuitBuilder rightBuilderC0 = CheckPatternBuilder.of(blockDataset, true, 0, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderC1 = CheckPatternBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder rightBuilderS0 = SquareWaveBuilder.of(blockDataset, true, 0, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderS0 = SquareWaveBuilder.of(blockDataset, false, 0, "barrier", "redstone_lamp");
+
+        final int[][] groups = {
+                {0}, {1},
+                {2}, {3}, {4},
+                {0}, {1},
+                {2}, {3}, {4},
+                {0}, {1},
+                {2}, {3}, {4}
+        };
+        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
+        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final NoteConvertor[][] convertors = {
+                {convertor0}, {convertor0},
+                {convertor1}, {convertor1}, {convertor1},
+                {convertor0}, {convertor0},
+                {convertor1}, {convertor1}, {convertor1},
+                {convertor0}, {convertor0},
+                {convertor1}, {convertor1}, {convertor1}
+        };
+        final CircuitBuilder[] builders = {
+                leftBuilderS0, rightBuilderS0,
+                rightBuilderC0, rightBuilderS0, rightBuilderC0,
+                rightBuilderC0, rightBuilderC0,
+                rightBuilderC0, rightBuilderC0, rightBuilderC0,
+                leftBuilderC1, leftBuilderC1,
+                leftBuilderC1, leftBuilderC1, leftBuilderC1
+        };
+        for (var i = 0; i < groups.length; ++i) {
+            final List<List<Note>> subSequenceList = new ArrayList<>();
+            final var group = groups[i];
+            for (var j = 0; j < group.length; ++j) {
+                final var noteConvertor = convertors[i][j];
+                subSequenceList.add(noteConvertor.convert(sequenceList.get(group[j])));
+            }
+            final var struct = builders[i].generate(subSequenceList);
+            struct.regulate();
+            circuits.add(struct);
+        }
+
+        final var sideOffset = 20;
+        final var frontOffset = 10;
+        final var heads = List.of(
+                Position.of(-2, 3, 0), Position.of(2, 3, 0),
+                Position.of(-3, 0, 0), Position.of(0, 0, 0), Position.of(4, 0, 0),
+                Position.of(-sideOffset - 5, -1, frontOffset), Position.of(-sideOffset - 5, 4, frontOffset),
+                Position.of(-sideOffset - 8, -3, frontOffset + 4), Position.of(-sideOffset - 8, 2, frontOffset + 4), Position.of(-sideOffset - 8, 7, frontOffset + 4),
+                Position.of(sideOffset + 6, -1, frontOffset), Position.of(sideOffset + 6, 4, frontOffset),
+                Position.of(sideOffset + 9, -3, frontOffset + 4), Position.of(sideOffset + 9, 2, frontOffset + 4), Position.of(sideOffset + 9, 7, frontOffset + 4)
+        );
+
+        var structure = new Structure();
+        for (var i = 0; i < circuits.size(); ++i) {
+            final var circuit = circuits.get(i).clone();
+            final var head = heads.get(i);
+            circuit.translate(head);
+            structure.paste(circuit);
+        }
+        structure.regulate();
+
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+
+        final var outputFilePath = String.format("%s/%s/structure/if-the-moon-could-speak.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
+        final var nbtWriter = NbtWriter.of(VERSION);
+        nbtWriter.write(structure, outputFilePath);
+
+        log.info("range3 : {}", structure.getRange3());
+        return structure;
+    }
+
     public static void main(String[] args) {
         try {
             final var nbtWriter = NbtWriter.of(VERSION);
@@ -2428,9 +2547,13 @@ division / staffs / min. : 8 / 4 / 02:32
 //            final var structure = shunkanHeartbeat(VERSION, inputFilePath);
 //            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case69c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
 
-            final var inputFilePath = String.format("%s/input/Halo Reach - Ghosts and Glass/Ghosts_and_Glass.mid", ROOT_DIR_PATH);
-            final var structure = ghostsAndGlass(VERSION, inputFilePath);
-            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case70c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+//            final var inputFilePath = String.format("%s/input/Halo Reach - Ghosts and Glass/Ghosts_and_Glass.mid", ROOT_DIR_PATH);
+//            final var structure = ghostsAndGlass(VERSION, inputFilePath);
+//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case70c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+
+            final var inputFilePath = String.format("%s/input/如果月亮會說話 - 王心凌/_.mid", ROOT_DIR_PATH);
+            final var structure = ifTheMoonCouldSpeak(VERSION, inputFilePath);
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\Test World 202\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }
