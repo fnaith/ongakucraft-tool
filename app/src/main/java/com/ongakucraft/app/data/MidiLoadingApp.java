@@ -265,7 +265,8 @@ public final class MidiLoadingApp {
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Blue Archive - Unwelcome School";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\ReGLOSS - Shunkan Heartbeat";
 //            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\Halo Reach - Ghosts and Glass";
-            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\如果月亮會說話 - 王心凌";
+//            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\如果月亮會說話 - 王心凌";
+            final var rootDirPath = "D:\\Sync\\Ongakucraft\\midi\\BABEL - Arknights";
 
             final var reportIndex = 0;
             final var timeScale = 1;
