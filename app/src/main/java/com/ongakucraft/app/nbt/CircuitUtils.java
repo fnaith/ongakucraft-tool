@@ -2486,19 +2486,19 @@ division / staffs / min. : 16 / 2 / 01:46
 /execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:redstone_block
 /execute as @e[type=minecraft:item_frame] at @s run setblock ~ ~1 ~ minecraft:air
 
-/execute if entity @e[scores={ticks=1..2870}] run scoreboard players add @a ticks 1
-/execute if entity @e[scores={ticks=21..2870}] as @a at @s run tp @s ~ ~ ~0.5 0 24
-/execute if entity @e[scores={ticks=2860..2870}] as @a at @s run scoreboard players set @a ticks 0
+/execute if entity @e[scores={ticks=1..1644}] run scoreboard players add @a ticks 1
+/execute if entity @e[scores={ticks=21..1644}] as @a at @s run tp @s ~ ~ ~0.5 0 24
+/execute if entity @e[scores={ticks=1644..1654}] as @a at @s run scoreboard players set @a ticks 0
 */
         final var blockDataset = DataLoadingApp.loadBlockDataset(version);
         final var midiFile = MidiReader.read(inputFilePath);
         final var midiFileReport = MidiFileReport.of(midiFile);
-        final var music = Music16.of(midiFileReport, 1, 8, 100, 4);
+        final var music = Music16.of(midiFileReport, 1, 8, 6, 4);
         final var sequenceList = music.getSequenceList();
 
         final List<Structure> circuits = new ArrayList<>();
         final CircuitBuilder rightBuilderC0 = CheckPatternBuilder.of(blockDataset, true, 0, "barrier", "redstone_lamp");
-        final CircuitBuilder leftBuilderC1 = CheckPatternBuilder.of(blockDataset, false, 1, "barrier", "redstone_lamp");
+        final CircuitBuilder leftBuilderC1 = CheckPatternBuilder.of(blockDataset, false, 0, "barrier", "redstone_lamp");
         final CircuitBuilder rightBuilderS0 = SquareWaveBuilder.of(blockDataset, true, 0, "barrier", "redstone_lamp");
         final CircuitBuilder leftBuilderS0 = SquareWaveBuilder.of(blockDataset, false, 0, "barrier", "redstone_lamp");
 
@@ -2506,17 +2506,31 @@ division / staffs / min. : 16 / 2 / 01:46
                 {0}, {1},
                 {2}, {3}, {4},
                 {5}, {6},
+                {0}, {1},
+                {2}, {3}, {4},
+                {5}, {6}
         };
-        final var convertor0 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
-        final var convertor1 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.HARP);
+        final var convertor00 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
+        final var convertor01 = FindFirstInstrumentNoteConvertor.of(0, Instrument.HARP, Instrument.BELL);
+        final var convertor02 = FindFirstInstrumentNoteConvertor.of(0, Instrument.IRON_XYLOPHONE, Instrument.BELL);
+        final var convertor03 = FindFirstInstrumentNoteConvertor.of(0, Instrument.FLUTE);
+        final var convertor04 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BELL);
+        final var convertor10 = FindFirstInstrumentNoteConvertor.of(0, Instrument.BASS, Instrument.GUITAR);
+        final var convertor11 = FindFirstInstrumentNoteConvertor.of(0, Instrument.GUITAR, Instrument.HARP);
         final NoteConvertor[][] convertors = {
-                {convertor0}, {convertor0},
-                {convertor0}, {convertor0}, {convertor0},
-                {convertor1}, {convertor1}
+                {convertor00}, {convertor01}, {convertor02},
+                {convertor03}, {convertor04},
+                {convertor10}, {convertor11},
+                {convertor00}, {convertor01}, {convertor02},
+                {convertor03}, {convertor04},
+                {convertor10}, {convertor11}
         };
         final CircuitBuilder[] builders = {
-                rightBuilderC0, rightBuilderC0,
+                leftBuilderC1, leftBuilderC1, leftBuilderC1,
+                leftBuilderC1, leftBuilderC1,
+                leftBuilderC1, leftBuilderC1,
                 rightBuilderC0, rightBuilderC0, rightBuilderC0,
+                rightBuilderC0, rightBuilderC0,
                 rightBuilderC0, rightBuilderC0
         };
         for (var i = 0; i < groups.length; ++i) {
@@ -2531,12 +2545,13 @@ division / staffs / min. : 16 / 2 / 01:46
             circuits.add(struct);
         }
 
-        final var sideOffset = 20;
-        final var frontOffset = 10;
         final var heads = List.of(
-                Position.of(0, 0, 0), Position.of(0, 3, 0),
-                Position.of(3, 0, 0), Position.of(3, 3, 0), Position.of(3, 6, 0),
-                Position.of(6, 0, 0), Position.of(6, 3, 0)
+                Position.of(1, 0, 0), Position.of(4, 0, 6), Position.of(7, 0, 14),
+                Position.of(5, -3, 6), Position.of(8, -6, 14),
+                Position.of(5, 3, 6), Position.of(8, 6, 14),
+                Position.of(-1-1, 0, 0), Position.of(-1-4, 0, 6), Position.of(-1-7, 0, 14),
+                Position.of(-1-5, -3, 6), Position.of(-1-8, -6, 14),
+                Position.of(-1-5, 3, 6), Position.of(-1-8, 6, 14)
         );
 
         var structure = new Structure();
@@ -2548,8 +2563,8 @@ division / staffs / min. : 16 / 2 / 01:46
         }
         structure.regulate();
 
-        final var range3 = structure.getRange3();
-        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
+//        final var range3 = structure.getRange3();
+//        structure = structure.cut(Range3.of(range3.getX(), range3.getY(), Range.of(50)));
 
         final var outputFilePath = String.format("%s/%s/structure/babel.nbt", ROOT_DIR_PATH, VERSION.getMcVersion());
         final var nbtWriter = NbtWriter.of(VERSION);
@@ -2658,7 +2673,7 @@ division / staffs / min. : 16 / 2 / 01:46
 
             final var inputFilePath = String.format("%s/input/BABEL - Arknights/Arknights__BABEL_OST_for_piano_and_orchestrating-clean.mid", ROOT_DIR_PATH);
             final var structure = babel(VERSION, inputFilePath);
-//            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\Test World 202\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
+            nbtWriter.write(structure, "C:\\Users\\fnaith\\AppData\\Roaming\\.minecraft\\saves\\case72c1\\datapacks\\ongakucraft\\data\\ongakucraft\\structures\\demo.nbt");
         } catch (Exception e) {
             log.error("CircuitUtils", e);
         }
